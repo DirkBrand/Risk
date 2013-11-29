@@ -1,0 +1,98 @@
+name Original Risk
+pic riskOriginalMap.png
+
+continents 6
+North_America 3 5
+South_America 2 2
+Europe 8 5
+Australia 1 2
+Africa 6 3
+Asia 8 7
+
+territories 42
+1 Alaska 1 65 105
+2 Northwest_Territory 1 169 90
+3 Greenland 1 264 81
+4 Alberta 1 127 145
+5 Ontario 1 167 135
+6 Eastern_Canada 1 213 159
+7 Western_United_States 1 122 209
+8 Eastern_United_States 1 155 220
+9 Central_America 1 146 247
+10 Venezuela 2 177 317
+11 Brazil 2 257 361
+12 Argentina 2 206 431
+13 Peru 2 209 374
+14 Iceland 3 342 112
+15 Great_Britian 3 303 182
+16 Scandinavia 3 385 123
+17 Russia 3 466 133
+18 Northern_Europe 3 397 174
+19 Southern_Europe 3 404 241
+20 Western_Europe 3 346 228
+21 Indonesia 4 633 371
+22 New_Guinea 4 690 370
+23 Eastern_Australia 4 688 424
+24 Western_Australia 4 651 438
+25 North_Africa 5 363 345
+26 Egypt 5 397 304
+27 East_Africa 5 465 370
+28 Central_Africa 5 415 377
+29 South_Africa 5 424 465
+30 Madagascar 5 495 468
+31 Middle_East 6 474 286
+32 India 6 560 285
+33 China 6 611 255
+34 Southeast_Asia 6 634 313
+35 Afghanistan 6 528 221
+36 Mongolia 6 647 193
+37 Japan 6 711 179
+38 Ural 6 537 151
+39 Siberia 6 580 117
+40 Yakutsk 6 631 86
+41 Kamchatka 6 676 96
+42 Irkutsk 6 615 156
+
+borders
+1 2 4 41
+2 1 3 4 5
+3 2 5 6 14
+4 1 2 5 7
+5 2 3 4 6 7 8
+6 3 5 8
+7 4 5 8 9
+8 5 6 7 9
+9 7 8 10
+10 9 11 13
+11 10 12 13 25
+12 11 13
+13 10 11 12
+14 3 15 16
+15 14 16 18
+16 14 15 17 18
+17 16 18 19 35 31 38
+18 16 19 20 15 17
+19 18 17 20 31 26 25
+20 25 19 18
+21 24 34 22
+22 21 23 24
+23 22 24
+24 21 23 22
+25 11 20 19 26 27 28
+26 19 31 25 27
+27 25 26 28 29 30 31
+28 25 27 29
+29 28 27 30
+30 29 27
+31 17 19 26 27 35 32
+32 31 35 33 34
+33 34 32 35 38 39 36
+34 32 33 21
+35 17 31 38 32 33
+36 33 42 37 39
+37 36 41
+38 17 35 39 33
+39 38 33 36 42 40
+40 39 41 42
+41 36 37 40 42 1
+42 39 36 40 41
