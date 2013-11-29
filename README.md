@@ -9,6 +9,7 @@ If anyone would like to sponsor some Bitcoin for further projects in Monte Carlo
 
 
 USAGE:
+
 Launch the RiskServer.jar to start the facilitator that waits for connections.
 Launch the RiskClient.jar to start the client application that connects to the server.
 
