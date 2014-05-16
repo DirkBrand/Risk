@@ -206,7 +206,7 @@ public class AIUtil {
 		if (source.getNrTroops() - number < 1) {
 			System.out.println("WTF WTF");
 			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-			    System.out.println(ste);
+				System.out.println(ste);
 			}
 		}
 		if (dest == null) {
@@ -254,7 +254,7 @@ public class AIUtil {
 
 	// Sums weighted features of the board state
 	// (Linear evaluation function)
-	public static double eval(GameTreeNode node, double[] weights) {
+	public static double eval(GameTreeNode node, double[] weights, int maxRecruitable) {
 
 		if (isTerminalNode(node)) {
 			if (node.isMaxPlayer())
@@ -307,22 +307,27 @@ public class AIUtil {
 		// System.out.println("FEATURES");
 		// Features
 		if (usage[0] && weights[0] != 0)
+			// 0-1
 			attackFeature = AIFeatures.armyStrength(node);
 		// System.out.println(1);
 
 		if (usage[1] && weights[1] != 0)
+			// 0-1
 			bestEnemyFeature = AIFeatures.enemyStrength(node);
 		// System.out.println(2);
 
 		if (usage[2] && weights[2] != 0)
+			// 0-1
 			moreThanOneTroopFeature = AIFeatures.fortifiedTerritories(node);
 		// System.out.println(3);
 
 		if (usage[3] && weights[3] != 0)
+			// 0-1
 			hinterlandFeature = AIFeatures.hinterlandStrength(node);
 		// System.out.println(4);
 
 		if (usage[4] && weights[4] != 0)
+			// 0-1
 			distanceToFrontierFeature = AIFeatures.distanceToFrontier(node);
 		// System.out.println(5);
 
@@ -335,6 +340,7 @@ public class AIUtil {
 		// System.out.println(7);
 
 		if (usage[7] && weights[7] != 0)
+			// 1->
 			enemyRecruitFeature = AIFeatures.enemyRecruitFeature(node);
 		// System.out.println(8);
 
@@ -344,10 +350,12 @@ public class AIUtil {
 		// System.out.println(9);
 
 		if (usage[9] && weights[9] != 0)
+			// 0-1
 			maximumThreatFeature = AIFeatures.maximumThreatFeature(node);
 		// System.out.println(10);
 
 		if (usage[10] && weights[10] != 0)
+			// 0-1
 			occupiedTerritoryFeature = AIFeatures
 					.occupiedTerritoryFeature(node);
 		// System.out.println(11);
@@ -361,6 +369,14 @@ public class AIUtil {
 					.ownOccupiedContinentsFeature(node);
 		// System.out.println(13);
 
+		// NORMALIZATION
+		AIParameter params = new AIParameter();
+		enemyRecruitFeature/=maxRecruitable;
+		enemyOccupiedContinentsFeature/=node.getGame().getAllContinents().length;
+		ownRecruitFeature/=maxRecruitable;
+		ownOccupiedContinentsFeature/=node.getGame().getAllContinents().length;
+		
+		
 		// Add up features
 		double sum = weights[0] * attackFeature // 1
 				+ weights[1] * bestEnemyFeature // 2
@@ -379,6 +395,7 @@ public class AIUtil {
 		return sum + r.nextDouble() * 0.00001; // To break Ties
 
 	}
+
 
 	public static int genRoll() {
 		Random rand = new Random();

@@ -100,14 +100,15 @@ public class AIFeatures {
 	// Distance to frontier feature :
 	// Measures army distribution throughout player's territories
 	public static double distanceToFrontier(GameTreeNode node) {
-		double totalArmies = node.getGame().getCurrentPlayer().getTerritories()
-				.size();
+		double totalArmies = 0;
 
 		int sum = 0;
 		Iterator<Territory> it = node.getGame().getCurrentPlayer()
 				.getTerritories().values().iterator();
+		
 		while (it.hasNext()) {
 			Territory t = it.next();
+			totalArmies += t.getNrTroops();
 			int d = AIUtil.distance(node, t);
 			sum += t.getNrTroops() * d;
 		}
@@ -169,7 +170,7 @@ public class AIFeatures {
 			}
 		}
 
-		return -sum;
+		return sum;
 	}
 
 	/********************************************************/
@@ -258,7 +259,7 @@ public class AIFeatures {
 		if (n < 1 || n >= 1000000)
 			n = 1;
 
-		return (double) (-n);
+		return (double) n;
 	}
 
 	/********************************************************/
@@ -292,7 +293,7 @@ public class AIFeatures {
 			}
 		}
 		
-		return -(double)count;
+		return (double)count;
 	}
 	
 	/********************************************************/

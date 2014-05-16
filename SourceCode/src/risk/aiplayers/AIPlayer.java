@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import risk.aiplayers.util.AIProtocolManager;
+import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Continent;
 import risk.commonObjects.GameState;
@@ -49,6 +51,7 @@ public abstract class AIPlayer {
 	public boolean stillRunning = false;
 
 	public int numberOfMovesTaken = 0;
+	public int maxRecruitable = Integer.MAX_VALUE;
 	
 	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/];
 	public static long ZobristPlayerFactor[/*Who's turn*/];
@@ -218,10 +221,29 @@ public abstract class AIPlayer {
 
 		loadMap(getMapLocation(mapName));
 		setupContinents();
+		setMaxRecruitable();
+		
 		
 		initializeZobrist();
 	}
 
+	public void setMaxRecruitable() {
+		int n = 0;
+
+		// Total possible Territory Bonus
+		n += (int) (territories.length / 3);
+
+		// Continent Bonus
+		int[] contBuckets = new int[game.getAllContinents().length];
+		Arrays.fill(contBuckets, 0);
+
+		for (int i = 0; i < contBuckets.length; i++) {
+			n += game.getAllContinents()[i].getBonus();
+		}
+
+		maxRecruitable = n;
+	}
+	
 	private void initializeZobrist() {
 		Random r = new Random();
 		int maxNumberOfTroops = 50;

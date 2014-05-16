@@ -42,6 +42,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		super(EMM_AI, name, opp, map, id);
 
 		params = new AIParameter();
+		
 
 		this.maxDepth = depth;
 
@@ -509,7 +510,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 			return value;
 		} else {
 			missedIt++;
-			value = AIUtil.eval(node, params.evalWeights);
+			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
 			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
 					ZobristPlayerFactor), value);
 			return value;

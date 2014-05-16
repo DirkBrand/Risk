@@ -1,5 +1,6 @@
 package risk.aiplayers.util;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class AIParameter {
@@ -62,11 +63,14 @@ public class AIParameter {
 	
 	public double evalWeights[] = new double[]{11.6225,1.7275,-23.65,-6.49,31.41,3.6625,4.345,31.915,-4.74,19.905,5.695,37.51,1.8775};
 
+	
 	// Setters
 	public void setFPU(double fpu) {
 		this.fpu = fpu;
 	}
-
+	
+	
+	
 	public void setC(double c) {
 		this.c = c;
 	}
