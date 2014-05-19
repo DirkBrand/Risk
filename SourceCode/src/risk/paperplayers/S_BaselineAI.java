@@ -10,7 +10,7 @@ import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
-public class BaselineAI extends AIPlayer {
+public class S_BaselineAI extends AIPlayer {
 
 
 	int whereRecruitedId;
@@ -23,10 +23,10 @@ public class BaselineAI extends AIPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 		
-		new BaselineAI(tempName, null, null, 2);
+		new S_BaselineAI(tempName, null, null, 2);
 	}
 
-	public BaselineAI(String name, String opp, String map, int id) {
+	public S_BaselineAI(String name, String opp, String map, int id) {
 		super(BASELINE_AI, name, opp, map, id);
 		// Communication
 		boolean goingToController = false;

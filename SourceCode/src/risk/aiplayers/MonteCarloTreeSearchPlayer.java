@@ -570,7 +570,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			return value;
 		} else {
 			missedIt++;
-			value = AIUtil.eval(node, params.evalWeights);
+			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
 			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
 					ZobristPlayerFactor), value);
 			return value;

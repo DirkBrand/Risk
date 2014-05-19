@@ -90,14 +90,14 @@ public class EMMGreedyAI extends ExpectiminimaxPlayer {
 						current = it.next();
 					}
 				}
-				double value = AIUtil.eval(node, weights);
+				double value = AIUtil.eval(node, weights, maxRecruitable);
 				if (value > maxRating) {
 					maxRating = value;
 					maxChild = node;
 				}
 			}
 
-			double rating = AIUtil.eval(maxChild, weights);
+			double rating = AIUtil.eval(maxChild, weights, maxRecruitable);
 
 			if (rating > maximum) {
 				bestGame = maxChild.getGame();
@@ -125,7 +125,7 @@ public class EMMGreedyAI extends ExpectiminimaxPlayer {
 		EMMNode noAttackNode = new EMMNode();
 		noAttackNode.setGame(game.clone());
 		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
-		noAttackNode.setValue(AIUtil.eval(noAttackNode, weights));
+		noAttackNode.setValue(AIUtil.eval(noAttackNode, weights, maxRecruitable));
 		noAttackNode.setAttackSource("");
 		noAttackNode.setAttackDest("");
 		attackTerCombos.add(noAttackNode);

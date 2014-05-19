@@ -2,17 +2,17 @@ package risk.paperplayers;
 
 import risk.aiplayers.util.MCTSNode;
 
-public class MCTS_Advanced_playout_AI extends MCTS_Naive_AI {
+public class S_MCTS_Explore_AI extends S_MCTS_Naive_AI {
 
 	int playoutsForMCTS;
 
 	public static void main(String[] args) {
 		String tempName = args[0];
 		int playouts = Integer.parseInt(args[1]);
-		new MCTSFairExpansion_playout_AI(tempName, null, null, 2, playouts);
+		new S_MCTS_Explore_AI(tempName, null, null, 2, playouts);
 	}
 
-	public MCTS_Advanced_playout_AI(String name, String opp, String map,
+	public S_MCTS_Explore_AI(String name, String opp, String map,
 			int id, int playouts) {
 		super(name, opp, map, id, 0);
 

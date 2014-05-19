@@ -16,7 +16,7 @@ import risk.aiplayers.util.GameTreeNode;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
-public class EMM_FairExpansion_AI extends ExpectiminimaxPlayer {
+public class S_EMM_AI extends ExpectiminimaxPlayer {
 
 
 	public static void main(String[] args) {
@@ -25,10 +25,10 @@ public class EMM_FairExpansion_AI extends ExpectiminimaxPlayer {
 		if (args.length > 1) {
 			depth = Integer.parseInt(args[1]);
 		}
-		new EMM_FairExpansion_AI(tempName, null, null, 2, depth);
+		new S_EMM_AI(tempName, null, null, 2, depth);
 	}
 
-	public EMM_FairExpansion_AI(String name, String opp, String map, int id,
+	public S_EMM_AI(String name, String opp, String map, int id,
 			int depth) {
 		super(name, opp, map, id, depth);
 

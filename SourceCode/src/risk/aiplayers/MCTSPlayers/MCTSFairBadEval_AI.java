@@ -35,7 +35,7 @@ public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 			return value;
 		} else {
 			missedIt++;
-			value = AIUtil.eval(node, weights);
+			value = AIUtil.eval(node, weights, maxRecruitable);
 			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
 					ZobristPlayerFactor), value);
 			return value;
