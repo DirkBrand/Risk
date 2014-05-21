@@ -33,15 +33,18 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 
 	protected int foundIt = 0;
 	protected int missedIt = 0;
+	
+	public double weights[];
 
 	protected HashMap<Long, Double> NodeValues = new HashMap<Long, Double>();
 
 	public ExpectiminimaxPlayer(String name, String opp, String map, int id,
-			int depth) {
+			int depth, double [] weights) {
 
 		super(EMM_AI, name, opp, map, id);
 
 		params = new AIParameter();
+		this.weights = weights;
 		
 
 		this.maxDepth = depth;

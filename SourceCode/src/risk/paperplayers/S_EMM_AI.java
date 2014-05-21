@@ -10,6 +10,7 @@ import java.util.Random;
 
 import risk.aiplayers.ExpectiminimaxPlayer;
 import risk.aiplayers.util.AIFeatures;
+import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
 import risk.aiplayers.util.GameTreeNode;
@@ -30,7 +31,7 @@ public class S_EMM_AI extends ExpectiminimaxPlayer {
 
 	public S_EMM_AI(String name, String opp, String map, int id,
 			int depth) {
-		super(name, opp, map, id, depth);
+		super(name, opp, map, id, depth, AIParameter.evalWeights);
 
 	}
 

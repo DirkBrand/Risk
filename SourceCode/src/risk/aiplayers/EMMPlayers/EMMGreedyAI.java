@@ -25,7 +25,6 @@ import risk.commonObjects.Territory;
 
 public class EMMGreedyAI extends ExpectiminimaxPlayer {
 
-	private double[] weights;
 
 	public static void main(String[] args) {
 		String tempName = args[0];
@@ -39,9 +38,8 @@ public class EMMGreedyAI extends ExpectiminimaxPlayer {
 
 	public EMMGreedyAI(String name, String opp, String map, int id,
 			double[] weights) {
-		super(name, opp, map, id, 1);
+		super(name, opp, map, id, 1, weights);
 
-		this.weights = weights;
 	}
 
 	@Override

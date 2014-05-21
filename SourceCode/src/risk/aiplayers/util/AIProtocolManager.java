@@ -21,7 +21,7 @@ public class AIProtocolManager {
 
 	public BufferedReader input;
 	public PrintWriter output;
- 
+
 	final LinkedList<String> BLANK_ARGS = new LinkedList<String>();
 
 	AIPlayer ai;
@@ -45,7 +45,7 @@ public class AIProtocolManager {
 			e.printStackTrace();
 		}
 
-		//cleanFile();
+		cleanFile();
 
 	}
 
@@ -67,6 +67,8 @@ public class AIProtocolManager {
 		lastID = id;
 		if (message.length() == 0)
 			return;
+		
+		//System.out.println(ai.getName() + " - Received: " + message);
 
 		switch (message) {
 		case "name": {
@@ -170,7 +172,7 @@ public class AIProtocolManager {
 
 			if (ai.moveAfterAttackRequired)
 				justMoved = false;
-			
+
 			sendSuccess(id, message, BLANK_ARGS);
 			break;
 		}
@@ -217,10 +219,10 @@ public class AIProtocolManager {
 			if (args.size() > 0) {
 				System.out.println(args.get(0));
 			}
-			//System.out.println(ai.getName() + " - "  + ai.numberOfMovesTaken);
+			// System.out.println(ai.getName() + " - " + ai.numberOfMovesTaken);
 
 			sendSuccess(id, message, BLANK_ARGS);
-			
+
 			ai.stillRunning = false;
 			break;
 		}
@@ -232,7 +234,7 @@ public class AIProtocolManager {
 		}
 
 		if (!message.equals("name") && !message.equals("start_choices")) {
-			// writeGameState(message, args);
+			//writeGameState(message, args);
 		}
 
 	}
@@ -259,21 +261,20 @@ public class AIProtocolManager {
 						+ t.getNrTroops() + "\n");
 				count1 += t.getNrTroops();
 			}
-			bufferedWriter.write("\n"
-					+ count1 + "\n");
+			bufferedWriter.write("\n" + count1 + "\n");
 
 			bufferedWriter.write("\n"
 					+ ai.getGameState().getOtherPlayer().getName()
 					+ " Territories\n\n");
-			it = ai.getGameState().getOtherPlayer().getTerritories().values().iterator();
+			it = ai.getGameState().getOtherPlayer().getTerritories().values()
+					.iterator();
 			while (it.hasNext()) {
 				Territory t = it.next();
 				bufferedWriter.write(t.getId() + " " + t.getName() + " - "
 						+ t.getNrTroops() + "\n");
 				count2 += t.getNrTroops();
 			}
-			bufferedWriter.write("\n"
-					+ count2 + "\n");
+			bufferedWriter.write("\n" + count2 + "\n");
 
 			bufferedWriter.close();
 
@@ -313,7 +314,7 @@ public class AIProtocolManager {
 		if (controllerSocket != null && !controllerSocket.isClosed()) {
 			output.println(mes);
 		}
-		//System.out.println(mes);
+		// System.out.println(mes);
 	}
 
 	public int getMesID() {

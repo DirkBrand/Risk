@@ -54,7 +54,7 @@ public class ControllerProtocolManager {
 
 		clients = new LinkedList<ConnectedPlayer>();
 		channels = new LinkedList<CommunicationThread>();
-		//cleanFile();
+		cleanFile();
 
 		}
 		
@@ -91,7 +91,7 @@ public class ControllerProtocolManager {
 				}
 			}
 		}
-		//System.out.println(cp.getName() + " connected to the Controller!");
+		System.out.println(cp.getName() + " connected to the Controller!");
 		
 		clients.add(cp);
 		CommunicationThread ct = new CommunicationThread(cp);
@@ -195,8 +195,8 @@ public class ControllerProtocolManager {
 		 * 1) + " expected, " + messageID + " received.");
 		 */
 
-		/*System.out.println(">> I received " + messageFromClient + " from <"
-				+ cp.getName() + "> with args: " + arguments.toString());*/
+		//System.out.println(">> I received " + messageFromClient + " from <"
+				//+ cp.getName() + "> with args: " + arguments.toString());
 		
 		switch (messageFromClient) {
 
@@ -411,7 +411,8 @@ public class ControllerProtocolManager {
 		@Override
 		public void run() {
 			try {
-				while ((line = input.readLine()) != null) {
+				line = input.readLine();
+				while (line != null) {
 					i = 0;
 					
 					int messageID = 0;
@@ -489,12 +490,14 @@ public class ControllerProtocolManager {
 							processError(messageID, err);
 					}
 
+					line = input.readLine();
+
 				}
 
-				//System.out.println("Controller Protocol Thread Over");
+				System.out.println("Controller Protocol Thread Over");
 
 			} catch (Exception se) {
-				//System.out.println("Connection Closed");
+				System.out.println("Connection Closed");
 				for (ConnectedPlayer cp : clients) {
 					cp.closeAll();
 				}

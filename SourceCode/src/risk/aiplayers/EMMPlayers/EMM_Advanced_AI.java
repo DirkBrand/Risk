@@ -29,7 +29,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 
 	public EMM_Advanced_AI(String name, String opp, String map, int id,
 			int depth) {
-		super(name, opp, map, id, depth);
+		super(name, opp, map, id, depth, AIParameter.evalWeights);
 		params = new AIParameter();
 
 	}

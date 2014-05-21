@@ -310,11 +310,11 @@ public class ControllerLogic {
 
 		if (d.getNrTroops() == 1 && attackD[2] > defendD[1]) { // defender
 																// defeated
+			moveRequired = true;
 			d.decrementTroops();
 
 			transferTerritoryControl(d.getId(), game.getCurrentPlayer(),
 					game.getOtherPlayer());
-			moveRequired = true;
 
 			// The end of the game and the AI's have played
 			if (game.getOtherPlayer().getTerritories().size() == 0) {
@@ -332,11 +332,11 @@ public class ControllerLogic {
 
 			if (d.getNrTroops() != 1) {
 				if (attackD[1] <= defendD[0]) {
-					if (s.getNrTroops() != 1) {
+					if (s.getNrTroops() != 1 && attackD[1] != 0) {
 						s.decrementTroops();
 					}
 				} else {
-					if (d.getNrTroops() != 1) {
+					if (d.getNrTroops() != 1 && defendD[0] != 0) {
 						d.decrementTroops();
 					}
 				}
@@ -493,6 +493,7 @@ public class ControllerLogic {
 	}
 
 	public void nextTurn() {
+		
 		game.setPhase(GameState.RECRUIT);
 		game.changeCurrentPlayer();
 

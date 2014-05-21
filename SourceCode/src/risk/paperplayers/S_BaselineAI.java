@@ -14,8 +14,6 @@ public class S_BaselineAI extends AIPlayer {
 
 
 	int whereRecruitedId;
-	Territory lastAttackSource;
-	Territory lastAttackDestination;
 	
 	String line = "";
 	int ind = 0;

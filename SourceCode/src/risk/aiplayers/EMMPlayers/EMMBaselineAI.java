@@ -37,7 +37,7 @@ public class EMMBaselineAI extends ExpectiminimaxPlayer {
 	}
 
 	public EMMBaselineAI(String name, String opp, String map, int id, int depth) {
-		super(name, opp, map, id, depth);
+		super(name, opp, map, id, depth, AIParameter.evalWeights);
 
 	}
 

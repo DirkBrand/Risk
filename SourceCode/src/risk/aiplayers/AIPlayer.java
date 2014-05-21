@@ -419,7 +419,7 @@ public abstract class AIPlayer {
 
 		Territory s = game.getCurrentPlayer().getTerritoryByID(sID);
 		Territory d = game.getOtherPlayer().getTerritoryByID(dID);
-
+		
 		if (d.getNrTroops() == 1 && a3 > d2) { // defender defeated
 			moveAfterAttackRequired = true;
 			lastAttackSource = s;

@@ -1,6 +1,7 @@
 package risk.aiGameCoordinator;
 
 import risk.aiplayers.AIPlayer;
+import risk.aiplayers.EMMPlayers.EMMGreedyAI;
 import risk.paperplayers.S_BaselineAI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
@@ -38,7 +39,7 @@ public class GameCoordinatorForClop {
 		t1.start();
 
 		try {
-			Thread.sleep(200);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -94,6 +95,10 @@ public class GameCoordinatorForClop {
 			switch (ai1) {
 			case "BaselineAI": {
 				theAI = new S_BaselineAI(ai1, ai2, theMap, id);
+				break;
+			}
+			case "GreedyAI": {
+				theAI = new EMMGreedyAI(ai1, ai2, theMap, id, weights);
 				break;
 			}
 			case "EMMAI": {
