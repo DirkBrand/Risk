@@ -12,48 +12,32 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-import risk.aiplayers.BaselineAI;
-import risk.aiplayers.SubmissiveAI;
-import risk.aiplayers.EMMPlayers.EMMBaselineAI;
-import risk.aiplayers.EMMPlayers.EMMGreedyAI;
-import risk.aiplayers.EMMPlayers.EMM_Advanced_AI;
-import risk.aiplayers.EMMPlayers.EMM_FairExpansion_AI;
-import risk.aiplayers.EMMPlayers.EMM_Random_AI;
-import risk.aiplayers.MCTSPlayers.MCTSBaselineAI;
-import risk.aiplayers.MCTSPlayers.MCTSBaseline_playout_AI;
-import risk.aiplayers.MCTSPlayers.MCTSFairBadEval_AI;
-import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_AI;
-import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_playout_AI;
-import risk.aiplayers.MCTSPlayers.MCTSRandomAI;
-import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
-import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
+import risk.paperplayers.S_BaselineAI;
+import risk.paperplayers.S_EMM_AI;
+import risk.paperplayers.S_MCTS_AI;
+import risk.paperplayers.S_MCTS_Baseline_AI;
+import risk.paperplayers.S_MCTS_Explore_AI;
+import risk.paperplayers.S_MCTS_Naive_AI;
+import risk.paperplayers.S_SimulationAI;
 import Glicko2.Rating;
 import Glicko2.RatingCalculator;
 import Glicko2.RatingPeriodResults;
 
-public class GlickoGames { 
-	private static final boolean FROMPOOL = false;
+public class GlickoGames {
 	boolean firstDone = false;
 	boolean secondDone = false;
 
 	String map = "OriginalRiskMapFile.txt";
 
-	String[] allPlayers = new String[] { "SubmissiveAI", "BaselineAI",
-			"MCTS_Advanced_AI", "MCTS_Advanced_playout_AI", "MCTSRandomAI",
-			"MCTSBaselineAI", "MCTSBaseline_playout_AI",
-			"MCTSFairExpansion_AI", "MCTSFairExpansion_playout_AI", "EMMGreedyAI",
-			"EMM_Advanced_AI", "EMMBaselineAI", "MCTSFairBadEval_AI",
-			"EMM_FairExpansion_AI", "EMM_Random_AI" };
+	String[] allPlayers2 = new String[] { "BaselineAI", "EMMAI", "MCTSAI",
+			"MCTSExploreAI", "MCTSBaselineAI", "MCTSNaiveAI", "SimulationAI" };
+	
+	String[] allPlayers = new String[] { "BaselineAI", "MCTSAI", "MCTSBaselineAI", "SimulationAI" };
 
-	String[] pick_pool = new String[] { "MCTSBaseline_playout_AI",
-			"MCTS_Advanced_playout_AI", "MCTSBaselineAI", "EMMBaselineAI",
-			"EMM_FairExpansion_AI", "MCTSFairExpansion_playout_AI" };
-
-	double[] weights = new double[] { 11.6225, 1.7275, -23.65, -6.49, 31.41,
-			3.6625, 4.345, 31.915, -4.74, 19.905, 5.695, 37.51, 1.8775 };
+	String[] allPlayers4 = new String []{"BO1AI", "BO2AI", "BO5AI", "BO10AI", "BO20AI", "BO50AI", "BO100AI"};
+	
 	int timeForMCTS_Milliseconds = 2500;
-	int playoutsForMCTS = 1000;
-	int EMM_depth = 4;
+	int EMM_depth = 3;
 
 	Random r = new Random();
 
@@ -76,7 +60,7 @@ public class GlickoGames {
 		// manual();
 
 		old = System.out;
-
+		
 		int count = 0;
 		while (true) {
 			count++;
@@ -90,8 +74,9 @@ public class GlickoGames {
 			firstDone = false;
 			secondDone = false;
 
-			Rating[] bestPair = determineNextPlayers();
-			// Rating[] bestPair = randomPairing();
+			 //Rating[] bestPair = determineNextPlayers();
+			// Rating[] bestPair = determineMostUncertainPlayers();
+			 Rating[] bestPair = randomPairing();
 
 			String name1 = bestPair[0].getUid();
 			String name2 = bestPair[1].getUid();
@@ -141,7 +126,9 @@ public class GlickoGames {
 					results.addResult(bestPair[1], bestPair[0]);
 					writeWinLoss(bestPair[1], bestPair[0]);
 				}
+				System.err.println(result);	
 			} else {
+				System.err.println("DRAW");				
 				results.addDraw(bestPair[0], bestPair[1]);
 			}
 
@@ -162,13 +149,14 @@ public class GlickoGames {
 				baos.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+				System.exit(0);
 			}
 		}
 	}
 
 	private Rating[] randomPairing() {
 		LinkedList<Rating> poolList = new LinkedList<Rating>();
-		for (String s : pick_pool) {
+		for (String s : allPlayers) {
 			for (Rating r : playerRatingList) {
 				if (r.getUid().equalsIgnoreCase(s)) {
 					poolList.add(r);
@@ -266,24 +254,21 @@ public class GlickoGames {
 	}
 
 	private void initializePlayers() {
-		if (FROMPOOL) {
-			for (String player : pick_pool) {
-				playerRatingList.add(new Rating(player, ratingSystem));
-			}
-		} else {
-			for (String player : allPlayers) {
-				playerRatingList.add(new Rating(player, ratingSystem));
-			}
+
+		for (String player : allPlayers) {
+			playerRatingList.add(new Rating(player, ratingSystem));
 		}
 
 		loadRatings();
 	}
 
 	// Returns pair of players that should play next
-	private Rating[] determineNextPlayers() {
-		double minDiff = Double.POSITIVE_INFINITY;
+	private Rating[] determineMostUncertainPlayers() {
+		double maxSum = Double.NEGATIVE_INFINITY;
+
+		// Create a pool of ratings Objects
 		LinkedList<Rating> poolList = new LinkedList<Rating>();
-		for (String s : pick_pool) {
+		for (String s : allPlayers) {
 			for (Rating r : playerRatingList) {
 				if (r.getUid().equalsIgnoreCase(s)) {
 					poolList.add(r);
@@ -298,10 +283,43 @@ public class GlickoGames {
 				Rating X = poolList.get(i);
 				Rating Y = poolList.get(j);
 
+				double sum = X.getRatingDeviation() + Y.getRatingDeviation();
+
+				if (sum > maxSum) {
+					maxSum = sum;
+					bestPair[0] = X;
+					bestPair[1] = Y;
+				}
+
+			}
+		}
+
+		return bestPair;
+	}
+
+	// Returns pair of players that should play next
+	private Rating[] determineNextPlayers() {
+		double minDiff = Double.POSITIVE_INFINITY;
+		LinkedList<Rating> poolList = new LinkedList<Rating>();
+		for (String s : allPlayers) {
+			for (Rating r : playerRatingList) {
+				if (r.getUid().equalsIgnoreCase(s)) {
+					poolList.add(r);
+				}
+			}
+		}
+		
+		Rating[] bestPair = new Rating[2];
+
+		for (int i = 0; i < poolList.size() - 1; i++) {
+			for (int j = i + 1; j < poolList.size(); j++) {
+				Rating X = poolList.get(i);
+				Rating Y = poolList.get(j);
+
 				double diff = Math.abs(X.getRating() - Y.getRating())
 						/ Math.sqrt(Math.pow(X.getRatingDeviation(), 2)
 								+ Math.pow(Y.getRatingDeviation(), 2));
-
+				
 				if (diff < minDiff) {
 					minDiff = diff;
 					bestPair[0] = X;
@@ -339,78 +357,84 @@ public class GlickoGames {
 		@Override
 		public void run() {
 			// Start AI
-			switch (ai1) {
-			case "BaselineAI": {
-				new BaselineAI(ai1, ai2, theMap, id);
-				break;
-			}
-			case "SubmissiveAI": {
-				new SubmissiveAI(ai1, ai2, theMap, id);
-				break;
-			}
-			case "EMM_Advanced_AI": {
-				new EMM_Advanced_AI(ai1, ai2, theMap, id, EMM_depth);
-				break;
-			}
-			case "EMMBaselineAI": {
-				new EMMBaselineAI(ai1, ai2, theMap, id, EMM_depth);
-				break;
-			}
-			case "EMM_FairExpansion_AI": {
-				new EMM_FairExpansion_AI(ai1, ai2, theMap, id, EMM_depth);
-				break;
-			}
-			case "EMM_Random_AI": {
-				new EMM_Random_AI(ai1, ai2, theMap, id, EMM_depth);
-				break;
-			}
-			case "MCTS_Advanced_AI": {
-				new MCTS_Advanced_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTS_Advanced_playout_AI": {
-				new MCTS_Advanced_playout_AI(ai1, ai2, theMap, id,
-						playoutsForMCTS);
-				break;
-			}
-			case "MCTSFairExpansion_AI": {
-				new MCTSFairExpansion_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSFairExpansion_playout_AI": {
-				new MCTSFairExpansion_playout_AI(ai1, ai2, theMap, id,
-						playoutsForMCTS);
-				break;
-			}
-			case "MCTSFairBadEval_AI": {
-				new MCTSFairBadEval_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSRandomAI": {
-				new MCTSRandomAI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSBaselineAI": {
-				new MCTSBaselineAI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSBaseline_playout_AI": {
-				new MCTSBaseline_playout_AI(ai1, ai2, theMap, id,
-						playoutsForMCTS);
-				break;
-			}
-			case "EMMGreedyAI": {
-				new EMMGreedyAI(ai1, ai2, theMap, id, weights);
-				break;
-			}
-			default: {
-				System.out.println("Unknown AI: " + ai1);
-				break;
-			}
+			try {
+				switch (ai1) {
+				case "BaselineAI": {
+					new S_BaselineAI(ai1, ai2, theMap, id);
+					break;
+				}
+				case "SimulationAI": {
+					new S_SimulationAI(ai1, ai2, theMap, id);
+					break;
+				}
+				case "EMMAI": {
+					new S_EMM_AI(ai1, ai2, theMap, id, EMM_depth);
+					break;
+				}
+				case "MCTSAI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+				case "MCTSNaiveAI": {
+					new S_MCTS_Naive_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+				case "MCTSExploreAI": {
+					new S_MCTS_Explore_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+				case "MCTSBaselineAI": {
+					new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+
+				case "BO1AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 1);
+					break;
+				}
+				case "BO2AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 2);
+					break;
+				}
+				case "BO5AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 5);
+					break;
+				}
+				case "BO10AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 10);
+					break;
+				}
+				case "BO20AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 20);
+					break;
+				}
+				case "BO50AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 50);
+					break;
+				}
+				case "BO100AI": {
+					new S_MCTS_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds, 100);
+					break;
+				}
+				default: {
+					System.out.println("Unknown AI: " + ai1);
+					break;
+				}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(0);
 			}
 
 			Random r = new Random();

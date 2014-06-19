@@ -70,13 +70,17 @@ public class GameState extends AbstractGameState implements Cloneable {
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), 49);
-			key = key ^ ZobristArray[i++][troopNumber] ^ ZobristPlayerFactor[game.getCurrentPlayerID()];
+			long za = ZobristArray[i++][troopNumber];
+			long zpf = ZobristPlayerFactor[game.getCurrentPlayerID()];
+			key = key ^ za ^ zpf;
 		}
 		It = game.getPlayers().get(1).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), 49);
-			key = key ^ ZobristArray[i++][troopNumber] ^ ZobristPlayerFactor[game.getCurrentPlayerID()];
+			long za = ZobristArray[i++][troopNumber];
+			long zpf = ZobristPlayerFactor[game.getCurrentPlayerID()];
+			key = key ^ za ^ zpf;
 		}
 		return key;		
 	}

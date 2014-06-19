@@ -223,6 +223,12 @@ public class AIProtocolManager {
 
 			sendSuccess(id, message, BLANK_ARGS);
 
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			ai.stillRunning = false;
 			break;
 		}
@@ -234,7 +240,7 @@ public class AIProtocolManager {
 		}
 
 		if (!message.equals("name") && !message.equals("start_choices")) {
-			//writeGameState(message, args);
+		//writeGameState(message, args);
 		}
 
 	}

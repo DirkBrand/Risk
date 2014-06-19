@@ -21,7 +21,7 @@ public class S_BaselineAI extends AIPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 		
-		new S_BaselineAI(tempName, null, null, 2);
+			new S_BaselineAI(tempName, null, null, 2);
 	}
 
 	public S_BaselineAI(String name, String opp, String map, int id) {
@@ -101,6 +101,7 @@ public class S_BaselineAI extends AIPlayer {
 			} catch (SocketException e) {
 				System.err.println("Connection to server broken");
 				goingToController = false;
+				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 				goingToController = false;
@@ -154,6 +155,8 @@ public class S_BaselineAI extends AIPlayer {
 			whereRecruitedId = maxID;
 
 			Territory source = game.getCurrentPlayer().getTerritoryByName(maxName);
+			
+			// Resolve the recruitment
 			source.setNrTroops(source.getNrTroops() + numberOfTroops);
 			reply.add(source.getId() + "");
 			reply.add(source.getNrTroops() + "");

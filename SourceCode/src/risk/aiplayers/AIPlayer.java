@@ -69,6 +69,7 @@ public abstract class AIPlayer {
 	public final static int BASELINE_AI = 1;
 	public final static int EMM_AI = 2;
 	public final static int MCTS_AI = 3;
+	public final static int SIMULATION_AI = 4;
 
 	public AIPlayer(int type, String name, String opponent, String map, int id) {
 		stillRunning = true;

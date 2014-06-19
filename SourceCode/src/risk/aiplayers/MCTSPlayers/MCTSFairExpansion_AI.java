@@ -35,7 +35,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 
 	public MCTSFairExpansion_AI(String name, String opp, String map, int id,
 			long time) {
-		super(name, opp, map, id, time);
+		super(name, opp, map, id, time, new AIParameter());
 	}
 
 	@Override

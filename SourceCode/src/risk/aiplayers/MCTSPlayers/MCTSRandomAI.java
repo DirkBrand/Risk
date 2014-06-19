@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
+import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
@@ -30,7 +31,7 @@ public class MCTSRandomAI extends MonteCarloTreeSearchPlayer {
 	}
 
 	public MCTSRandomAI(String name, String opp, String map, int id, long time) {
-		super(name, opp, map, id, time);
+		super(name, opp, map, id, time, new AIParameter());
 
 	}
 

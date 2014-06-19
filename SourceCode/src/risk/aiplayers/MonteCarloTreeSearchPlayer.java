@@ -25,6 +25,8 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	String line = "";
 	int ind = 0;
 
+	int simCount = 0;
+	
 	protected long startTime;
 	protected long allottedTime;
 
@@ -44,12 +46,12 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	protected AIParameter params;
 
 	public MonteCarloTreeSearchPlayer(String name, String opp, String map,
-			int id, long time) {
+			int id, long time,AIParameter params) {
 		super(MCTS_AI, name, opp, map, id);
 
 		this.timeForMCTSSearch = time;
 
-		params = new AIParameter();
+		this.params = params;
 
 		// Communication
 		boolean goingToController = false;
@@ -120,8 +122,10 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 
 					APM.process(messageID, request, args);
 				}
-				if (!goingToController || !stillRunning)
+				if (!goingToController || !stillRunning) {
 					APM.controllerSocket.close();
+					break;
+				}
 			} catch (SocketException e) {
 				System.err.println("Connection to server broken");
 				goingToController = false;
@@ -281,6 +285,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 * @return Returns the value of the playout (1 for win, 0 for loss)
 	 */
 	protected int Simulate(MCTSNode lastNode) {
+		simCount++;
 		MCTSNode playNode = lastNode.clone();
 		while (!AIUtil.isTerminalNode(playNode)) {
 			// System.out.println(playNode.getTreePhaseText());
@@ -533,6 +538,26 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 		startTime = System.nanoTime();
 		this.allottedTime = millisecsAllowed * 1000000;
 	}
+	
+	protected void printStats(MCTSNode root, Double time) {
+		
+		  System.out.println("Ended MCTS in " + time + " ms");
+		  
+		  System.out.println("Depth : " + maxTreeDepth);
+		  System.out.println("Node Count : " + treeNodeCount);
+		  System.out.println("Root playouts : " + root.getVisitCount());
+		  System.out.println("Simulation Count : " + root.getVisitCount());
+		  simCount = 0;
+		  System.out.println("HashMap ratio - " + (double) foundIt / (double)
+		  (foundIt + missedIt) * 100 + " %");
+		  
+		  System.out.println("HashMap size - " + NodeValues.size());
+		  
+		  System.out.println("Playouts / second - " + Math.round((double)
+		  root.getVisitCount() / (double) (time / 1000.0)));
+		  System.out.println();
+		 
+	}
 
 	/**
 	 * Determines whether the player wants to attack again.
@@ -561,6 +586,10 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 */
 	protected double getValue(MCTSNode node) {
 
+		if (NodeValues.size() >= 500000) {
+			NodeValues = new HashMap<Long, Double>();
+		}
+		
 		long key = GameState.getHash(node.getGame(), ZobristArray,
 				ZobristPlayerFactor);
 		// System.out.println(key);

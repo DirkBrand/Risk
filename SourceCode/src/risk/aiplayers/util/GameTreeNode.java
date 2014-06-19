@@ -49,6 +49,8 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 
 			copy.setGame(gameC);
 			copy.setValue(0);
+			copy.setAttackSource(attackSource);
+			copy.setAttackDest(attackDest);
 
 			return copy;
 		} catch (CloneNotSupportedException e) {

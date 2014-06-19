@@ -22,12 +22,23 @@ public class AIParameter {
 	public double EMMManBranchQualityFactor = 0.02;
 	
 	
+	
+	public AIParameter() {
+		fpu = 1.1;
+	}
+	
+	public AIParameter(double FPU, int bestOfK) {
+		this.fpu = FPU;
+		this.MCTSRecruitBranchQualityFactor = bestOfK;
+		this.MCTSAttackBranchQualityFactor = bestOfK;
+		this.MCTSManBranchQualityFactor = bestOfK;
+	}
 	// MCTS
 	
 	// Weight of exploration
 	//public double c = 1/Math.sqrt(2);
-	public double c = 0.4;
-	//public double c = 0;
+	//public double c = 0.4;
+	public double c = 1.2;
 
 	// Urgency of pool
 	public double fpu = 1.1;
@@ -61,7 +72,8 @@ public class AIParameter {
 			{ 1, 0.99, 0.967, 0.930, 0.873, 0.808, 0.726, 0.646, 0.558, 0.480 },
 			{ 1, 0.994, 0.981, 0.954, 0.916, 0.861, 0.8, 0.724, 0.650, 0.568 } };
 	
-	public static double evalWeights[] = new double[]{11.6225,1.7275,-23.65,-6.49,31.41,3.6625,4.345,31.915,-4.74,19.905,5.695,37.51,1.8775};
+	//public static double evalWeights[] = new double[]{11.6225,1.7275,-23.65,-6.49,31.41,3.6625,4.345,31.915,-4.74,19.905,5.695,37.51,1.8775};
+	public static double evalWeights[] = new double[]{-37.74,22.82,-29.84,-21.68,46.61,-11.15,-30.55,-19.69,-4.91,32.7,-26.10,-32.68,7.25};
 	
 	
 	// Setters

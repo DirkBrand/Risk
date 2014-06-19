@@ -1,5 +1,6 @@
 package risk.paperplayers;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +20,6 @@ import risk.commonObjects.Territory;
 
 public class S_EMM_AI extends ExpectiminimaxPlayer {
 
-
 	public static void main(String[] args) {
 		String tempName = args[0];
 		int depth = 0;
@@ -29,8 +29,7 @@ public class S_EMM_AI extends ExpectiminimaxPlayer {
 		new S_EMM_AI(tempName, null, null, 2, depth);
 	}
 
-	public S_EMM_AI(String name, String opp, String map, int id,
-			int depth) {
+	public S_EMM_AI(String name, String opp, String map, int id, int depth) {
 		super(name, opp, map, id, depth, AIParameter.evalWeights);
 
 	}
@@ -289,7 +288,7 @@ public class S_EMM_AI extends ExpectiminimaxPlayer {
 	@Override
 	public void recruitPhase(Collection<Territory> myTerritories,
 			int numberOfTroops) {
-		if (NodeValues.size() > 1000000) {
+		if (NodeValues.size() > 500000) {
 			NodeValues = null;
 			NodeValues = new HashMap<Long, Double>();
 		}
@@ -445,16 +444,16 @@ public class S_EMM_AI extends ExpectiminimaxPlayer {
 			double rating = EMM_AB(child, maxDepth, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY);
 			double time = (System.nanoTime() - startTime) / 1000000.0;
-			/*
-			 * System.out.println("Running time: " + (int)time + "ms");
-			 * System.out.println("Rating:" + rating);
-			 * System.out.println("Number of nodes: " + nodeCount);
-			 * System.out.println("Number of prunings: " + trimCount);
-			 * System.out.println("HashMap ratio - " + (double) foundIt /
-			 * (double) (foundIt + missedIt) * 100 + "%");
-			 * System.out.println("Nodes / Second: " + (int)(nodeCount / (time /
-			 * 1000.0))); System.out.println();
-			 */
+/*
+			System.out.println("Running time: " + (int) time + "ms");
+			System.out.println("Rating:" + rating);
+			System.out.println("Number of nodes: " + nodeCount);
+			System.out.println("Number of prunings: " + trimCount);
+			System.out.println("HashMap ratio - " + (double) foundIt
+					/ (double) (foundIt + missedIt) * 100 + "%");
+			System.out.println("Nodes / Second: "
+					+ (int) (nodeCount / (time / 1000.0)));
+			System.out.println(); */
 
 			if (rating >= maximum) {
 				maximum = rating;

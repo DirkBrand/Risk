@@ -13,28 +13,32 @@ import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_playout_AI;
 import risk.aiplayers.MCTSPlayers.MCTSRandomAI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
+import risk.paperplayers.S_EMM_AI;
+import risk.paperplayers.S_MCTS_AI;
+import risk.paperplayers.S_MCTS_Baseline_AI;
+import risk.paperplayers.S_MCTS_Explore_AI;
+import risk.paperplayers.S_MCTS_Naive_AI;
+import risk.paperplayers.S_SimulationAI;
 
 public class AIGameCoordinator {
 	static String AI1_Name;
 	static String AI2_Name;
-	static String map;
 	
 	static double[] weights;
 
 	int timeForMCTS_Milliseconds = 3000;
 	int playoutsForMCTS = 1500;
-	int EMM_depth = 4;
-	
+	int EMM_depth = 5;
+
+	String map = "OriginalRiskMapFile.txt";
 
 	public static void main(String[] args) {
-		if (args.length != 3) {
+		if (args.length != 2) {
 			System.err.println("Insufficient Arguments!");
 			System.exit(0);
 		}
 		AI1_Name = args[0];
 		AI2_Name = args[1];
-		map = args[2];
-		weights = new double[] { 1,1,1,1,1,1,1,1,1,1,1,1,1 };
 
 		new AIGameCoordinator();
 	}
@@ -44,7 +48,7 @@ public class AIGameCoordinator {
 		t1.start();
 		
 		try {
-			Thread.sleep(200);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -112,16 +116,39 @@ public class AIGameCoordinator {
 				new MCTSRandomAI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSBaselineAI": {
-				new MCTSBaselineAI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
-				break;
-			}
 			case "MCTSBaseline_playout_AI": {
 				new MCTSBaseline_playout_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
 			case "EMMGreedyAI": {
 				new EMMGreedyAI(ai1, ai2, theMap, id, weights);
+				break;
+			}case "SimulationAI": {
+				new S_SimulationAI(ai1, ai2, theMap, id);
+				break;
+			}
+			case "EMMAI": {
+				new S_EMM_AI(ai1, ai2, theMap, id, EMM_depth);
+				break;
+			}
+			case "MCTSAI": {
+				new S_MCTS_AI(ai1, ai2, theMap, id,
+						timeForMCTS_Milliseconds);
+				break;
+			}
+			case "MCTSNaiveAI": {
+				new S_MCTS_Naive_AI(ai1, ai2, theMap, id,
+						timeForMCTS_Milliseconds);
+				break;
+			}
+			case "MCTSExploreAI": {
+				new S_MCTS_Explore_AI(ai1, ai2, theMap, id,
+						timeForMCTS_Milliseconds);
+				break;
+			}
+			case "MCTSBaselineAI": {
+				new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
+						timeForMCTS_Milliseconds);
 				break;
 			}
 			default: {

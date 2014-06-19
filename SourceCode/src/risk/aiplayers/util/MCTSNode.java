@@ -24,6 +24,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 
 	// Recruiting
 	private Territory recruitedTer;
+	public int  whereRecruitedId = -1;
 	public double ave;
 	public ArrayList<MCTSNode> recruitChildren;
 
@@ -64,6 +65,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			Territory tempManD = manDest.clone();
 			copy.setManDest(tempManD);
 		}
+		copy.whereRecruitedId = whereRecruitedId;
 		copy.numberOfAttackBranches = 0;
 		copy.numberOfManoeuvreBranches = 0;
 		copy.maxChildren = 0;

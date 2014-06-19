@@ -1,5 +1,6 @@
 package risk.aiplayers.MCTSPlayers;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,11 +18,11 @@ public class MCTSBaselineAI extends MonteCarloTreeSearchPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 		long time = Long.parseLong(args[1]);
-		new MCTSBaselineAI(tempName, null, null, 2, time);
+			new MCTSBaselineAI(tempName, null, null, 2, time);
 	}
 
 	public MCTSBaselineAI(String name, String opp, String map, int id, long time) {
-		super(name, opp, map, id, time);
+		super(name, opp, map, id, time, new AIParameter());
 	}
 
 	@Override

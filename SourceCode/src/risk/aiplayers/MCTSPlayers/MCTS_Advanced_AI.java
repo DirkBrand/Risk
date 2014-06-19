@@ -9,6 +9,7 @@ import java.util.Random;
 
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIFeatures;
+import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.BinaryTree;
 import risk.aiplayers.util.GameTreeNode;
@@ -30,7 +31,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 	public MCTS_Advanced_AI(String name, String opp, String map,
 			int id, long time) {
-		super(name, opp, map, id, time);
+		super(name, opp, map, id, time, new AIParameter());
 	}
 
 
