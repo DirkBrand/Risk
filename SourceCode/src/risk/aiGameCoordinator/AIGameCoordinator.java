@@ -1,24 +1,27 @@
 package risk.aiGameCoordinator;
 
-import risk.aiplayers.BaselineAI;
-import risk.aiplayers.SubmissiveAI;
-import risk.aiplayers.EMMPlayers.EMMBaselineAI;
-import risk.aiplayers.EMMPlayers.EMMGreedyAI;
+import risk.aiplayers.Baseline_AI;
+import risk.aiplayers.Submissive_AI;
+import risk.aiplayers.EMMPlayers.EMMBaseline_AI;
+import risk.aiplayers.EMMPlayers.EMMGreedy_AI;
 import risk.aiplayers.EMMPlayers.EMM_Advanced_AI;
-import risk.aiplayers.MCTSPlayers.MCTSBaselineAI;
 import risk.aiplayers.MCTSPlayers.MCTSBaseline_playout_AI;
+import risk.aiplayers.MCTSPlayers.MCTSFull_Baseline_AI;
+import risk.aiplayers.MCTSPlayers.MCTSMove_After_Simulate_Baseline_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairBadEval_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_AI;
+import risk.aiplayers.MCTSPlayers.MCTSMove_After_Attack_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_playout_AI;
-import risk.aiplayers.MCTSPlayers.MCTSRandomAI;
+import risk.aiplayers.MCTSPlayers.MCTSRandom_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
+import risk.aiplayers.MCTSPlayers.MCTSHashing_Unicness_AI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
 import risk.paperplayers.S_MCTS_Baseline_AI;
 import risk.paperplayers.S_MCTS_Explore_AI;
 import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_SimulationAI;
+import risk.paperplayers.S_Simulation_AI;
 
 public class AIGameCoordinator {
 	static String AI1_Name;
@@ -76,20 +79,20 @@ public class AIGameCoordinator {
 		public void run() {
 			// Start AI
 			switch (ai1) {
-			case "BaselineAI": {
-				new BaselineAI(ai1, ai2, theMap, id);
+			case "Baseline_AI": {
+				new Baseline_AI(ai1, ai2, theMap, id);
 				break;
 			}
 			case "Submissive_AI": {
-				new SubmissiveAI(ai1, ai2, theMap, id);
+				new Submissive_AI(ai1, ai2, theMap, id);
 				break;
 			}
 			case "EMM_Advanced_AI": {
 				new EMM_Advanced_AI(ai1, ai2, theMap, id, EMM_depth);
 				break;
 			}
-			case "EMMBaselineAI": {
-				new EMMBaselineAI(ai1, ai2, theMap, id, EMM_depth);
+			case "EMMBaseline_AI": {
+				new EMMBaseline_AI(ai1, ai2, theMap, id, EMM_depth);
 				break;
 			}
 			case "MCTS_Advanced_AI": {
@@ -108,45 +111,61 @@ public class AIGameCoordinator {
 				new MCTSFairExpansion_playout_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
+			case "MCTSMove_After_Attack_AI" : {
+				new MCTSMove_After_Attack_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
+				break;
+			}
 			case "MCTSFairBadEval_AI": {
 				new MCTSFairBadEval_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSRandomAI": {
-				new MCTSRandomAI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
+			case "MCTSRandom_AI": {
+				new MCTSRandom_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
 			case "MCTSBaseline_playout_AI": {
 				new MCTSBaseline_playout_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
-			case "EMMGreedyAI": {
-				new EMMGreedyAI(ai1, ai2, theMap, id, weights);
-				break;
-			}case "SimulationAI": {
-				new S_SimulationAI(ai1, ai2, theMap, id);
+			case "MCTSFull_Baseline_AI": {
+				new MCTSFull_Baseline_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
-			case "EMMAI": {
+			case "MCTSMove_After_Simulate_Baseline_AI": {
+				new MCTSMove_After_Simulate_Baseline_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				break;
+			}
+			case "MCTSHashing_Unicness_Revival_AI": {
+				new MCTSHashing_Unicness_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				break;
+			}
+			case "EMMGreedy_AI": {
+				new EMMGreedy_AI(ai1, ai2, theMap, id, weights);
+				break;
+			}case "Simulation_AI": {
+				new S_Simulation_AI(ai1, ai2, theMap, id);
+				break;
+			}
+			case "EMM_AI": {
 				new S_EMM_AI(ai1, ai2, theMap, id, EMM_depth);
 				break;
 			}
-			case "MCTSAI": {
+			case "MCTS_AI": {
 				new S_MCTS_AI(ai1, ai2, theMap, id,
 						timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSNaiveAI": {
+			case "MCTSNaive_AI": {
 				new S_MCTS_Naive_AI(ai1, ai2, theMap, id,
 						timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSExploreAI": {
+			case "MCTSExplore_AI": {
 				new S_MCTS_Explore_AI(ai1, ai2, theMap, id,
 						timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSBaselineAI": {
+			case "MCTSBaseline_AI": {
 				new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
 						timeForMCTS_Milliseconds);
 				break;
@@ -156,8 +175,6 @@ public class AIGameCoordinator {
 				break;
 			}
 			}
-
-
 		}
 		
 	}

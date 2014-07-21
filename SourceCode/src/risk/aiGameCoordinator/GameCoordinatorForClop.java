@@ -1,7 +1,7 @@
 package risk.aiGameCoordinator;
 
 import risk.aiplayers.AIPlayer;
-import risk.aiplayers.EMMPlayers.EMMGreedyAI;
+import risk.aiplayers.EMMPlayers.EMMGreedy_AI;
 import risk.paperplayers.S_BaselineAI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
@@ -98,7 +98,7 @@ public class GameCoordinatorForClop {
 				break;
 			}
 			case "GreedyAI": {
-				theAI = new EMMGreedyAI(ai1, ai2, theMap, id, weights);
+				theAI = new EMMGreedy_AI(ai1, ai2, theMap, id, weights);
 				break;
 			}
 			case "EMMAI": {

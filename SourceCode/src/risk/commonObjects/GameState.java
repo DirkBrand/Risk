@@ -8,10 +8,10 @@ import risk.aiplayers.AIPlayer;
 
 public class GameState extends AbstractGameState implements Cloneable {
 
-	public final static int SETUP = 0;
-	public final static int RECRUIT = 1;
-	public final static int BATTLE = 2;
-	public final static int MANOEUVRE = 3;
+	public final static int SETUP = 10;
+	public final static int RECRUIT = 11;
+	public final static int BATTLE = 12;
+	public final static int MANOEUVRE = 13;
 	
 	
 	public GameState() {
@@ -63,28 +63,29 @@ public class GameState extends AbstractGameState implements Cloneable {
 		}	
 	}
 	
-	public static long getHash(GameState game, long [][] ZobristArray, long [] ZobristPlayerFactor) {
-		long key = 0;
-		int i = 0;
-		Iterator<Territory> It = game.getPlayers().get(0).getTerritories().values().iterator();
-		while (It.hasNext()) {
-			Territory t = It.next();
-			int troopNumber = Math.min(t.getNrTroops(), 49);
-			long za = ZobristArray[i++][troopNumber];
-			long zpf = ZobristPlayerFactor[game.getCurrentPlayerID()];
-			key = key ^ za ^ zpf;
-		}
-		It = game.getPlayers().get(1).getTerritories().values().iterator();
-		while (It.hasNext()) {
-			Territory t = It.next();
-			int troopNumber = Math.min(t.getNrTroops(), 49);
-			long za = ZobristArray[i++][troopNumber];
-			long zpf = ZobristPlayerFactor[game.getCurrentPlayerID()];
-			key = key ^ za ^ zpf;
-		}
-		return key;		
-	}
+
 	
+	//OLD VERSION
+//	public long getHash() {
+//		long key = 0;
+//		int i = 0;
+//		Iterator<Territory> It = this.getPlayers().get(0).getTerritories().values().iterator();
+//		while (It.hasNext()) {
+//			Territory t = It.next();
+//			int troopNumber = Math.min(t.getNrTroops(), 49);
+//			long za = AIPlayer.ZobristArray[i++][troopNumber][0];
+//			key = key ^ za;
+//		}
+//		It = this.getPlayers().get(1).getTerritories().values().iterator();
+//		while (It.hasNext()) {
+//			Territory t = It.next();
+//			int troopNumber = Math.min(t.getNrTroops(), 49);
+//			long za = AIPlayer.ZobristArray[i++][troopNumber][1];
+//			key = key ^ za;
+//		}
+//		return key;		
+//	}
+//	
 	@Override
 	public int hashCode() {
 			long key = 0;
@@ -92,14 +93,13 @@ public class GameState extends AbstractGameState implements Cloneable {
 			Iterator<Territory> It = getPlayers().get(0).getTerritories().values().iterator();
 			while (It.hasNext()) {
 				Territory t = It.next();
-				key = key ^ AIPlayer.ZobristArray[i++][t.getNrTroops()] ^ AIPlayer.ZobristPlayerFactor[getCurrentPlayerID()];
+				key = key ^ AIPlayer.ZobristArray[i++][t.getNrTroops()][0];
 			}
 			It = getPlayers().get(1).getTerritories().values().iterator();
 			while (It.hasNext()) {
 				Territory t = It.next();
-				key = key ^ AIPlayer.ZobristArray[i++][t.getNrTroops()];
+				key = key ^ AIPlayer.ZobristArray[i++][t.getNrTroops()][1];
 			}
-			key = key ^ AIPlayer.ZobristPlayerFactor[getCurrentPlayerID()];
 			return (int)key;		
 	}
 	

@@ -18,7 +18,7 @@ import risk.paperplayers.S_MCTS_AI;
 import risk.paperplayers.S_MCTS_Baseline_AI;
 import risk.paperplayers.S_MCTS_Explore_AI;
 import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_SimulationAI;
+import risk.paperplayers.S_Simulation_AI;
 import Glicko2.Rating;
 import Glicko2.RatingCalculator;
 import Glicko2.RatingPeriodResults;
@@ -364,7 +364,7 @@ public class GlickoGames {
 					break;
 				}
 				case "SimulationAI": {
-					new S_SimulationAI(ai1, ai2, theMap, id);
+					new S_Simulation_AI(ai1, ai2, theMap, id);
 					break;
 				}
 				case "EMMAI": {

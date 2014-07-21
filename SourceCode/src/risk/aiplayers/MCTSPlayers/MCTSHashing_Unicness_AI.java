@@ -129,6 +129,12 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		}
 		//********************************ATTACK************************************//
 		case GameTreeNode.ATTACK: {
+			//To define somewhere else
+			int reasonableChildrenNumber = 30;
+			if(lastNode.maxChildren < reasonableChildrenNumber)
+			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
+			//To do this quickly : "copy - paste" Populate treeset.
+			
 			if (lastNode.numberOfAttackBranches == 0) {
 				lastNode.numberOfAttackBranches = Math.min(
 						params.MCTSAttackBranchQualityFactor,

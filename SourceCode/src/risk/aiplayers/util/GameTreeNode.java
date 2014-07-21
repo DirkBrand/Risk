@@ -71,7 +71,6 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		if(this.hashCode != 0L) {
 			return this.hashCode;
 		}
-		System.out.println("I am not really supposed to pass here more than once. Maybe twice");
 		long key = 0;
 		Iterator<Territory> It = this.game.getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
@@ -97,10 +96,11 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		 */
 		//TODO : fix this. NullPointerException raised. Thing is : according to my predictions, I only need to hash totally on a new tree root. - Recruit, right ?
 		// soooo, it should be alright when everything will be on the same page.
-		if(this.getTreePhase() == RANDOMEVENT) {
-			key = key ^ AIPlayer.ZobristAttackDestination[this.game.getOtherPlayer().getTerritoryByName(this.getAttackDest()).getId()];
-			key = key ^ AIPlayer.ZobristAttackSource[this.game.getCurrentPlayer().getTerritoryByName(this.getAttackSource()).getId()];
-		}
+//		if(this.getTreePhase() == RANDOMEVENT) {
+//			System.out.println("Unusual");
+//			key = key ^ AIPlayer.ZobristAttackDestination[this.game.getOtherPlayer().getTerritoryByName(this.getAttackDest()).getId()];
+//			key = key ^ AIPlayer.ZobristAttackSource[this.game.getCurrentPlayer().getTerritoryByName(this.getAttackSource()).getId()];
+//		}
 
 		this.setHash(key);
 		return key;	
@@ -239,7 +239,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 				break;
 			}
 			default: {
-				System.out.println("WTF WTF - Speciale Cassdedi TMTC - Non existant game phase in updateHash");
+				System.out.println("Non existant game phase in updateHash - ERROR4012654");
 				break;	
 			}
 			}
