@@ -13,7 +13,7 @@ import risk.aiplayers.util.GameTreeNode;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
-public class EMMBaselineAI extends ExpectiminimaxPlayer {
+public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 
 	Territory lastAttackSource;
 	Territory lastAttackDestination;
@@ -33,10 +33,10 @@ public class EMMBaselineAI extends ExpectiminimaxPlayer {
 		if (args.length > 1) {
 			depth = Integer.parseInt(args[1]);
 		}
-		new EMMBaselineAI(tempName, null, null, 2, depth);
+		new EMMBaseline_AI(tempName, null, null, 2, depth);
 	}
 
-	public EMMBaselineAI(String name, String opp, String map, int id, int depth) {
+	public EMMBaseline_AI(String name, String opp, String map, int id, int depth) {
 		super(name, opp, map, id, depth, AIParameter.evalWeights);
 
 	}

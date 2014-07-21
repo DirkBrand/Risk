@@ -25,7 +25,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	// Recruiting
 	private Territory recruitedTer;
 	public int  whereRecruitedId = -1;
-	public double ave;
+	public double ave; // average ?
+	public int numberOfRecruitBranches = 0;
 	public ArrayList<MCTSNode> recruitChildren;
 
 	// Attacking
@@ -40,7 +41,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	private Territory manDest;
 	public int numberOfManoeuvreBranches = 0;
 	public ArrayList<MCTSNode> manChildren;
-	public ArrayList<Integer> manTroopBins;
+	public ArrayList<Integer> manTroopBins; //Each element in this represent a possible manoeuvre. A to B with alpha troops.
 	private LinkedList<LinkedList<Territory>> connComponentBuckets;
 
 	public MCTSNode() {
@@ -69,6 +70,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 		copy.numberOfAttackBranches = 0;
 		copy.numberOfManoeuvreBranches = 0;
 		copy.maxChildren = 0;
+		copy.numberOfRecruitBranches = 0;
 		copy.recruitChildren = null;
 		copy.attackChildren = null;
 		copy.manChildren = null;

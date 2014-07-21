@@ -2,7 +2,7 @@ package risk.aiplayers.MCTSPlayers;
 
 import risk.aiplayers.util.MCTSNode;
 
-public class MCTSBaseline_playout_AI extends MCTSBaselineAI {
+public class MCTSBaseline_playout_AI extends MCTSBaseline_AI {
 
 	int playoutsForMCTS;
 

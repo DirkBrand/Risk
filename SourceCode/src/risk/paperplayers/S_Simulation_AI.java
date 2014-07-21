@@ -14,7 +14,7 @@ import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
-public class S_SimulationAI extends AIPlayer {
+public class S_Simulation_AI extends AIPlayer {
 
 	AIParameter params = new AIParameter();
 	int whereRecruitedId;
@@ -25,10 +25,10 @@ public class S_SimulationAI extends AIPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 		
-			new S_SimulationAI(tempName, null, null, 2);
+			new S_Simulation_AI(tempName, null, null, 2);
 	}
 
-	public S_SimulationAI(String name, String opp, String map, int id) {
+	public S_Simulation_AI(String name, String opp, String map, int id) {
 		super(BASELINE_AI, name, opp, map, id);
 		
 		// Communication

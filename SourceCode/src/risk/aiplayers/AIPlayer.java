@@ -53,8 +53,11 @@ public abstract class AIPlayer {
 	public int numberOfMovesTaken = 0;
 	public int maxRecruitable = Integer.MAX_VALUE;
 	
-	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/];
-	public static long ZobristPlayerFactor[/*Who's turn*/];
+	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/][/*Number of players*/];
+	public static long ZobristPlayerFactor[/*Number of players*/];
+	public static long ZobristPhaseFactor[/* RECRUIT - ATTACK - RANDOMEVENT - MOVEAFTERATTACK - MANOEUVRE */];
+	public static long ZobristAttackSource[/* Territory ID */];
+	public static long ZobristAttackDestination[/* Territory ID */];
 
 	Comparator<Territory> territoryComparator = new Comparator<Territory>() {
 		@Override
@@ -94,7 +97,7 @@ public abstract class AIPlayer {
 	
 	/**
 	 * Procedure to place troops in the recruitment phase, with the BASELINE
-	 * strategy. Must be overriden for other players.
+	 * strategy. Must be overridden for other players.
 	 * 
 	 * @param myTerritories
 	 *            Collection of the territories owned by the current player.
@@ -245,19 +248,31 @@ public abstract class AIPlayer {
 		maxRecruitable = n;
 	}
 	
+	/**
+	 * Generates a 3D-matrix containing unique id for each possible state
+	 * of the game. 
+	 */
 	private void initializeZobrist() {
 		Random r = new Random();
 		int maxNumberOfTroops = 50;
-		ZobristArray = new long [territories.length][maxNumberOfTroops];
+		ZobristArray = new long [territories.length][maxNumberOfTroops][2];
 		ZobristPlayerFactor = new long [2];
+		ZobristPhaseFactor = new long [5];
+		ZobristAttackDestination = new long [territories.length];
+		ZobristAttackSource = new long [territories.length];
 		for (int i = 0; i < territories.length; i++) {
+			ZobristAttackSource[i]=r.nextLong();
+			ZobristAttackDestination[i]=r.nextLong();
 			for (int j = 0; j <maxNumberOfTroops; j++) {
-				ZobristArray[i][j] = r.nextLong();
+				ZobristArray[i][j][0] = r.nextLong();
+				ZobristArray[i][j][1] = r.nextLong();
 			}
 		}
-		
-		ZobristPlayerFactor[0] = r.nextLong();
-		ZobristPlayerFactor[1] = r.nextLong();		
+		ZobristPlayerFactor[0]=r.nextLong();
+		ZobristPlayerFactor[1]=r.nextLong();
+		for(int k = 0; k<5; k++) {
+			ZobristPhaseFactor[k]=r.nextLong();
+		}
 	}	
 
 	private String getMapLocation(String mapName) {

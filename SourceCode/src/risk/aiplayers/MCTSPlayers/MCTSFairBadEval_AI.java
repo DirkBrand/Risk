@@ -27,8 +27,7 @@ public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 	@Override
 	protected double getValue(MCTSNode node) {
 
-		long key = GameState.getHash(node.getGame(), ZobristArray,
-				ZobristPlayerFactor);
+		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {
 			foundIt++;
@@ -36,8 +35,7 @@ public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 		} else {
 			missedIt++;
 			value = AIUtil.eval(node, weights, maxRecruitable);
-			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
-					ZobristPlayerFactor), value);
+			NodeValues.put(node.getHash(), value);
 			return value;
 		}
 	}

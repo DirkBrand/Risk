@@ -48,7 +48,6 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	public MonteCarloTreeSearchPlayer(String name, String opp, String map,
 			int id, long time,AIParameter params) {
 		super(MCTS_AI, name, opp, map, id);
-
 		this.timeForMCTSSearch = time;
 
 		this.params = params;
@@ -590,9 +589,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			NodeValues = new HashMap<Long, Double>();
 		}
 		
-		long key = GameState.getHash(node.getGame(), ZobristArray,
-				ZobristPlayerFactor);
-		// System.out.println(key);
+		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {
 			foundIt++;
@@ -600,8 +597,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 		} else {
 			missedIt++;
 			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
-			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
-					ZobristPlayerFactor), value);
+			NodeValues.put(key, value);
 			return value;
 		}
 	}

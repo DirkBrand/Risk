@@ -505,8 +505,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 
 	protected double getValue(EMMNode node) {
 
-		long key = GameState.getHash(node.getGame(), ZobristArray,
-				ZobristPlayerFactor);
+		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {
 			foundIt++;
@@ -514,8 +513,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		} else {
 			missedIt++;
 			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
-			NodeValues.put(GameState.getHash(node.getGame(), ZobristArray,
-					ZobristPlayerFactor), value);
+			NodeValues.put(node.getHash(), value);
 			return value;
 		}
 	}

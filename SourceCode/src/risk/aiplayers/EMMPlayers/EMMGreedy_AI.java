@@ -23,7 +23,7 @@ import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
-public class EMMGreedyAI extends ExpectiminimaxPlayer {
+public class EMMGreedy_AI extends ExpectiminimaxPlayer {
 
 
 	public static void main(String[] args) {
@@ -32,11 +32,11 @@ public class EMMGreedyAI extends ExpectiminimaxPlayer {
 		if (args.length > 1) {
 			depth = Integer.parseInt(args[1]);
 		}
-		new EMMGreedyAI(tempName, null, null, 2, new double[] { 1, 1, 1, 1, 1, 1,
+		new EMMGreedy_AI(tempName, null, null, 2, new double[] { 1, 1, 1, 1, 1, 1,
 				1, 1, 1, 1, 1, 1, 1 });
 	}
 
-	public EMMGreedyAI(String name, String opp, String map, int id,
+	public EMMGreedy_AI(String name, String opp, String map, int id,
 			double[] weights) {
 		super(name, opp, map, id, 1, weights);
 

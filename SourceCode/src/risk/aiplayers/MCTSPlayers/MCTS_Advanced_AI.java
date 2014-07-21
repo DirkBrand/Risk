@@ -408,7 +408,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 						lastNode.numberOfAttackBranches = 1;
 					}
 
-					// System.out.println(count++);
 					// Add the option to not attack
 					MCTSNode maxChild = null;
 					double maxRating = Double.NEGATIVE_INFINITY;
