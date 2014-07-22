@@ -135,7 +135,7 @@ public class AIGameCoordinator {
 				new MCTSMove_After_Simulate_Baseline_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
-			case "MCTSHashing_Unicness_Revival_AI": {
+			case "MCTSHashing_Unicness_AI": {
 				new MCTSHashing_Unicness_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}

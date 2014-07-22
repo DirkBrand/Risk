@@ -35,6 +35,8 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	public static final int MOVEAFTERATTACK = 2;
 	public static final int RANDOMEVENT = 3;
 	public static final int MANOEUVRE = 4;
+	
+	public static final int reasonableChildrenNumber = 30;
 
 	public GameTreeNode() {
 	}

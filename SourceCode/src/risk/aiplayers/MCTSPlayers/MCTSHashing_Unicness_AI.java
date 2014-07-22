@@ -32,12 +32,14 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		//********************************RECRUIT************************************//
 		case GameTreeNode.RECRUIT: {
 			calculateMaxChildren(lastNode);
-			//TODO : check this out with Mark DiBrando, search change has to be fixed accordingly. - cf ATTACK
-			if (lastNode.numberOfRecruitBranches == 0) {
-				lastNode.numberOfRecruitBranches = Math.min(
-						params.MCTSRecruitBranchQualityFactor,
-						lastNode.maxChildren / 2);
-			}
+			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
+			//TODO this quickly : "copy - paste" Populate treeset.
+
+			lastNode.numberOfRecruitBranches = Math.min(
+					params.MCTSRecruitBranchQualityFactor,
+					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 2);
+
 
 			//Avoiding 0. maxChildren = 1. 1/2=0 (int)
 			if(lastNode.numberOfRecruitBranches < 1)
@@ -56,96 +58,143 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 
 			for (int i = 0; i < m - 1; i++)
 				perm[d++] = false;
-			while(true)
-			{
-				// Generate all and pick randomly from top 30
-				// System.out.println("Recruit 2");
-				MCTSNode maxChild = null;
-				double maxRating = Double.NEGATIVE_INFINITY;
-				while (maxChild == null) {
-					/*System.out.println("Recruit : " + lastNode.numberOfRecruitBranches +" "+ params.MCTSRecruitBranchQualityFactor
-							+ " " + lastNode.maxChildren / 2);*/
-					for (int i = 0; i < lastNode.numberOfRecruitBranches; i++) {
-						AIUtil.shuffleArray(perm);
+			inRecruit:
+				while(true)
+				{
+					// Generate all and pick randomly from top 30
+					// System.out.println("Recruit 2");
+					MCTSNode maxChild = null;
+					double maxRating = Double.NEGATIVE_INFINITY;
+					while (maxChild == null) {
+						for (int i = 0; i < lastNode.numberOfRecruitBranches; i++) {
+							AIUtil.shuffleArray(perm);
 
-						MCTSNode tempChild = lastNode.clone();
+							MCTSNode tempChild = lastNode.clone();
 
-						Iterator<Territory> it = tempChild.getGame()
-								.getCurrentPlayer().getTerritories().values()
-								.iterator();
-						Territory current = it.next();
-						// Place troops according to permutation
-						for (int p = 0; p < perm.length; p++) {
-							if (perm[p]) {
-								current.incrementTroops();
-								tempChild.setAttackSource(current.getName());  //TODO : Is this useful ?
-							} else {
-								current = it.next();
+							Iterator<Territory> it = tempChild.getGame()
+									.getCurrentPlayer().getTerritories().values()
+									.iterator();
+							Territory current = it.next();
+							// Place troops according to permutation
+							for (int p = 0; p < perm.length; p++) {
+								if (perm[p]) {
+									current.incrementTroops();
+									tempChild.setAttackSource(current.getName());
+								} else {
+									current = it.next();
+								}
+							}
+							double value = AIUtil.eval(tempChild, AIParameter.evalWeights, maxRecruitable); 
+							// Was getValue() here before. - DuplicationAvoidance in sampling ?
+							if (value >= maxRating) {
+								maxRating = value;
+								maxChild = tempChild;
 							}
 						}
-						double value = AIUtil.eval(tempChild, AIParameter.evalWeights, maxRecruitable); 
-						// Was getValue() here before. - DuplicationAvoidance in sampling ?
-						if (value >= maxRating) {
-							maxRating = value;
-							maxChild = tempChild;
+					}
+
+					maxChild.setVisitCount(0);
+					maxChild.setWinCount(0);
+					maxChild.setParent(lastNode);
+					maxChild.setChildren(new ArrayList<MCTSNode>());
+
+					maxChild.setTreePhase(GameTreeNode.ATTACK);
+
+					maxChild.setMoveReq(false);
+
+					calculateMaxChildren(maxChild);
+
+					maxChild.depth = lastNode.depth + 1;
+					if (maxChild.depth > maxTreeDepth) {
+						maxTreeDepth = maxChild.depth;
+					}
+
+					System.out.println("7");
+					maxChild.updateHash(lastNode);
+					System.out.println("7");
+					//DUPLICATION AVOIDANCE
+					long key = maxChild.getHash();
+					Double value = NodeValues.get(key);
+					if(value != null && quickfix < 4) {
+						Iterator<MCTSNode> it = lastNode.getChildren().iterator();
+						while (it.hasNext()) {
+							MCTSNode child = it.next();
+							if(key == child.getHash()) {
+								quickfix++;
+								System.out.println("Duplo Recruit " + lastNode.numberOfRecruitBranches + " " + lastNode.maxChildren);													
+								continue inRecruit;
+							}
+						}
+					}
+					else
+						getValue(maxChild);
+					//END OF DUPLICATION AVOIDANCE
+
+					lastNode.addChild(maxChild);
+					return maxChild;
+				}
+		}
+		//********************************ATTACK************************************//
+		case GameTreeNode.ATTACK: {
+			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			{/*AddEveryPossibleChild, return noAttack (since we are sure that this one is included.)*/
+				//System.out.println("Expanding all children, parent's hash is: " + lastNode.getHash());
+				//After a little look-up, seems that this is working well. Not called twice on the same.
+				Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
+						.getTerritories().values().iterator();
+				while (it.hasNext()) {
+					Territory t = it.next();
+					if (t.getNrTroops() > 1) {
+						for (Territory n : t.getNeighbours()) {
+							Territory dest = lastNode.getGame()
+									.getOtherPlayer()
+									.getTerritoryByName(n.getName());
+							if (dest != null) {
+								MCTSNode newChild = lastNode.clone();
+								newChild.setAttackSource(t.getName());
+								newChild.setAttackDest(dest.getName());
+								newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
+								newChild.setVisitCount(0);
+								newChild.setWinCount(0);
+								newChild.setParent(lastNode);
+								newChild.setChildren(new ArrayList<MCTSNode>());
+								calculateMaxChildren(newChild);
+								newChild.depth = lastNode.depth + 1;
+								newChild.updateHash(lastNode);
+								getValue(newChild);
+								lastNode.addChild(newChild);
+							}
 						}
 					}
 				}
 
-				maxChild.setVisitCount(0);
-				maxChild.setWinCount(0);
-				maxChild.setParent(lastNode);
-				maxChild.setChildren(new ArrayList<MCTSNode>());
-
-				maxChild.setTreePhase(GameTreeNode.ATTACK);
-
-				maxChild.setMoveReq(false);
-
-				calculateMaxChildren(maxChild);
-
-				maxChild.depth = lastNode.depth + 1;
-				if (maxChild.depth > maxTreeDepth) {
-					maxTreeDepth = maxChild.depth;
-				}
-
-				System.out.println("7");
-				maxChild.updateHash(lastNode);
-				System.out.println("7");
-				//DUPLICATION AVOIDANCE
-				//TODO : Loop issue caused when the maxChildren is small
-				long key = maxChild.getHash();
-				Double value = NodeValues.get(key);
-				if(value != null) {
-					System.out.println("Duplo Recruit " + lastNode.numberOfRecruitBranches + " " + lastNode.maxChildren);
-					continue;
-				}
-				else
-					getValue(maxChild);
-				//END OF DUPLICATION AVOIDANCE
-
-				lastNode.addChild(maxChild);
-				return maxChild;
+				MCTSNode noAttackChild = lastNode.clone();
+				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
+				noAttackChild.setAttackSource("");
+				noAttackChild.setAttackDest("");
+				noAttackChild.setVisitCount(0);
+				noAttackChild.setWinCount(0);
+				noAttackChild.setParent(lastNode);
+				noAttackChild.setChildren(new ArrayList<MCTSNode>());
+				calculateMaxChildren(noAttackChild);
+				noAttackChild.depth = lastNode.depth + 1;
+				noAttackChild.updateHash(lastNode);
+				getValue(noAttackChild);
+				lastNode.addChild(noAttackChild);
+				if(noAttackChild.depth > maxTreeDepth)
+					maxTreeDepth = noAttackChild.depth;
+				return noAttackChild;
 			}
-		}
-		//********************************ATTACK************************************//
-		case GameTreeNode.ATTACK: {
-			//To define somewhere else
-			int reasonableChildrenNumber = 30;
-			if(lastNode.maxChildren < reasonableChildrenNumber)
-			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
-			//To do this quickly : "copy - paste" Populate treeset.
-			
-			if (lastNode.numberOfAttackBranches == 0) {
-				lastNode.numberOfAttackBranches = Math.min(
-						params.MCTSAttackBranchQualityFactor,
-						lastNode.maxChildren / 2);
-			}
-			
+
+			lastNode.numberOfAttackBranches = Math.min(
+					params.MCTSAttackBranchQualityFactor,
+					(lastNode.maxChildren - lastNode.getNumberOfChildren()) / 2);
+
 
 			// Generate all and pick randomly from top 30
 
 			if (lastNode.attackChildren == null) {
-				
+
 				lastNode.attackChildren = new ArrayList<MCTSNode>();
 
 				if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
@@ -196,101 +245,102 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 			}
 
 			int count = 0;
-			while (true) {
-				count++;
+			inAtk:
+				while (true) {
+					count++;
 
-				// Fix search range
-				if (lastNode.attackChildren.size() < lastNode.numberOfAttackBranches + 1) {
-					lastNode.numberOfAttackBranches--;
-				}
-
-				if (lastNode.numberOfAttackBranches < 1) {
-					lastNode.numberOfAttackBranches = 1;
-				}
-
-				MCTSNode maxChild = null;
-				double maxRating = Double.NEGATIVE_INFINITY;
-
-				for (int i = 0; i < lastNode.numberOfAttackBranches; i++) {
-					index = r.nextInt(lastNode.attackChildren.size());
-
-					MCTSNode temp = lastNode.attackChildren.get(index);
-					double value = AIUtil.eval(temp, AIParameter.evalWeights, maxRecruitable); 
-
-					if (value >= maxRating) {
-						maxRating = value;
-						maxChild = temp;
+					// Fix search range
+					if (lastNode.attackChildren.size() < lastNode.numberOfAttackBranches + 1) {
+						lastNode.numberOfAttackBranches--;
 					}
 
-					// End game
-					if (count == 50 && value >= Double.MAX_VALUE - 1) {
-						maxChild.setVisitCount(0);
-						maxChild.setWinCount(0);
-						maxChild.setParent(lastNode);
-						maxChild.setChildren(new ArrayList<MCTSNode>());
-
-						if (maxChild.getAttackDest().length() == 0) {
-							lastNode.noAttackAdded = true;
-							maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
-						}
-						
-						calculateMaxChildren(maxChild);
-
-						maxChild.depth = lastNode.depth + 1;
-						if (maxChild.depth > maxTreeDepth) {
-							maxTreeDepth = maxChild.depth;
-						}
-						
-						System.out.println("1");
-						maxChild.updateHash(lastNode);
-						System.out.println("1");
-						
-						getValue(maxChild);
-						lastNode.addChild(maxChild);
-						lastNode.attackChildren.remove(maxChild);
-						return maxChild;
+					if (lastNode.numberOfAttackBranches < 1) {
+						lastNode.numberOfAttackBranches = 1;
 					}
-				}
 
-				if (maxChild == null) {
-					maxChild = lastNode.clone();
-					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
-					maxChild.setAttackSource("");
-					maxChild.setAttackDest("");
-				}
+					MCTSNode maxChild = null;
+					double maxRating = Double.NEGATIVE_INFINITY;
 
-				if (maxChild.getAttackDest().length() == 0) {
-					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
-				}
+					for (int i = 0; i < lastNode.numberOfAttackBranches; i++) {
+						index = r.nextInt(lastNode.attackChildren.size());
 
-				// Add unique child to existing children			
-				maxChild.setVisitCount(0);
-				maxChild.setWinCount(0);
-				maxChild.setParent(lastNode);
-				maxChild.setChildren(new ArrayList<MCTSNode>());
-				maxChild.depth = lastNode.depth + 1;
-				if (maxChild.depth > maxTreeDepth) {
-					maxTreeDepth = maxChild.depth;
-				}
+						MCTSNode temp = lastNode.attackChildren.get(index);
+						double value = AIUtil.eval(temp, AIParameter.evalWeights, maxRecruitable); 
 
-				System.out.println("2");
-				maxChild.updateHash(lastNode);
-				System.out.println("2");
-				//TODO : Fix this. Duplo Atk 1
-//				Well Sir, you are trying to create a hashcode that we already know: 1237574272214013321
-//				Duplo Atk 1
-//				Well Sir, you are trying to create a hashcode that we already know: 1237574272214013321 etc.
-				// Looping when 1 possible attack : noAttack. This means that either this node can't be added or, when in this situation, expand is
-				// called more than once on the same node.
-				
-				//Duplication Avoidance
-				long key = maxChild.getHash();
-				Double value = NodeValues.get(key);
-				if(value != null && quickfix<4) { //TODO: This really sucks.
-					quickfix++;
-					System.out.println("Duplo Atk " + lastNode.maxChildren + " " + lastNode.attackChildren.size() + " " + maxChild.getAttackDest() + " " + maxChild.getAttackSource());
-					continue;
-				} else {
+						if (value >= maxRating) {
+							maxRating = value;
+							maxChild = temp;
+						}
+
+						// End game
+						if (count == 50 && value >= Double.MAX_VALUE - 1) {
+							maxChild.setVisitCount(0);
+							maxChild.setWinCount(0);
+							maxChild.setParent(lastNode);
+							maxChild.setChildren(new ArrayList<MCTSNode>());
+
+							if (maxChild.getAttackDest().length() == 0) {
+								lastNode.noAttackAdded = true;
+								maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+							}
+
+							calculateMaxChildren(maxChild);
+
+							maxChild.depth = lastNode.depth + 1;
+							if (maxChild.depth > maxTreeDepth) {
+								maxTreeDepth = maxChild.depth;
+							}
+
+							System.out.println("1");
+							maxChild.updateHash(lastNode);
+							System.out.println("1");
+
+							getValue(maxChild);
+							lastNode.addChild(maxChild);
+							lastNode.attackChildren.remove(maxChild);
+							return maxChild;
+						}
+					}
+
+					if (maxChild == null) {
+						maxChild = lastNode.clone();
+						maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+						maxChild.setAttackSource("");
+						maxChild.setAttackDest("");
+					}
+
+					if (maxChild.getAttackDest().length() == 0) {
+						maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+					}
+
+					// Add unique child to existing children			
+					maxChild.setVisitCount(0);
+					maxChild.setWinCount(0);
+					maxChild.setParent(lastNode);
+					maxChild.setChildren(new ArrayList<MCTSNode>());
+					maxChild.depth = lastNode.depth + 1;
+					if (maxChild.depth > maxTreeDepth) {
+						maxTreeDepth = maxChild.depth;
+					}
+
+					System.out.println("2");
+					maxChild.updateHash(lastNode);
+					System.out.println("2");
+
+					//Duplication Avoidance
+					long key = maxChild.getHash();
+					Double value = NodeValues.get(key);
+					if(value != null && quickfix<4) { //TODO: This quickfix really sucks.
+						Iterator<MCTSNode> it = lastNode.getChildren().iterator();
+						while (it.hasNext()) {
+							MCTSNode child = it.next();
+							if(key == child.getHash()) {
+								quickfix++;
+								System.out.println("Duplo Atk " + lastNode.maxChildren + " " + lastNode.attackChildren.size() + " " + maxChild.getAttackDest() + " " + maxChild.getAttackSource());
+								continue inAtk;
+							}
+						}
+					}
 					getValue(maxChild);
 					//Duplication Avoidance
 
@@ -300,7 +350,6 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 					lastNode.addChild(maxChild);	
 					return maxChild;
 				}
-			}
 		}
 		//****************************RANDOM EVENT****************************************//
 		case GameTreeNode.RANDOMEVENT: {
@@ -407,7 +456,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 			if (newChild.depth > maxTreeDepth) {
 				maxTreeDepth = newChild.depth;
 			}
-			
+
 			System.out.println("3");
 			newChild.updateHash(lastNode);
 			System.out.println("3");
@@ -416,6 +465,8 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		}
 		//**********************MOVE AFTER ATTACK***********************************//
 		case GameTreeNode.MOVEAFTERATTACK: {
+			//TODO : Expand all of them ?
+
 			int totalTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -473,12 +524,16 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		}
 		//******************************MANOEUVRE***********************************//
 		case GameTreeNode.MANOEUVRE: {
+			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
+			//TODO this quickly : "copy - paste" Populate treeset.
 
-			if (lastNode.numberOfManoeuvreBranches == 0) {
-				lastNode.numberOfManoeuvreBranches = Math.min(
-						params.MCTSManBranchQualityFactor,
-						lastNode.maxChildren / 4);
-			}
+			lastNode.numberOfManoeuvreBranches = Math.min(
+					params.MCTSManBranchQualityFactor,
+					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 2);
+
+			if(lastNode.numberOfManoeuvreBranches <1)
+				lastNode.numberOfManoeuvreBranches = 1 ;
 
 			// System.out.println("Man 1");
 			if (lastNode.manChildren == null) {
@@ -610,7 +665,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						if (maxChild.depth > maxTreeDepth) {
 							maxTreeDepth = maxChild.depth;
 						}
-						
+
 						System.out.println("5");
 						maxChild.updateHash(lastNode);
 						System.out.println("5");
