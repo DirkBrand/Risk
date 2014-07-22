@@ -33,8 +33,10 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		case GameTreeNode.RECRUIT: {
 			calculateMaxChildren(lastNode);
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
-			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
-			//TODO this quickly : "copy - paste" Populate treeset.
+			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/
+				
+			}
+			//TODO : find a way to do this.
 
 			lastNode.numberOfRecruitBranches = Math.min(
 					params.MCTSRecruitBranchQualityFactor,
