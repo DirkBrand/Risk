@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
+import org.paukov.combinatorics.*;
+
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
@@ -12,6 +14,13 @@ import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Territory;
 
+/**
+ * This AI is using incremental hash to avoid duplications.
+ * It also generates all children nodes for a specific parent node when
+ * it has a limited amount of possible children. - avoiding further duplications. 
+ * @author glebris
+ *
+ */
 public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 
 	public static void main(String[] args) {
@@ -33,10 +42,69 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		case GameTreeNode.RECRUIT: {
 			calculateMaxChildren(lastNode);
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
-			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/
-				
+			{/*AddEveryPossibleChild, return the last one */
+				// Create permutation array
+				// System.out.println("Generating recruit nodes " + lastNode.maxChildren + " " + lastNode.getHash());
+
+				int n = AIUtil.calculateRecruitedTroops(lastNode);
+
+				int m = lastNode.getGame().getCurrentPlayer().getTerritories()
+						.size();
+
+				Integer[] initialInt = new Integer[n + m - 1];
+				int d = 0;
+				for (int i = 0; i < n; i++)
+					initialInt[d++] = 1;
+
+				for (int i = 0; i < m - 1; i++)
+					initialInt[d++] = 0;
+
+				// Create the initial vector
+				ICombinatoricsVector<Integer> initialVector = Factory.createVector(
+						initialInt);
+
+				// Create the generator
+				Generator<Integer> generator = Factory.createPermutationGenerator(initialVector);
+				MCTSNode tempChild = null;
+				for (ICombinatoricsVector<Integer> perm : generator) {
+					tempChild = lastNode.clone();
+
+					Iterator<Territory> it = tempChild.getGame()
+							.getCurrentPlayer().getTerritories().values()
+							.iterator();
+					Territory current = it.next();
+					// Place troops according to permutation
+					for (int p = 0; p < perm.getSize(); p++) {
+						if (perm.getValue(p)==1) {
+							current.incrementTroops();
+							tempChild.setAttackSource(current.getName());
+						} else {
+							current = it.next();
+						}
+					}
+					tempChild.setVisitCount(0);
+					tempChild.setWinCount(0);
+					tempChild.setParent(lastNode);
+					tempChild.setChildren(new ArrayList<MCTSNode>());
+
+					tempChild.setTreePhase(GameTreeNode.ATTACK);
+
+					tempChild.setMoveReq(false);
+
+					calculateMaxChildren(tempChild);
+
+					tempChild.depth = lastNode.depth + 1;
+					if (tempChild.depth > maxTreeDepth) {
+						maxTreeDepth = tempChild.depth;
+					}
+
+					tempChild.updateHash(lastNode);
+					getValue(tempChild);
+
+					lastNode.addChild(tempChild);
+				}
+				return tempChild;
 			}
-			//TODO : find a way to do this.
 
 			lastNode.numberOfRecruitBranches = Math.min(
 					params.MCTSRecruitBranchQualityFactor,
@@ -64,7 +132,6 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 				while(true)
 				{
 					// Generate all and pick randomly from top 30
-					// System.out.println("Recruit 2");
 					MCTSNode maxChild = null;
 					double maxRating = Double.NEGATIVE_INFINITY;
 					while (maxChild == null) {
@@ -88,6 +155,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 							}
 							double value = AIUtil.eval(tempChild, AIParameter.evalWeights, maxRecruitable); 
 							// Was getValue() here before. - DuplicationAvoidance in sampling ?
+							//TODO: In every sample, I compute again value. (not hash though) - is it a long process ?
 							if (value >= maxRating) {
 								maxRating = value;
 								maxChild = tempChild;
@@ -111,20 +179,30 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						maxTreeDepth = maxChild.depth;
 					}
 
-					System.out.println("7");
 					maxChild.updateHash(lastNode);
-					System.out.println("7");
 					//DUPLICATION AVOIDANCE
 					long key = maxChild.getHash();
 					Double value = NodeValues.get(key);
-					if(value != null && quickfix < 4) {
+					if(value != null) {
 						Iterator<MCTSNode> it = lastNode.getChildren().iterator();
+						if(quickfix < 4) {
+							while (it.hasNext()) {
+								MCTSNode child = it.next();
+								if(key == child.getHash()) {
+									quickfix++;
+									System.out.println("Duplo Recruit " + lastNode.numberOfRecruitBranches + " " + lastNode.maxChildren + " children " +lastNode.getChildren().size() +  " " +lastNode.getHash());													
+									continue inRecruit;
+								}
+							}
+						}
 						while (it.hasNext()) {
 							MCTSNode child = it.next();
-							if(key == child.getHash()) {
-								quickfix++;
-								System.out.println("Duplo Recruit " + lastNode.numberOfRecruitBranches + " " + lastNode.maxChildren);													
-								continue inRecruit;
+							if(key == child.getHash() ) {
+								System.out.println("Expanding da Expansion " + child.depth + " " + child.getHash());
+								if(child.getChildren().size() < child.maxChildren)
+									return Expand(child);
+								else
+									return child;
 							}
 						}
 					}
@@ -293,10 +371,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 								maxTreeDepth = maxChild.depth;
 							}
 
-							System.out.println("1");
 							maxChild.updateHash(lastNode);
-							System.out.println("1");
-
 							getValue(maxChild);
 							lastNode.addChild(maxChild);
 							lastNode.attackChildren.remove(maxChild);
@@ -325,21 +400,34 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						maxTreeDepth = maxChild.depth;
 					}
 
-					System.out.println("2");
 					maxChild.updateHash(lastNode);
-					System.out.println("2");
 
 					//Duplication Avoidance
 					long key = maxChild.getHash();
 					Double value = NodeValues.get(key);
-					if(value != null && quickfix<4) { //TODO: This quickfix really sucks.
+					if(value != null) { //TODO: This quickfix really sucks.
 						Iterator<MCTSNode> it = lastNode.getChildren().iterator();
-						while (it.hasNext()) {
-							MCTSNode child = it.next();
-							if(key == child.getHash()) {
-								quickfix++;
-								System.out.println("Duplo Atk " + lastNode.maxChildren + " " + lastNode.attackChildren.size() + " " + maxChild.getAttackDest() + " " + maxChild.getAttackSource());
-								continue inAtk;
+						if(quickfix<4) {
+							while (it.hasNext()) {
+								MCTSNode child = it.next();
+								if(key == child.getHash()) {
+									quickfix++;
+									System.out.println("Duplo Atk " + lastNode.maxChildren + " " + 
+											lastNode.attackChildren.size() + " " + maxChild.getAttackDest() + 
+											" " + maxChild.getAttackSource());
+									continue inAtk;
+								}
+							}
+						} else {
+							while (it.hasNext()) {
+								MCTSNode child = it.next();
+								if(key == child.getHash() ) {
+									System.out.println("Expanding da Expansion " + child.depth);
+									if(child.getChildren().size() < child.maxChildren)
+										return Expand(child);
+									else
+										return child;
+								}
 							}
 						}
 					}
@@ -459,41 +547,22 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 				maxTreeDepth = newChild.depth;
 			}
 
-			System.out.println("3");
 			newChild.updateHash(lastNode);
-			System.out.println("3");
 			lastNode.addChild(newChild);
 			return newChild;
 		}
 		//**********************MOVE AFTER ATTACK***********************************//
 		case GameTreeNode.MOVEAFTERATTACK: {
-			//TODO : Expand all of them ?
-
 			int totalTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
-			while (true) {
-				int troops = rand.nextInt(totalTroops - 1) + 1;
 
-				//TODO : Update hash - check uniqueness with it
-				boolean unique = true;
-				for (MCTSNode child : lastNode.getChildren()) {
-					if (child.getMoveAfterAttackCount() == troops) {
-						unique = false;
-						break;
-					}
-				}
-
-				// Add unique child to existing children
-				if (unique) {
-					MCTSNode newChild = lastNode.clone();
-					newChild.setVisitCount(0);
-					newChild.setWinCount(0);
-					newChild.setParent(lastNode);
-					newChild.setChildren(new ArrayList<MCTSNode>());
-
+			if(totalTroops < GameTreeNode.reasonableChildrenNumber/3){
+				MCTSNode newChild = null;
+				for(int troops=1; troops<totalTroops; troops++) {
+					newChild = lastNode.clone();
 					newChild.setTreePhase(GameTreeNode.ATTACK);
-
+					newChild.setMoveAfterAttackCount(troops);
 					AIUtil.resolveMoveAction(
 							newChild.getGame()
 							.getCurrentPlayer()
@@ -503,7 +572,63 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 									.getCurrentPlayer()
 									.getTerritoryByName(
 											newChild.getAttackDest()), troops);
+					newChild.updateHash(lastNode);
+					getValue(newChild);
+					newChild.setVisitCount(0);
+					newChild.setWinCount(0);
+					newChild.setParent(lastNode);
+					newChild.setChildren(new ArrayList<MCTSNode>());
+					newChild.setMoveAfterAttackCount(troops);
+					newChild.setMoveReq(false);
+					calculateMaxChildren(newChild);
 
+					newChild.depth = lastNode.depth + 1;
+					if (newChild.depth > maxTreeDepth) {
+						maxTreeDepth = newChild.depth;
+					}
+					lastNode.addChild(newChild);
+				}
+				return newChild;
+			}
+
+			inMoA:
+				while (true) {
+					MCTSNode newChild = lastNode.clone();
+					newChild.setTreePhase(GameTreeNode.ATTACK);
+					int troops = rand.nextInt(totalTroops - 1) + 1;
+					newChild.setMoveAfterAttackCount(troops);
+					AIUtil.resolveMoveAction(
+							newChild.getGame()
+							.getCurrentPlayer()
+							.getTerritoryByName(
+									newChild.getAttackSource()),
+									newChild.getGame()
+									.getCurrentPlayer()
+									.getTerritoryByName(
+											newChild.getAttackDest()), troops);
+					newChild.updateHash(lastNode);
+
+					//Duplication Avoidance
+					long key = newChild.getHash();
+					Double value = NodeValues.get(key);
+					if(value != null) {
+						Iterator<MCTSNode> it = lastNode.getChildren().iterator();
+						while (it.hasNext()) {
+							MCTSNode child = it.next();
+							if(key == child.getHash()) {
+								//System.out.println("Duplo MoA " + lastNode.maxChildren + " " + newChild.getMoveAfterAttackCount());
+								continue inMoA;
+							}
+						}
+					}
+					getValue(newChild);
+					//Duplication Avoidance
+
+					// Add unique child to existing children
+					newChild.setVisitCount(0);
+					newChild.setWinCount(0);
+					newChild.setParent(lastNode);
+					newChild.setChildren(new ArrayList<MCTSNode>());
 					newChild.setMoveAfterAttackCount(troops);
 
 					newChild.setMoveReq(false);
@@ -514,30 +639,91 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 					if (newChild.depth > maxTreeDepth) {
 						maxTreeDepth = newChild.depth;
 					}
-					System.out.println("4");
-					newChild.updateHash(lastNode);
-					System.out.println("4");
+
 					lastNode.addChild(newChild);
 					return newChild;
 				}
-
-			}
 
 		}
 		//******************************MANOEUVRE***********************************//
 		case GameTreeNode.MANOEUVRE: {
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
-			{/*AddEveryPossibleChild, return noAttackOne (since we are sure that this one is included.)*/}
-			//TODO this quickly : "copy - paste" Populate treeset.
+			{/*AddEveryPossibleChild, return noManoeuvreOne (since we are sure that this one is included.)*/
+				//System.out.println("Generating manoeuvres: " + lastNode.getHash());
+				System.out.println("Buckets: " + lastNode.getConnComponentBuckets());
+				for (LinkedList<Territory> bucket : lastNode
+						.getConnComponentBuckets()) {
+					if (bucket.size() > 1) {
+						for (Territory src : bucket) {
+							if (src.getNrTroops() > 1) {
+								for (Territory dest : bucket) {
+									if (!src.getName().equals(dest.getName())) {
+										// Unique source-dest combo
+										for(int troops=1; troops<src.getNrTroops(); troops++){
+											MCTSNode newChild = lastNode.clone();
+											newChild.setManSource(src);
+											newChild.setManDest(dest);
+											newChild.setManTroopCount(troops + "");
+											AIUtil.resolveMoveAction(
+													newChild.getGame()
+													.getCurrentPlayer()
+													.getTerritoryByName(
+															newChild.getManSource().getName()),
+															newChild.getGame()
+															.getCurrentPlayer()
+															.getTerritoryByName(
+																	newChild.getManDest().getName()),
+																	troops);
+											newChild.setTreePhase(GameTreeNode.RECRUIT);
+											newChild.setVisitCount(0);
+											newChild.setWinCount(0);
+											newChild.setParent(lastNode);
+											newChild.setChildren(new ArrayList<MCTSNode>());
+											newChild.setMoveReq(false);
+											newChild.switchMaxPlayer();
+											newChild.getGame().changeCurrentPlayer();
+											calculateMaxChildren(newChild);
+											newChild.depth = lastNode.depth + 1;
+											newChild.updateHash(lastNode);
+											getValue(newChild);
+											lastNode.addChild(newChild);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				MCTSNode noManChild = lastNode.clone();
+				noManChild.setManSource(null);
+				noManChild.setManDest(null);
+				noManChild.setTreePhase(GameTreeNode.RECRUIT);
+				noManChild.setVisitCount(0);
+				noManChild.setWinCount(0);
+				noManChild.setParent(lastNode);
+				noManChild.setChildren(new ArrayList<MCTSNode>());
+				noManChild.setMoveReq(false);
+				noManChild.switchMaxPlayer();
+				noManChild.getGame().changeCurrentPlayer();
+				calculateMaxChildren(noManChild);
+				noManChild.depth = lastNode.depth + 1;
+				if (noManChild.depth > maxTreeDepth) {
+					maxTreeDepth = noManChild.depth;
+				}
+				noManChild.updateHash(lastNode);
+				getValue(noManChild);
+				lastNode.addChild(noManChild);
+				return noManChild;
+
+			}
 
 			lastNode.numberOfManoeuvreBranches = Math.min(
 					params.MCTSManBranchQualityFactor,
-					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 2);
+					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 4);
 
 			if(lastNode.numberOfManoeuvreBranches <1)
 				lastNode.numberOfManoeuvreBranches = 1 ;
 
-			// System.out.println("Man 1");
 			if (lastNode.manChildren == null) {
 				lastNode.manChildren = new ArrayList<MCTSNode>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
@@ -573,75 +759,72 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						}
 					}
 				}
-
 			}
 
-			Random r = new Random();
+			Random r1 = new Random();
 			int count = 0;
-			while (true) {
-				count++;
-				//System.out.println(count);
-				double maxRating = Double.NEGATIVE_INFINITY;
-				MCTSNode maxChild = null;
+			inMan:
+				while (true) {
+					count++;
+					double maxRating = Double.NEGATIVE_INFINITY;
+					MCTSNode maxChild = null;
 
-				if (lastNode.maxChildren == 1) {
-					maxChild = lastNode.clone();
-				}
+					if (lastNode.maxChildren == 1) {
+						maxChild = lastNode.clone();
+					}
 
-				// Fix search range
-				if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
-					lastNode.numberOfManoeuvreBranches--;
-				}
+					// Fix search range
+					if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
+						lastNode.numberOfManoeuvreBranches--;
+					}
 
-				if (lastNode.numberOfManoeuvreBranches < 1) {
-					lastNode.numberOfManoeuvreBranches = 1;
-				}
+					if (lastNode.numberOfManoeuvreBranches < 1) {
+						lastNode.numberOfManoeuvreBranches = 1;
+					}
 
-				for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
-					int index = r.nextInt(lastNode.maxChildren);
-
-					int first, last, middle = -1, nrTroops = -1;
-					MCTSNode temp = null;
-
-					if (index > 0) {
-						first = 0;
-						last = lastNode.manTroopBins.size() - 1;
-						middle = (first + last) / 2;
-
-						while (first <= last) {
-							int value = lastNode.manTroopBins.get(middle);
-
-							if (value < index
-									&& index < lastNode.manTroopBins
-									.get(middle + 1)) {
-								nrTroops = index - value;
-								middle++;
-								break;
-							} else if (value == index) {
-								nrTroops = value
-										- lastNode.manTroopBins.get(middle - 1);
-								break;
-							} else if (value < index) {
-								first = middle + 1;
-							} else {
-								last = middle - 1;
-							}
+					//Modified here - I don't keep track of added node though.
+					//Which is why is duplication and later on detected.
+					for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
+						int index = r1.nextInt(lastNode.maxChildren);
+						int first, last, middle = -1, nrTroops = -1;
+						MCTSNode temp = null;
+						if (index > 0) {
+							first = 0;
+							last = lastNode.manTroopBins.size() - 1;
 							middle = (first + last) / 2;
-
-						}
-						temp = lastNode.manChildren.get(middle).clone();
-
-						temp.setManTroopCount(nrTroops + "");
-						AIUtil.resolveMoveAction(
-								temp.getGame()
-								.getCurrentPlayer()
-								.getTerritoryByName(
-										temp.getManSource().getName()),
-										temp.getGame()
-										.getCurrentPlayer()
-										.getTerritoryByName(
-												temp.getManDest().getName()),
-												nrTroops);
+							while (first <= last) {
+								int value = lastNode.manTroopBins.get(middle);
+								if (value < index
+										&& index < lastNode.manTroopBins
+										.get(middle + 1)) {
+									nrTroops = index - value;
+									middle++;
+									break;
+								} else if (value == index) {
+									nrTroops = value
+											- lastNode.manTroopBins
+											.get(middle - 1);
+									break;
+								} else if (value < index) {
+									first = middle + 1;
+								} else {
+									last = middle - 1;
+								}
+								middle = (first + last) / 2;
+							}
+							temp = lastNode.manChildren.get(middle).clone();
+							temp.setManTroopCount(nrTroops + "");
+							AIUtil.resolveMoveAction(
+									temp.getGame()
+									.getCurrentPlayer()
+									.getTerritoryByName(
+											temp.getManSource()
+											.getName()),
+											temp.getGame()
+											.getCurrentPlayer()
+											.getTerritoryByName(
+													temp.getManDest().getName()),
+													nrTroops);
 					} else {
 						temp = lastNode.manChildren.get(0);
 					}
@@ -667,10 +850,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						if (maxChild.depth > maxTreeDepth) {
 							maxTreeDepth = maxChild.depth;
 						}
-
-						System.out.println("5");
 						maxChild.updateHash(lastNode);
-						System.out.println("5");
 						lastNode.addChild(maxChild);
 						return maxChild;
 					}
@@ -681,64 +861,67 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 					}
 				}
 
-				//TODO : Update hash - check uniqueness with it
-				boolean unique = true;
-				for (MCTSNode child : lastNode.getChildren()) {
-					if (child.getManSource() == null
-							&& maxChild.getManSource() == null) {
-						unique = false;
-						break;
+			maxChild.setTreePhase(GameTreeNode.RECRUIT);
+			maxChild.switchMaxPlayer();
+			maxChild.getGame().changeCurrentPlayer();
+			maxChild.updateHash(lastNode); //Sometimes : 
+			//					Debug Man Source New Guinea null null Dest Indonesia null null
+			//					This should be null: Indonesia - 8
+			//					Debug Man2 players: 0 1
+			//					java.lang.NullPointerException
+			//						at risk.aiplayers.util.MCTSNode.updateHash(MCTSNode.java:257)
+			// Seems like manoeuvre source and dest are not owned by the right player.
+
+			//Duplication Avoidance
+			long key = maxChild.getHash();
+			Double value = NodeValues.get(key);
+			if(value != null) { //TODO: quickfix ugh.
+				Iterator<MCTSNode> it = lastNode.getChildren().iterator();
+				if(quickfix < 4) {
+					while (it.hasNext()) {
+						MCTSNode child = it.next();
+						if(key == child.getHash() ) {
+							quickfix++;
+							System.out.println("Duplo Manoeuvre maxChild source: " + maxChild.getManSource() + 
+									" child source " + child.getManSource() +" children " + 
+									lastNode.getChildren().size() + " " + lastNode.getHash());
+							continue inMan;
+						}
 					}
-					if (child.getManSource() == null) {
-						continue;
-					}
-					if (maxChild.getManSource() != null
-							&& maxChild.getManDest() != null
-							&& child.getManSource()
-							.getName()
-							.equalsIgnoreCase(
-									maxChild.getManSource().getName())
-									&& child.getManDest()
-									.getName()
-									.equalsIgnoreCase(
-											maxChild.getManDest().getName())
-											&& child.getManTroopCount().equalsIgnoreCase(
-													maxChild.getManTroopCount())) {
-						unique = false;
-						break;
+				} else {
+					while(it.hasNext()) {
+						MCTSNode child = it.next();
+						if(key == child.getHash() ) {
+							System.out.println("Expanding da Expansion " + child.depth);
+							if(child.getChildren().size() < child.maxChildren)
+								return Expand(child);
+							else
+								return child;
+						}
 					}
 				}
+			}
+			getValue(maxChild);
+			//Duplication Avoidance
 
-				// Add unique child to existing children
-				if (unique) {
-					maxChild.setVisitCount(0);
-					maxChild.setWinCount(0);
-					maxChild.setParent(lastNode);
-					maxChild.setChildren(new ArrayList<MCTSNode>());
+			// Add unique child to existing children
 
-					maxChild.setTreePhase(GameTreeNode.RECRUIT);
+			maxChild.setVisitCount(0);
+			maxChild.setWinCount(0);
+			maxChild.setParent(lastNode);
+			maxChild.setChildren(new ArrayList<MCTSNode>());	
+			maxChild.setMoveReq(false);
+			calculateMaxChildren(maxChild);
+			maxChild.depth = lastNode.depth + 1;
+			if (maxChild.depth > maxTreeDepth) {
+				maxTreeDepth = maxChild.depth;
+			}
 
-					maxChild.setMoveReq(false);
-					maxChild.switchMaxPlayer();
-					maxChild.getGame().changeCurrentPlayer();
-
-					calculateMaxChildren(maxChild);
-
-					maxChild.depth = lastNode.depth + 1;
-					if (maxChild.depth > maxTreeDepth) {
-						maxTreeDepth = maxChild.depth;
-					}
-
-					System.out.println("6");
-					maxChild.updateHash(lastNode);
-					System.out.println("6");
-					lastNode.addChild(maxChild);
-					return maxChild;
-				}
-			} // while : true
+			lastNode.addChild(maxChild);
+			return maxChild;
+		} // while : true
 		} // case manoeuvre
-		} // switch
-		return null;
-	}
-
+	} // switch
+	return null;
+}
 }

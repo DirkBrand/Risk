@@ -12,7 +12,6 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	private GameState game;
 	private int treePhase;
 	private boolean maxPlayer;
-	private long hashCode = 0L; // Keeping it in memory since children nodes should be using it.
 	private double value;
 
 	// Recruitment Phase
@@ -36,7 +35,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	public static final int RANDOMEVENT = 3;
 	public static final int MANOEUVRE = 4;
 	
-	public static final int reasonableChildrenNumber = 30;
+	public static final int reasonableChildrenNumber = 40;
 
 	public GameTreeNode() {
 	}
@@ -48,8 +47,6 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 			GameTreeNode copy = (GameTreeNode) super.clone();
 
 			GameState gameC = game.clone();
-
-			copy.setHash(0L);
 			copy.setGame(gameC);
 			copy.setValue(0);
 			copy.setAttackSource(attackSource);
@@ -61,27 +58,17 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 			return null;
 		}
 	}
-
-	@Override
-	public int compareTo(GameTreeNode node) {
-		double val1 = this.value;
-		double val2 = node.value;
-		return Double.compare(val2, val1);
-	}
-
+	
 	public long getHash() {
-		if(this.hashCode != 0L) {
-			return this.hashCode;
-		}
 		long key = 0;
-		Iterator<Territory> It = this.game.getPlayers().get(0).getTerritories().values().iterator();
+		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), 49);
 			long za = AIPlayer.ZobristArray[t.getId()-1][troopNumber][0]; // Id starts at 1.
 			key = key ^ za;
 		}
-		It = this.game.getPlayers().get(1).getTerritories().values().iterator();
+		It = this.getGame().getPlayers().get(1).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), 49);
@@ -89,7 +76,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 			key = key ^ za;
 		}
 
-		key = key ^ AIPlayer.ZobristPlayerFactor[this.game.getCurrentPlayerID()];
+		key = key ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
 		key = key ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
 
 		/* If it is a phase coming from attack : we have to know AttackSource and Destination to distinguish
@@ -104,155 +91,14 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 //			key = key ^ AIPlayer.ZobristAttackSource[this.game.getCurrentPlayer().getTerritoryByName(this.getAttackSource()).getId()];
 //		}
 
-		this.setHash(key);
 		return key;	
 	}
-	//TODO : Fix this issue with territory IDs going from 1 to territories.length()
-	/*
-	 * Sets the child's hashcode using the parent's.
-	 */
-	public void updateHash(GameTreeNode parent) {
-		if(this.hashCode == 0L) {
-			long childHash = parent.getHash();
-			int playerId = parent.game.getCurrentPlayerID();
-			switch(parent.getTreePhase()) {
-			//Child in ATTACK
-			case(RECRUIT): {
-				Iterator<Territory> Itp = parent.game.getCurrentPlayer().getTerritories().values().iterator();
-				Iterator<Territory> Itc = this.game.getCurrentPlayer().getTerritories().values().iterator();
-				while (Itp.hasNext() && Itc.hasNext()) {
-					Territory tp = Itp.next();
-					Territory tc = Itc.next();
-					int troopP = Math.min(tp.getNrTroops(), 49);
-					int troopC = Math.min(tc.getNrTroops(), 49);
-					if(troopP != troopC) {
-						childHash = childHash ^ AIPlayer.ZobristArray[tp.getId()-1][troopP][playerId];
-						childHash = childHash ^ AIPlayer.ZobristArray[tc.getId()-1][troopC][playerId];
-					}
-				}
-				if(Itp.hasNext() || Itc.hasNext()) {
-					System.out.println("What happened in recruit.. - different territories");
-				}
-				break;
-			}
-			//Child in RE or MANOEUVRE
-			case(ATTACK): {
-				if(this.getTreePhase() == RANDOMEVENT) {
-					Territory Source = this.game.getCurrentPlayer().getTerritoryByName(this.getAttackSource());
-					Territory Dest = this.game.getOtherPlayer().getTerritoryByName(this.getAttackDest());
-					int destId = Dest.getId();
-					int sourceId = Source.getId();
-					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
-					childHash = childHash ^ AIPlayer.ZobristAttackSource[sourceId-1];			
-				}
-				else if(this.getTreePhase() == MANOEUVRE) {
-					// Nothing to do here ? - no AttackDest|Source
-				}
-				else System.out.println("Little John is looking for his mom TreePhase");
-				break;
-			}
-			//Child in ATTACK or MOA
-			case(RANDOMEVENT): {
-				Territory Source = this.game.getCurrentPlayer().getTerritoryByName(parent.getAttackSource());
-				// Still other player's territory
-				if(this.getTreePhase() == ATTACK) {
-					Territory Dest = this.game.getOtherPlayer().getTerritoryByName(parent.getAttackDest());
-					int destId = Dest.getId();
-					int troopP = Math.min(parent.game.getOtherPlayer().getTerritoryByID(destId).getNrTroops(), 49);
-					int troopC = Math.min(this.game.getOtherPlayer().getTerritoryByID(destId).getNrTroops(),  49);
-					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopP][this.game.getOtherPlayer().getId()];
-					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopC][this.game.getOtherPlayer().getId()];
 
-					//XOR Out AttackDest - not needed anymore
-					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
-				}
-				//OtherPlayer lost this territory
-				else if(this.getTreePhase() == MOVEAFTERATTACK) {
-					Territory Dest = this.game.getCurrentPlayer().getTerritoryByName(this.getAttackDest());
-					int destId = Dest.getId();
-					int troopP = Math.min(parent.game.getOtherPlayer().getTerritoryByID(destId).getNrTroops(), 49);
-					int troopC = Math.min(this.game.getCurrentPlayer().getTerritoryByID(destId).getNrTroops(),  49);
-					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopP][this.game.getOtherPlayer().getId()];
-					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopC][playerId];		
-
-					//XOR Out AttackDest - not needed anymore
-					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
-				}
-				else {
-					System.out.println("Little John is looking for his mom TreePhase");
-				}
-				//Treating Source Territory
-				int sourceId = Source.getId();
-				int troopPsource = parent.game.getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops();
-				int troopCsource = this.game.getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops();
-				childHash = childHash ^ AIPlayer.ZobristArray[sourceId-1][troopPsource][playerId];
-				childHash = childHash ^ AIPlayer.ZobristArray[sourceId-1][troopCsource][playerId];			
-
-				//XOR Out AttackSource - not needed anymore //TODO: Keep an eye on this. Are these well removed ?
-				childHash = childHash ^ AIPlayer.ZobristAttackSource[sourceId-1];
-				break;
-			}
-			//Child in ATTACK
-			case(MOVEAFTERATTACK): {//TODO : Clear this thing. Is there a faster way ?
-				Iterator<Territory> Itp = parent.game.getCurrentPlayer().getTerritories().values().iterator();
-				Iterator<Territory> Itc = this.game.getCurrentPlayer().getTerritories().values().iterator();
-				while (Itp.hasNext() && Itc.hasNext()) {
-					Territory tp = Itp.next();
-					Territory tc = Itc.next();
-					int troopP = Math.min(tp.getNrTroops(), 49);
-					int troopC = Math.min(tc.getNrTroops(), 49);
-					if(troopP != troopC) {
-						childHash = childHash ^ AIPlayer.ZobristArray[tp.getId()-1][troopP][playerId];
-						childHash = childHash ^ AIPlayer.ZobristArray[tc.getId()-1][troopC][playerId];
-					}
-				}
-				if(Itp.hasNext() || Itc.hasNext()) {
-					System.out.println("What happened in MoveAfterAttack.. - different territories");
-				}
-				break;
-			}
-			//Child in RECRUIT - Other player.
-			case(MANOEUVRE): {
-				//No manoeuvre this turn.
-				if(parent.getManSourceID()==null && parent.getManDestID() == null)
-					break;
-				else {
-					Territory manSourceChild = this.game.getCurrentPlayer().getTerritoryByName(parent.getManSourceID());
-					Territory manDestChild = this.game.getCurrentPlayer().getTerritoryByName(parent.getManDestID());
-
-					Territory manSourceParent = parent.game.getCurrentPlayer().getTerritoryByName(parent.getManSourceID());
-					Territory manDestParent = parent.game.getCurrentPlayer().getTerritoryByName(parent.getManDestID());
-					
-					int manDestCTroops = Math.min(manDestChild.getNrTroops(), 49);
-					int manSrcCTroops = Math.min(manSourceChild.getNrTroops(), 49);
-					int manDestPTroops = Math.min(manDestParent.getNrTroops(), 49);
-					int manSrcPTroops = Math.min(manSourceParent.getNrTroops(), 49);
-
-					childHash = childHash ^ AIPlayer.ZobristArray[manDestChild.getId()-1][manDestCTroops][playerId];
-					childHash = childHash ^ AIPlayer.ZobristArray[manSourceChild.getId()-1][manSrcCTroops][playerId];
-
-					childHash = childHash ^ AIPlayer.ZobristArray[manDestParent.getId()-1][manDestPTroops][playerId];
-					childHash = childHash ^ AIPlayer.ZobristArray[manSourceParent.getId()-1][manSrcPTroops][playerId];
-
-					//Changing player in hashcode
-					childHash = childHash ^ AIPlayer.ZobristPlayerFactor[playerId];
-					childHash = childHash ^ AIPlayer.ZobristPlayerFactor[this.game.getCurrentPlayerID()];
-				}
-				break;
-			}
-			default: {
-				System.out.println("Non existant game phase in updateHash - ERROR4012654");
-				break;	
-			}
-			}
-			// Changing game phase in hashcode
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[parent.getTreePhase()];
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
-			this.setHash(childHash);
-		}
-		else {
-			System.out.println("Well Sir, you are trying to create a hashcode that we already know: " + this.hashCode);
-		}
+	@Override
+	public int compareTo(GameTreeNode node) {
+		double val1 = this.value;
+		double val2 = node.value;
+		return Double.compare(val2, val1);
 	}
 
 	// Getters & Setters
@@ -262,10 +108,6 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 
 	public void setGame(GameState game) {
 		this.game = game;
-	}
-
-	public void setHash(long hash) {
-		this.hashCode = hash;
 	}
 
 	public double getValue() {

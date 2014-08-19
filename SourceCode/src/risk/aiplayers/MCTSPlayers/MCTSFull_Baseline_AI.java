@@ -1,13 +1,10 @@
 package risk.aiplayers.MCTSPlayers;
 
-
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
@@ -23,37 +20,29 @@ import risk.commonObjects.Territory;
  *
  */
 public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
-
 	MCTSNode globalNode;
-
 	boolean myTurn = false;
-
 	public static void main(String[] args) {
 		String tempName = args[0];
 		long time = Long.parseLong(args[1]);
 		new MCTSFull_Baseline_AI(tempName, null, null, 2, time);
 	}
-
 	public MCTSFull_Baseline_AI(String name, String opp, String map, int id,
 			long time) {
 		super(name, opp, map, id, time, new AIParameter());
 	}
-
 	@Override
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
 		case GameTreeNode.RECRUIT: {
 			int troops = AIUtil.calculateRecruitedTroops(lastNode);
-
 			int n = troops;
 			int m = lastNode.getGame().getCurrentPlayer().getTerritories()
 					.size();
 			count = (int) (AIUtil.nCk(n + m - 1, n));
-
 			if (count < 0)
 				count = Integer.MAX_VALUE;
-
 			break;
 		}
 		case GameTreeNode.ATTACK: {
@@ -74,7 +63,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 				}
 			}
-
 			break;
 		}
 		case GameTreeNode.MOVEAFTERATTACK: {
@@ -92,7 +80,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					.getNrTroops();
 			int destTroops = lastNode.getGame().getOtherPlayer()
 					.getTerritoryByName(lastNode.getAttackDest()).getNrTroops();
-
 			if (sourceTroops == 2) {
 				count = 2;
 			} else if (sourceTroops == 3) {
@@ -101,7 +88,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				} else {
 					count = 3;
 				}
-
 			} else {
 				if (destTroops == 2 || destTroops == 1) {
 					count = 2;
@@ -119,10 +105,8 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				lastNode.getConnComponentBuckets().add(
 						new LinkedList<Territory>());
 			}
-
 			// Since not maneuvering is an option
 			count = 1;
-
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();
 			while (it.hasNext()) {
@@ -130,7 +114,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				lastNode.getConnComponentBuckets().get(t.connectedRegion)
 				.add(t);
 			}
-
 			for (LinkedList<Territory> bucket : lastNode
 					.getConnComponentBuckets()) {
 				if (bucket.size() > 1) {
@@ -146,43 +129,31 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 				}
 			}
-
 			break;
 		}
 		}
-
 		lastNode.maxChildren = count;
 	}
-
 	// EXPANSION (One child at a time)
 	@Override
 	protected MCTSNode Expand(MCTSNode lastNode) {
-		// System.out.println(lastNode.getTreePhaseText());
 		switch (lastNode.getTreePhase()) {
 		case GameTreeNode.RECRUIT: {
 			// Create permutation array
 			int n = AIUtil.calculateRecruitedTroops(lastNode);
-
 			int m = lastNode.getGame().getCurrentPlayer().getTerritories()
 					.size();
-
 			Boolean[] perm = new Boolean[n + m - 1];
 			int d = 0;
 			for (int i = 0; i < n; i++)
 				perm[d++] = true;
-
 			for (int i = 0; i < m - 1; i++)
 				perm[d++] = false;
-
-
 			MCTSNode maxChild = null;
 			double maxRating = Double.NEGATIVE_INFINITY;
-
 			if (lastNode.getChildren().size() == 0) {
-				int maxID = 0;
 				String maxName = "";
 				double max = Double.MIN_VALUE;
-
 				Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 						.getTerritories().values().iterator();
 				while (it.hasNext()) {
@@ -199,25 +170,19 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					double ratio = t.getNrTroops() / sum;
 					if (ratio > max) {
 						max = ratio;
-						maxID = t.getId();
 						maxName = t.getName();
 					}
 				}
 				maxChild = lastNode.clone();
-
 				Territory source = maxChild.getGame().getCurrentPlayer()
 						.getTerritoryByName(maxName);
 				source.setNrTroops(source.getNrTroops() + n);
 				maxChild.setAttackSource(source.getName());
 			} else {
-				int count = 0;
 				while (maxChild == null) {
-					count++;
 					for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 						AIUtil.shuffleArray(perm);
-
 						MCTSNode tempChild = lastNode.clone();
-
 						Iterator<Territory> it = tempChild.getGame()
 								.getCurrentPlayer().getTerritories().values()
 								.iterator();
@@ -237,42 +202,31 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							maxChild = tempChild;
 						}
 					}
-
 				}
 			}
-
 			maxChild.setVisitCount(0);
 			maxChild.setWinCount(0);
 			maxChild.setParent(lastNode);
 			maxChild.setChildren(new ArrayList<MCTSNode>());
-
 			maxChild.setTreePhase(GameTreeNode.ATTACK);
-
 			maxChild.setMoveReq(false);
-
 			calculateMaxChildren(maxChild);
-
 			maxChild.depth = lastNode.depth + 1;
 			if (maxChild.depth > maxTreeDepth) {
 				maxTreeDepth = maxChild.depth;
 			}
-
 			lastNode.addChild(maxChild);
 			return maxChild;
 		}
-
 		case GameTreeNode.ATTACK: {
 			if (lastNode.numberOfAttackBranches == 0) {
 				lastNode.numberOfAttackBranches = Math.min(
 						params.MCTSAttackBranchQualityFactor,
 						lastNode.maxChildren / 2);
 			}
-
 			// Generate all and pick randomly from top 30
-
 			if (lastNode.attackChildren == null) {
 				lastNode.attackChildren = new ArrayList<MCTSNode>();
-
 				if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 						&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
 					MCTSNode noAttackChild = lastNode.clone();
@@ -282,11 +236,9 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					noAttackChild.setValue(getValue(noAttackChild));
 					// Add option to not attack
 					lastNode.attackChildren.add(noAttackChild);
-
 					// Decrease Max Children then
 					lastNode.maxChildren--;
 				}
-
 				// Populate treeset
 				Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 						.getTerritories().values().iterator();
@@ -309,10 +261,8 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 				}
 			}
-
 			Random r = new Random();
 			int index = 0;
-
 			if (lastNode.attackChildren.size() == 0) {
 				MCTSNode noAttackChild = lastNode.clone();
 				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
@@ -322,27 +272,20 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				// Add option to not attack
 				lastNode.attackChildren.add(noAttackChild);
 			}
-
 			int count = 0;
 			while (true) {
 				count++;
-
 				// Fix search range
 				if (lastNode.attackChildren.size() < lastNode.numberOfAttackBranches + 1) {
 					lastNode.numberOfAttackBranches--;
 				}
-
 				if (lastNode.numberOfAttackBranches <= 1) {
 					lastNode.numberOfAttackBranches = lastNode.maxChildren - lastNode.getChildren().size();
 				}
-
-
 				MCTSNode maxChild = null;
 				double maxRating = Double.NEGATIVE_INFINITY;
-
 				// BASELINE
 				if (lastNode.getChildren().size() == 0) {
-
 					maxChild = lastNode.clone();
 					int max = Integer.MIN_VALUE;
 					int maxId = -1;
@@ -361,7 +304,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 					Territory attackSource = lastNode.getGame()
 							.getCurrentPlayer().getTerritoryByID(maxId);
-
 					if (attackSource.getNrTroops() > 1) {
 						int min = Integer.MAX_VALUE;
 						int minId = -1;
@@ -375,7 +317,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 								minName = t.getName();
 							}
 						}
-
 						if (minId != -1) {
 							maxChild.setAttackSource(maxName);
 							maxChild.setAttackDest(minName);
@@ -397,46 +338,38 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				} else {
 					for (int i = 0; i < lastNode.numberOfAttackBranches; i++) {
 						index = r.nextInt(lastNode.attackChildren.size());
-
 						MCTSNode temp = lastNode.attackChildren.get(index);
 						double value = temp.getValue();
-
 						if (value >= maxRating) {
 							maxRating = value;
 							maxChild = temp;
 						}
-
 						// End game
 						if (count >= 50 && value >= Double.MAX_VALUE - 1) {
 							maxChild.setVisitCount(0);
 							maxChild.setWinCount(0);
 							maxChild.setParent(lastNode);
 							maxChild.setChildren(new ArrayList<MCTSNode>());
-
 							if (maxChild.getAttackDest().length() == 0) {
 								lastNode.noAttackAdded = true;
 								maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 							}
 							calculateMaxChildren(maxChild);
-
 							maxChild.depth = lastNode.depth + 1;
 							if (maxChild.depth > maxTreeDepth) {
 								maxTreeDepth = maxChild.depth;
 							}
-
 							lastNode.addChild(maxChild);
 							return maxChild;
 						}
 					}
 				}
-
 				if (maxChild == null) {
 					maxChild = lastNode.clone();
 					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					maxChild.setAttackSource("");
 					maxChild.setAttackDest("");
 				}
-
 				// Checks if child already exists
 				boolean unique = true;
 				for (MCTSNode child : lastNode.getChildren()) {
@@ -452,7 +385,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						break;
 					}
 				}
-
 				// Catching forever loop
 				if (lastNode.numberOfAttackBranches <= 1 && (lastNode.maxChildren - lastNode.getChildren().size()) == 1) {
 					for (MCTSNode child : lastNode.getChildren()) {
@@ -464,51 +396,40 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						}
 					}
 				}
-
 				// Add unique child to existing children
 				if (unique) {
 					lastNode.attackChildren.remove(maxChild);
-
 					maxChild.setVisitCount(0);
 					maxChild.setWinCount(0);
 					maxChild.setParent(lastNode);
 					maxChild.setChildren(new ArrayList<MCTSNode>());
-
 					if (maxChild.getAttackDest().length() == 0) {
 						maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					}
 					calculateMaxChildren(maxChild);
-
 					maxChild.depth = lastNode.depth + 1;
 					if (maxChild.depth > maxTreeDepth) {
 						maxTreeDepth = maxChild.depth;
 					}
-
 					lastNode.addChild(maxChild);
 					return maxChild;
 				}
 			}
-
 		}
-
 		case GameTreeNode.RANDOMEVENT: {
-
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
 			int destTroops = lastNode.getGame().getOtherPlayer()
 					.getTerritoryByName(lastNode.getAttackDest()).getNrTroops();
-
 			MCTSNode newChild = lastNode.clone();
 			newChild.setVisitCount(0);
 			newChild.setWinCount(0);
 			newChild.setParent(lastNode);
 			newChild.setChildren(new ArrayList<MCTSNode>());
-
 			if (sourceTroops == 1) {
 				System.out.println("WTF");
 			}
-
 			// Attacker
 			if (sourceTroops == 2) {
 				if (destTroops == 2 || destTroops == 1) {
@@ -540,7 +461,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					else {
 						newChild.setDiceRolls(0, 1, 2, 0, 6);
 					}
-
 				} else {
 					// Defender Wins
 					if (lastNode.getChildren().size() == 0) {
@@ -555,7 +475,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						newChild.setDiceRolls(0, 5, 6, 1, 2);
 					}
 				}
-
 			} else {
 				if (destTroops == 2 || destTroops == 1) {
 					// Attacker Wins
@@ -566,7 +485,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					else {
 						newChild.setDiceRolls(1, 2, 3, 0, 6);
 					}
-
 				} else {
 					// Attacker Wins
 					if (lastNode.getChildren().size() == 0) {
@@ -582,7 +500,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 				}
 			}
-
 			AIUtil.resolveAttackAction(newChild);
 			if (newChild.moveRequired()) {
 				newChild.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
@@ -590,22 +507,17 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				newChild.setTreePhase(GameTreeNode.ATTACK);
 			}
 			calculateMaxChildren(newChild);
-
 			newChild.depth = lastNode.depth + 1;
 			if (newChild.depth > maxTreeDepth) {
 				maxTreeDepth = newChild.depth;
 			}
-
 			lastNode.addChild(newChild);
-
 			return newChild;
 		}
-
 		case GameTreeNode.MOVEAFTERATTACK: {
 			int totalTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
-			
 			//BASELINE
 			if (lastNode.getChildren().size() == 0) {
 				int troops = totalTroops -1;
@@ -614,9 +526,7 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				newChild.setWinCount(0);
 				newChild.setParent(lastNode);
 				newChild.setChildren(new ArrayList<MCTSNode>());
-
 				newChild.setTreePhase(GameTreeNode.ATTACK);
-
 				AIUtil.resolveMoveAction(
 						newChild.getGame()
 						.getCurrentPlayer()
@@ -626,27 +536,20 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 								.getCurrentPlayer()
 								.getTerritoryByName(
 										newChild.getAttackDest()), troops);
-
 				newChild.setMoveAfterAttackCount(troops);
-
 				newChild.setMoveReq(false);
-
 				calculateMaxChildren(newChild);
-
 				newChild.depth = lastNode.depth + 1;
 				if (newChild.depth > maxTreeDepth) {
 					maxTreeDepth = newChild.depth;
 				}
-
 				lastNode.addChild(newChild);
 				return newChild;
 			}
-			else { 
+			else {
 				while (true) {	
 					//Minus 2 since the Baseline node is already in the tree.
-					int troops = rand.nextInt(totalTroops - 2) + 1; 
-					
-
+					int troops = rand.nextInt(totalTroops - 2) + 1;
 					// Checks if child already exists
 					boolean unique = true;
 					for (MCTSNode child : lastNode.getChildren()) {
@@ -655,7 +558,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							break;
 						}
 					}
-
 					// Add unique child to existing children
 					if (unique) {
 						MCTSNode newChild = lastNode.clone();
@@ -663,9 +565,7 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						newChild.setWinCount(0);
 						newChild.setParent(lastNode);
 						newChild.setChildren(new ArrayList<MCTSNode>());
-
 						newChild.setTreePhase(GameTreeNode.ATTACK);
-
 						AIUtil.resolveMoveAction(
 								newChild.getGame()
 								.getCurrentPlayer()
@@ -675,44 +575,33 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 										.getCurrentPlayer()
 										.getTerritoryByName(
 												newChild.getAttackDest()), troops);
-
 						newChild.setMoveAfterAttackCount(troops);
-
 						newChild.setMoveReq(false);
-
 						calculateMaxChildren(newChild);
-
 						newChild.depth = lastNode.depth + 1;
 						if (newChild.depth > maxTreeDepth) {
 							maxTreeDepth = newChild.depth;
 						}
-
 						lastNode.addChild(newChild);
 						return newChild;
 					}
-
 				}
 			}
 		}
-
 		case GameTreeNode.MANOEUVRE: {
-
 			if (lastNode.numberOfManoeuvreBranches == 0) {
 				lastNode.numberOfManoeuvreBranches = Math.min(
 						params.MCTSManBranchQualityFactor,
 						lastNode.maxChildren / 4);
 			}
-
 			// System.out.println("Man 1");
 			if (lastNode.manChildren == null) {
 				lastNode.manChildren = new ArrayList<MCTSNode>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
-
 				MCTSNode noManChild = lastNode.clone();
 				// Add option to not manoeuvre
 				lastNode.manChildren.add(noManChild);
 				lastNode.manTroopBins.add(0);
-
 				// Populate treeset
 				LinkedList<LinkedList<Territory>> connComponentBuckets = lastNode
 						.getConnComponentBuckets();
@@ -722,7 +611,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							if (src.getNrTroops() > 1) {
 								for (Territory dest : bucket) {
 									if (!src.getName().equals(dest.getName())) {
-
 										// Unique source-dest combo
 										MCTSNode newChild = lastNode.clone();
 										newChild.setManSource(src);
@@ -739,38 +627,30 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						}
 					}
 				}
-
 			}
-
 			Random r = new Random();
 			int count = 0;
 			while (true) {
 				count++;
 				double maxRating = Double.NEGATIVE_INFINITY;
 				MCTSNode maxChild = null;
-
 				if (lastNode.maxChildren == 1) {
 					maxChild = lastNode.clone();
 				}
-
 				// Fix search range
 				if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
 					lastNode.numberOfManoeuvreBranches--;
 				}
-
 				if (lastNode.numberOfManoeuvreBranches < 1) {
 					lastNode.numberOfManoeuvreBranches = 1;
 				}
-
 				// BASELINE
 				if (lastNode.getChildren().size() == 0) {
 					String minID = "";
 					int min = Integer.MAX_VALUE;
 					String maxID = "";
 					int max = Integer.MIN_VALUE;
-
 					maxChild = lastNode.clone();
-
 					Iterator<Territory> it = maxChild.getGame()
 							.getCurrentPlayer().getTerritories().values()
 							.iterator();
@@ -783,7 +663,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					}
 					Territory source = maxChild.getGame().getCurrentPlayer()
 							.getTerritoryByName(maxID);
-
 					it = maxChild.getGame().getCurrentPlayer().getTerritories()
 							.values().iterator();
 					while (it.hasNext()) {
@@ -794,11 +673,9 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							minID = t.getName();
 						}
 					}
-
 					if (minID.length() != 0) {
 						Territory dest = maxChild.getGame().getCurrentPlayer()
 								.getTerritoryByName(minID);
-
 						if (source.getId() != dest.getId()) {
 							int total = source.getNrTroops()
 									+ dest.getNrTroops();
@@ -806,7 +683,6 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							maxChild.setManSource(source);
 							maxChild.setManDest(dest);
 							maxChild.setManTroopCount(nrTroops + "");
-
 							AIUtil.resolveMoveAction(
 									maxChild.getGame()
 									.getCurrentPlayer()
@@ -824,18 +700,14 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				} else {
 					for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
 						int index = r.nextInt(lastNode.maxChildren);
-
 						int first, last, middle = -1, nrTroops = -1;
 						MCTSNode temp = null;
-
 						if (index > 0) {
 							first = 0;
 							last = lastNode.manTroopBins.size() - 1;
 							middle = (first + last) / 2;
-
 							while (first <= last) {
 								int value = lastNode.manTroopBins.get(middle);
-
 								if (value < index
 										&& index < lastNode.manTroopBins
 										.get(middle + 1)) {
@@ -853,10 +725,8 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 									last = middle - 1;
 								}
 								middle = (first + last) / 2;
-
 							}
 							temp = lastNode.manChildren.get(middle).clone();
-
 							temp.setManTroopCount(nrTroops + "");
 							AIUtil.resolveMoveAction(
 									temp.getGame()
@@ -869,13 +739,10 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 											.getTerritoryByName(
 													temp.getManDest().getName()),
 													nrTroops);
-
 						} else {
 							temp = lastNode.manChildren.get(0);
 						}
-
 						double value = getValue(temp);
-
 						// End game
 						if (count == 50 && value >= Double.MAX_VALUE - 1) {
 							maxChild = lastNode.clone();
@@ -883,31 +750,24 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							maxChild.setWinCount(0);
 							maxChild.setParent(lastNode);
 							maxChild.setChildren(new ArrayList<MCTSNode>());
-
 							maxChild.setTreePhase(GameTreeNode.RECRUIT);
-
 							maxChild.setMoveReq(false);
 							maxChild.switchMaxPlayer();
 							maxChild.getGame().changeCurrentPlayer();
-
 							calculateMaxChildren(maxChild);
-
 							maxChild.depth = lastNode.depth + 1;
 							if (maxChild.depth > maxTreeDepth) {
 								maxTreeDepth = maxChild.depth;
 							}
-
 							lastNode.addChild(maxChild);
 							return maxChild;
 						}
-
 						if (value >= maxRating) {
 							maxRating = value;
 							maxChild = temp;
 						}
 					}
 				}
-
 				// Checks if child already exists
 				boolean unique = true;
 				for (MCTSNode child : lastNode.getChildren()) {
@@ -935,48 +795,35 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						break;
 					}
 				}
-
 				// Add unique child to existing children
 				if (unique) {
 					maxChild.setVisitCount(0);
 					maxChild.setWinCount(0);
 					maxChild.setParent(lastNode);
 					maxChild.setChildren(new ArrayList<MCTSNode>());
-
 					maxChild.setTreePhase(GameTreeNode.RECRUIT);
-
 					maxChild.setMoveReq(false);
 					maxChild.switchMaxPlayer();
 					maxChild.getGame().changeCurrentPlayer();
-
 					calculateMaxChildren(maxChild);
-
 					maxChild.depth = lastNode.depth + 1;
 					if (maxChild.depth > maxTreeDepth) {
 						maxTreeDepth = maxChild.depth;
 					}
-
 					lastNode.addChild(maxChild);
 					return maxChild;
 				}
 			}
-
 		}
 		}
-
 		return null;
 	}
-
 	/****************************************************************/
-
 	@Override
 	public void recruitPhase(Collection<Territory> myTerritories,
 			int numberOfTroops) {
-
 		LinkedList<String> reply = new LinkedList<String>();
-
 		myTurn = true;
-
 		MCTSNode root = new MCTSNode();
 		root.setTreePhase(GameTreeNode.RECRUIT);
 		root.setGame(game.clone());
@@ -985,28 +832,22 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		root.setWinCount(0);
 		root.depth = 1;
 		root.setChildren(new ArrayList<MCTSNode>());
-
 		int n = numberOfTroops;
 		int m = game.getCurrentPlayer().getTerritories().size();
 		root.maxChildren = (int) (AIUtil.nCk(n + m - 1, n));
-
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
 		double time = (System.nanoTime() - startTime) / 1000000.0;
-
 		// printStats(root, time);
-
 		/*
-		 * 
+		 *
 		 * if (tv != null) tv.close(); tv = new TreeView(globalNode);
 		 * tv.showTree("After " + timeForMCTSSearch + " ms");
 		 */
-
 		Iterator<Territory> it = action.getGame().getCurrentPlayer()
 				.getTerritories().values().iterator();
 		while (it.hasNext()) {
@@ -1015,70 +856,50 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 			reply.add(T.getNrTroops() + "");
 		}
 		game = action.getGame();
-
 		globalNode = action;
 		globalNode.setParent(null);
-
 		APM.sendSuccess(APM.getMesID(), "place_troops", reply);
-
 	}
-
 	@Override
 	public LinkedList<String> getAttackSourceDestination() {
-
 		numberOfMovesTaken++;
-
 		LinkedList<String> reply = new LinkedList<String>();
-
 		// globalNode.setGame(game.clone());
 		globalNode.depth = 1;
-
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
 		int nrOfPlayouts = globalNode.getVisitCount();
-
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
 		double time = (System.nanoTime() - startTime) / 1000000.0;
-
 		// printStats(globalNode, time);
-
 		/*
 		 * if (tv != null) tv.close(); tv = new TreeView(root);
 		 * tv.showTree("After " + timeForMCTSSearch + " ms");
 		 */
-
 		Territory Source = action.getGame().getCurrentPlayer()
 				.getTerritoryByName(action.getAttackSource());
 		Territory Dest = action.getGame().getOtherPlayer()
 				.getTerritoryByName(action.getAttackDest());
-
 		globalNode = action;
 		globalNode.setParent(null);
-
 		if (Source != null && Dest != null) {
 			reply.add(Source.getId() + "");
 			reply.add(Dest.getId() + "");
 		}
-
 		return reply;
-
 	}
-
 	@Override
 	public void resolveAttack(int a1, int a2, int a3, int d1, int d2, int sID,
 			int dID) {
-
 		Territory s = game.getCurrentPlayer().getTerritoryByID(sID);
 		Territory d = game.getOtherPlayer().getTerritoryByID(dID);
-
 		if (myTurn) {
 			MCTSNode temp = new MCTSNode();
 			temp.setGame(game);
 			temp.setDiceRolls(a1, a2, a3, d1, d2);
 			double prob = AIUtil.getProb(temp);
-
 			for (MCTSNode child : globalNode.getChildren()) {
 				if (AIUtil.getProb(child) == prob) {
 					globalNode = child;
@@ -1087,22 +908,17 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				}
 			}
 		}
-
 		if (d.getNrTroops() == 1 && a3 > d2) { // defender defeated
 			lastAttackSource = s;
 			lastAttackDestination = d;
 		}
-
 		super.resolveAttack(a1, a2, a3, d1, d2, sID, dID);
-
 	}
-
 	@Override
 	public LinkedList<String> getMoveAfterAttack() {
 		LinkedList<String> reply = new LinkedList<String>();
 		reply.add(lastAttackSource.getId() + "");
 		reply.add(lastAttackDestination.getId() + "");
-
 		globalNode.depth = 1;
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
@@ -1110,38 +926,27 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		MCTSNode action = MCTSSearch(globalNode);	
 		globalNode=action;
 		globalNode.setParent(null);
-
 		reply.add(action.getMoveAfterAttackCount() + "");
-
 		return reply;
 	}
-
 	@Override
 	// Manoeuvre
 	public LinkedList<String> getManSourceDestination() {
-
 		LinkedList<String> reply = new LinkedList<String>();
-
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-
 		globalNode.depth = 1;
-
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
 		double time = (System.nanoTime() - startTime) / 1000000.0;
-
 		// printStats(globalNode, time);
-
 		/*
 		 * if (tv != null) tv.close(); tv = new TreeView(root);
 		 * tv.showTree("After " + timeForMCTSSearch + " ms");
 		 */
-
 		Territory Source = action.getManSource();
 		Territory Dest = action.getManDest();
-
 		if (Source == null || Dest == null || action.getManTroopCount() == null) {
 			/* System.out.println("No Manoeuvre"); */
 			myTurn = false;
@@ -1150,19 +955,13 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		reply.add(Source.getId() + "");
 		reply.add(Dest.getId() + "");
 		reply.add(action.getManTroopCount() + "");
-
 		// System.out.println("Manoeuvre from " + Source.toString() + " to "
 		// + Dest.toString() + " with " + action.getManTroopCount());
-
 		AIUtil.resolveMoveAction(
 				game.getCurrentPlayer().getTerritoryByName(Source.getName()),
 				game.getCurrentPlayer().getTerritoryByName(Dest.getName()),
 				Integer.parseInt(action.getManTroopCount()));
-
 		myTurn = false;
-
 		return reply;
 	}
-
 }
-

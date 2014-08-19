@@ -53,7 +53,7 @@ public abstract class AIPlayer {
 	public int numberOfMovesTaken = 0;
 	public int maxRecruitable = Integer.MAX_VALUE;
 	
-	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/][/*Number of players*/];
+	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/][/*Number of players*/]; // Number of troops goes from 0 to 49.
 	public static long ZobristPlayerFactor[/*Number of players*/];
 	public static long ZobristPhaseFactor[/* RECRUIT - ATTACK - RANDOMEVENT - MOVEAFTERATTACK - MANOEUVRE */];
 	public static long ZobristAttackSource[/* Territory ID */];

@@ -26,7 +26,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	int ind = 0;
 
 	int simCount = 0;
-	
+
 	protected long startTime;
 	protected long allottedTime;
 
@@ -206,7 +206,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			else if (currentNode.getChildren().size() < currentNode.maxChildren
 					&& urgency < params.fpu) {
 				treeNodeCount++;
-				// System.out.println("In Expand 2");
+				// System.out.println("In Expand 2 " + currentNode.getHash() + " maxC C " + currentNode.maxChildren + " " + currentNode.getChildren().size());
 				return Expand(currentNode);
 			} else {
 				// System.out.println("In BestChild");
@@ -418,7 +418,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				AIUtil.resolveMoveAction(playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource()),
 						playNode.getGame().getCurrentPlayer()
-								.getTerritoryByName(playNode.getAttackDest()),
+						.getTerritoryByName(playNode.getAttackDest()),
 						troops);
 
 				playNode.setMoveReq(false);
@@ -537,25 +537,25 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 		startTime = System.nanoTime();
 		this.allottedTime = millisecsAllowed * 1000000;
 	}
-	
+
 	protected void printStats(MCTSNode root, Double time) {
-		
-		  System.out.println("Ended MCTS in " + time + " ms");
-		  
-		  System.out.println("Depth : " + maxTreeDepth);
-		  System.out.println("Node Count : " + treeNodeCount);
-		  System.out.println("Root playouts : " + root.getVisitCount());
-		  System.out.println("Simulation Count : " + root.getVisitCount());
-		  simCount = 0;
-		  System.out.println("HashMap ratio - " + (double) foundIt / (double)
-		  (foundIt + missedIt) * 100 + " %");
-		  
-		  System.out.println("HashMap size - " + NodeValues.size());
-		  
-		  System.out.println("Playouts / second - " + Math.round((double)
-		  root.getVisitCount() / (double) (time / 1000.0)));
-		  System.out.println();
-		 
+
+		System.out.println("Ended MCTS in " + time + " ms");
+
+		System.out.println("Depth : " + maxTreeDepth);
+		System.out.println("Node Count : " + treeNodeCount);
+		System.out.println("Root playouts : " + root.getVisitCount());
+		System.out.println("Simulation Count : " + root.getVisitCount());
+		simCount = 0;
+		System.out.println("HashMap ratio - " + (double) foundIt / (double)
+				(foundIt + missedIt) * 100 + " %");
+
+		System.out.println("HashMap size - " + NodeValues.size());
+
+		System.out.println("Playouts / second - " + Math.round((double)
+				root.getVisitCount() / (double) (time / 1000.0)));
+		System.out.println();
+
 	}
 
 	/**
@@ -585,10 +585,10 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 */
 	protected double getValue(MCTSNode node) {
 
-		if (NodeValues.size() >= 500000) {
+		if (NodeValues.size() >= 125000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
 			NodeValues = new HashMap<Long, Double>();
 		}
-		
+
 		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {
@@ -596,8 +596,9 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			return value;
 		} else {
 			missedIt++;
-			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
+			value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
 			NodeValues.put(key, value);
+			node.setValue(value);
 			return value;
 		}
 	}

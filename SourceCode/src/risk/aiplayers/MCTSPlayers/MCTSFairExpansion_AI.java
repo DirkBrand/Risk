@@ -619,7 +619,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 					lastNode.numberOfManoeuvreBranches = 1;
 				}
 
-				for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
+				for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) { //TODO: Actually this does nothing but always pick the same node.
 					int index = r.nextInt(lastNode.maxChildren);
 
 					int first, last, middle = -1, nrTroops = -1;
@@ -643,7 +643,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 								nrTroops = value
 										- lastNode.manTroopBins.get(middle - 1);
 								break;
-							} else if (value < index) {
+							} else if (value < index) { //TODO WAT ?
 								first = middle + 1;
 							} else {
 								last = middle - 1;
