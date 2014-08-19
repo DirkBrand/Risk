@@ -1,17 +1,9 @@
 package risk.aiplayers.MCTSPlayers;
 
 
-import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Random;
 
-import risk.aiplayers.MonteCarloTreeSearchPlayer;
-import risk.aiplayers.util.AIFeatures;
-import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
