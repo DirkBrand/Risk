@@ -346,7 +346,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					while (it.hasNext()) {
 						Territory t = it.next();
 						if (t.getNrTroops() > max
-								&& t.getNeighbours().length > 0) {
+								&& t.getNeighbours().length > 0) {//TODO: !isHinterland ?
 							max = t.getNrTroops();
 							maxId = t.getId();
 							maxName = t.getName();

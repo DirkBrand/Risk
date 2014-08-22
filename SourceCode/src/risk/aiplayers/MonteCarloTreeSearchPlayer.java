@@ -589,6 +589,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			NodeValues = new HashMap<Long, Double>();
 		}
 
+//		node.updateHash(parent);
 		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {

@@ -41,6 +41,10 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 		//********************************RECRUIT************************************//
 		case GameTreeNode.RECRUIT: {
 			calculateMaxChildren(lastNode);
+			
+			lastNode.setManSource(null);
+			lastNode.setManDest(null); //TODO: Temporary ? Cloning a node does not do this. 
+			
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
 			{/*AddEveryPossibleChild, return the last one */
 				// Create permutation array
@@ -650,7 +654,6 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
 			{/*AddEveryPossibleChild, return noManoeuvreOne (since we are sure that this one is included.)*/
 				//System.out.println("Generating manoeuvres: " + lastNode.getHash());
-				System.out.println("Buckets: " + lastNode.getConnComponentBuckets());
 				for (LinkedList<Territory> bucket : lastNode
 						.getConnComponentBuckets()) {
 					if (bucket.size() > 1) {
@@ -684,6 +687,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 											newChild.getGame().changeCurrentPlayer();
 											calculateMaxChildren(newChild);
 											newChild.depth = lastNode.depth + 1;
+											System.out.println("H Here5 ! " + lastNode.getHash());
 											newChild.updateHash(lastNode);
 											getValue(newChild);
 											lastNode.addChild(newChild);
@@ -710,6 +714,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 				if (noManChild.depth > maxTreeDepth) {
 					maxTreeDepth = noManChild.depth;
 				}
+				System.out.println("H Here4 ! " + lastNode.getHash());
 				noManChild.updateHash(lastNode);
 				getValue(noManChild);
 				lastNode.addChild(noManChild);
@@ -760,7 +765,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 					}
 				}
 			}
-
+			System.out.println("H " + lastNode.getHash() + " " + lastNode.getConnComponentBuckets());
 			Random r1 = new Random();
 			int count = 0;
 			inMan:
@@ -814,6 +819,17 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 							}
 							temp = lastNode.manChildren.get(middle).clone();
 							temp.setManTroopCount(nrTroops + "");
+							System.out.println("H "+temp.getGame()
+									.getCurrentPlayer()
+									.getTerritoryByName(
+											temp.getManSource()
+											.getName()) + " " + temp.getGame()
+											.getCurrentPlayer()
+											.getTerritoryByName(
+													temp.getManDest().getName())
+													+ " " + lastNode.getHash()
+													+ " " + lastNode.getGame().getCurrentPlayer().getName());
+							
 							AIUtil.resolveMoveAction(
 									temp.getGame()
 									.getCurrentPlayer()
@@ -829,7 +845,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						temp = lastNode.manChildren.get(0);
 					}
 
-					double value = AIUtil.eval(temp, AIParameter.evalWeights, maxRecruitable); ;
+					double value = AIUtil.eval(temp, AIParameter.evalWeights, maxRecruitable);
 					// End game
 					if (count == 50 && value >= Double.MAX_VALUE - 1) {
 						maxChild = lastNode.clone();
@@ -850,12 +866,14 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						if (maxChild.depth > maxTreeDepth) {
 							maxTreeDepth = maxChild.depth;
 						}
+						System.out.println("H Here3 ! " + lastNode.getHash());
 						maxChild.updateHash(lastNode);
 						lastNode.addChild(maxChild);
 						return maxChild;
 					}
 
 					if (value >= maxRating) {
+						//Test
 						maxRating = value;
 						maxChild = temp;
 					}
@@ -864,14 +882,12 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 			maxChild.setTreePhase(GameTreeNode.RECRUIT);
 			maxChild.switchMaxPlayer();
 			maxChild.getGame().changeCurrentPlayer();
-			maxChild.updateHash(lastNode); //Sometimes : 
-			//					Debug Man Source New Guinea null null Dest Indonesia null null
-			//					This should be null: Indonesia - 8
-			//					Debug Man2 players: 0 1
-			//					java.lang.NullPointerException
-			//						at risk.aiplayers.util.MCTSNode.updateHash(MCTSNode.java:257)
-			// Seems like manoeuvre source and dest are not owned by the right player.
-
+			
+			System.out.println("H Here ! " + lastNode.getHash());
+			System.out.println(lastNode.getConnComponentBuckets());
+			
+			maxChild.updateHash(lastNode);
+			
 			//Duplication Avoidance
 			long key = maxChild.getHash();
 			Double value = NodeValues.get(key);

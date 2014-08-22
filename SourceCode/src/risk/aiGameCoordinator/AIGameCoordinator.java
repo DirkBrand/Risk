@@ -7,6 +7,7 @@ import risk.aiplayers.EMMPlayers.EMMGreedy_AI;
 import risk.aiplayers.EMMPlayers.EMM_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTSBaseline_playout_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFull_Baseline_AI;
+import risk.aiplayers.MCTSPlayers.MCTSGenerate_Low_Children_AI;
 import risk.aiplayers.MCTSPlayers.MCTSMove_After_Simulate_Baseline_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairBadEval_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_AI;
@@ -16,6 +17,7 @@ import risk.aiplayers.MCTSPlayers.MCTSRandom_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
 import risk.aiplayers.MCTSPlayers.MCTSHashing_Unicness_AI;
+import risk.aiplayers.MCTSPlayers.MCTSMomentum_AI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
 import risk.paperplayers.S_MCTS_Baseline_AI;
@@ -137,6 +139,14 @@ public class AIGameCoordinator {
 			}
 			case "MCTSHashing_Unicness_AI": {
 				new MCTSHashing_Unicness_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				break;
+			}
+			case "MCTSGenerate_Low_Children_AI": {
+				new MCTSGenerate_Low_Children_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				break;
+			}
+			case "MCTSMomentum_AI": {
+				new MCTSMomentum_AI(ai1, ai2, theMap, id, playoutsForMCTS);
 				break;
 			}
 			case "EMMGreedy_AI": {

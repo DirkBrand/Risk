@@ -286,8 +286,18 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					childHash = childHash ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
 					}
 					catch(Exception e){
+						System.out.println("Here2 ! " + parent.getHash());
+						System.out.println(this.getGame().getOtherPlayer().getTerritoryByName(this.getManSource().getName()) + " " 
+								+ this.getGame().getOtherPlayer().getTerritoryByName(this.getManDest().getName()) + " " 
+								+ parent.getGame().getCurrentPlayer().getTerritoryByName(this.getManSource().getName()) + " " 
+								+ parent.getGame().getCurrentPlayer().getTerritoryByName(this.getManDest().getName()) + " "
+								+ this.getManSource() + " " + this.getManDest() + " " + this.getManTroopCount() + " " 
+								+ parent.getGame().getCurrentPlayer().getName()
+								+ " Parent maxC " + parent.maxChildren);
+						System.out.println(parent.getConnComponentBuckets());
 						this.writeGameState("ErrorChild");
 						parent.writeGameState("ErrorParent");
+						System.exit(1);
 					}
 				}
 				break;
