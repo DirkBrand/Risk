@@ -202,6 +202,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						.getTerritoryByName(maxName);
 				source.setNrTroops(source.getNrTroops() + n);
 				maxChild.setAttackSource(source.getName());
+				maxChild.setTreePhase(GameTreeNode.ATTACK);
 			} else {
 				int count = 0;
 				while (maxChild == null) {
@@ -210,7 +211,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 						AIUtil.shuffleArray(perm);
 
 						MCTSNode tempChild = lastNode.clone();
-
+						tempChild.setTreePhase(GameTreeNode.ATTACK);
 						Iterator<Territory> it = tempChild.getGame()
 								.getCurrentPlayer().getTerritories().values()
 								.iterator();
@@ -224,7 +225,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 								current = it.next();
 							}
 						}
-						double value = getValue(tempChild);
+						double value = getValue(tempChild, lastNode);
 						if (value >= maxRating) {
 							maxRating = value;
 							maxChild = tempChild;
@@ -239,12 +240,11 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 			maxChild.setParent(lastNode);
 			maxChild.setChildren(new ArrayList<MCTSNode>());
 
-			maxChild.setTreePhase(GameTreeNode.ATTACK);
-
 			maxChild.setMoveReq(false);
 
 			calculateMaxChildren(maxChild);
-
+			maxChild.updateHash(lastNode);
+			
 			maxChild.depth = lastNode.depth + 1;
 			if (maxChild.depth > maxTreeDepth) {
 				maxTreeDepth = maxChild.depth;
@@ -272,7 +272,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					noAttackChild.setAttackSource("");
 					noAttackChild.setAttackDest("");
-					noAttackChild.setValue(getValue(noAttackChild));
+					noAttackChild.setValue(getValue(noAttackChild, lastNode));
 					// Add option to not attack
 					lastNode.attackChildren.add(noAttackChild);
 					
@@ -294,8 +294,8 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 								MCTSNode newChild = lastNode.clone();
 								newChild.setAttackSource(t.getName());
 								newChild.setAttackDest(dest.getName());
-								newChild.setValue(getWeightedEval(newChild));
 								newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
+								newChild.setValue(getWeightedEval(newChild, lastNode));
 								lastNode.attackChildren.add(newChild);
 							}
 						}
@@ -311,7 +311,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 				noAttackChild.setAttackSource("");
 				noAttackChild.setAttackDest("");
-				noAttackChild.setValue(getValue(noAttackChild));
+				noAttackChild.setValue(getValue(noAttackChild, lastNode));
 				// Add option to not attack
 				lastNode.attackChildren.add(noAttackChild);
 			}
@@ -346,7 +346,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					while (it.hasNext()) {
 						Territory t = it.next();
 						if (t.getNrTroops() > max
-								&& t.getNeighbours().length > 0) {//TODO: !isHinterland ?
+								&& !AIUtil.isHinterland(lastNode, t)) {
 							max = t.getNrTroops();
 							maxId = t.getId();
 							maxName = t.getName();
@@ -373,19 +373,19 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							maxChild.setAttackSource(maxName);
 							maxChild.setAttackDest(minName);
 							maxChild.setTreePhase(GameTreeNode.RANDOMEVENT);
-							maxChild.setValue(getWeightedEval(maxChild));
+							maxChild.setValue(getWeightedEval(maxChild, lastNode));
 						} else {
 							maxChild.setAttackSource("");
 							maxChild.setAttackDest("");
 							maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
-							maxChild.setValue(getValue(maxChild));
+							maxChild.setValue(getValue(maxChild, lastNode));
 						}
 					} else {
 						maxChild = lastNode.clone();
 						maxChild.setAttackSource("");
 						maxChild.setAttackDest("");
 						maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
-						maxChild.setValue(getValue(maxChild));
+						maxChild.setValue(getValue(maxChild, lastNode));
 					}
 				} else {
 					for (int i = 0; i < lastNode.numberOfAttackBranches; i++) {
@@ -428,6 +428,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					maxChild.setAttackSource("");
 					maxChild.setAttackDest("");
+					maxChild.updateHash(lastNode);
 				}
 
 				// Checks if child already exists
@@ -583,7 +584,8 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				newChild.setTreePhase(GameTreeNode.ATTACK);
 			}
 			calculateMaxChildren(newChild);
-
+			newChild.updateHash(lastNode);
+			
 			newChild.depth = lastNode.depth + 1;
 			if (newChild.depth > maxTreeDepth) {
 				maxTreeDepth = newChild.depth;
@@ -635,7 +637,8 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					newChild.setMoveReq(false);
 
 					calculateMaxChildren(newChild);
-
+					newChild.updateHash(lastNode);
+					
 					newChild.depth = lastNode.depth + 1;
 					if (newChild.depth > maxTreeDepth) {
 						maxTreeDepth = newChild.depth;
@@ -663,6 +666,9 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
 				MCTSNode noManChild = lastNode.clone();
+				noManChild.setTreePhase(GameTreeNode.RECRUIT);
+				noManChild.switchMaxPlayer();
+				noManChild.getGame().changeCurrentPlayer();
 				// Add option to not manoeuvre
 				lastNode.manChildren.add(noManChild);
 				lastNode.manTroopBins.add(0);
@@ -681,6 +687,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 										MCTSNode newChild = lastNode.clone();
 										newChild.setManSource(src);
 										newChild.setManDest(dest);
+										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 												.add(lastNode.manTroopBins
 														.get(lastNode.manTroopBins
@@ -705,6 +712,10 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 
 				if (lastNode.maxChildren == 1) {
 					maxChild = lastNode.clone();
+					maxChild.setTreePhase(GameTreeNode.RECRUIT);
+					maxChild.switchMaxPlayer();
+					maxChild.getGame().changeCurrentPlayer();
+					maxChild.updateHash(lastNode);
 				}
 
 				// Fix search range
@@ -773,6 +784,10 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 													maxChild.getManDest()
 															.getName()),
 									nrTroops);
+							maxChild.setTreePhase(GameTreeNode.RECRUIT);
+							maxChild.switchMaxPlayer();
+							maxChild.getGame().changeCurrentPlayer();
+							maxChild.updateHash(lastNode);
 						}
 					}
 				} else {
@@ -823,13 +838,15 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 											.getTerritoryByName(
 													temp.getManDest().getName()),
 									nrTroops);
+							temp.switchMaxPlayer();
+							temp.getGame().changeCurrentPlayer();
 
 						} else {
 							temp = lastNode.manChildren.get(0);
 						}
 
-						double value = getValue(temp);
-
+						double value = getValue(temp, lastNode);
+						
 						// End game
 						if (count == 50 && value >= Double.MAX_VALUE - 1) {
 							maxChild = lastNode.clone();
@@ -845,7 +862,8 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							maxChild.getGame().changeCurrentPlayer();
 
 							calculateMaxChildren(maxChild);
-
+							maxChild.updateHash(lastNode);
+							
 							maxChild.depth = lastNode.depth + 1;
 							if (maxChild.depth > maxTreeDepth) {
 								maxTreeDepth = maxChild.depth;
@@ -897,11 +915,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					maxChild.setParent(lastNode);
 					maxChild.setChildren(new ArrayList<MCTSNode>());
 
-					maxChild.setTreePhase(GameTreeNode.RECRUIT);
-
 					maxChild.setMoveReq(false);
-					maxChild.switchMaxPlayer();
-					maxChild.getGame().changeCurrentPlayer();
 
 					calculateMaxChildren(maxChild);
 
@@ -1071,7 +1085,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 							.getCurrentPlayer()
 							.getTerritoryByName(lastAttackDestination.getName()),
 					i);
-			double value = getValue(temp);
+			double value = getValue(temp, null);
 			if (value >= maxValue) {
 				troops = i;
 				maxValue = value;

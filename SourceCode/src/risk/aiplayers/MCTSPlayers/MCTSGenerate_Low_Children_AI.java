@@ -44,9 +44,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 		case GameTreeNode.RECRUIT: {
 			calculateMaxChildren(lastNode);
 			
-			lastNode.setManSource(null);
-			lastNode.setManDest(null); //TODO: Temporary ? Cloning a node does not do this.
-			
 			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber) //TODO: Maybe up this for GenLow to 100.
 			{/*AddEveryPossibleChild to recruitChildren */
 				// Create permutation array
@@ -100,7 +97,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							maxTreeDepth = tempChild.depth;
 						}
 						tempChild.updateHash(lastNode);
-						getValue(tempChild);
+						getValue(tempChild, lastNode);
 
 						//Priority queue, comparator on value as written in GameTreeNode.
 						lastNode.recruitQueue.add(tempChild);
@@ -216,7 +213,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 						}
 					}
 					else
-						getValue(maxChild);
+						getValue(maxChild, lastNode);
 					//END OF DUPLICATION AVOIDANCE
 
 					lastNode.addChild(maxChild);
@@ -247,7 +244,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 									calculateMaxChildren(newChild);
 									newChild.depth = lastNode.depth + 1;
 									newChild.updateHash(lastNode);
-									getValue(newChild);
+									getValue(newChild, lastNode);
 									lastNode.attackQueue.add(newChild);
 								}
 							}
@@ -261,7 +258,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					calculateMaxChildren(noAttackChild);
 					noAttackChild.depth = lastNode.depth + 1;
 					noAttackChild.updateHash(lastNode);
-					getValue(noAttackChild);
+					getValue(noAttackChild, lastNode);
 					lastNode.attackQueue.add(noAttackChild);
 				}
 				MCTSNode maxChild = lastNode.attackQueue.poll(); //This takes and removes the head.
@@ -391,7 +388,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							}
 
 							maxChild.updateHash(lastNode);
-							getValue(maxChild);
+							getValue(maxChild, lastNode);
 							lastNode.addChild(maxChild);
 							lastNode.attackChildren.remove(maxChild);
 							return maxChild;
@@ -403,6 +400,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 						maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 						maxChild.setAttackSource("");
 						maxChild.setAttackDest("");
+						maxChild.updateHash(lastNode);
 					}
 
 					if (maxChild.getAttackDest().length() == 0) {
@@ -446,7 +444,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							}
 						}
 					}
-					getValue(maxChild);
+					getValue(maxChild, lastNode);
 					//Duplication Avoidance
 
 					if(!lastNode.attackChildren.remove(maxChild))
@@ -590,7 +588,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 										.getTerritoryByName(
 												newChild.getAttackDest()), troops);
 						newChild.updateHash(lastNode);
-						getValue(newChild);
+						getValue(newChild, lastNode);
 						newChild.setMoveAfterAttackCount(troops);
 						newChild.setMoveReq(false);
 						calculateMaxChildren(newChild);
@@ -647,7 +645,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							}
 						}
 					}
-					getValue(newChild);
+					getValue(newChild, lastNode);
 					//Duplication Avoidance
 
 					// Add unique child to existing children
@@ -706,9 +704,8 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 												newChild.getGame().changeCurrentPlayer();
 												calculateMaxChildren(newChild);
 												newChild.depth = lastNode.depth + 1;
-												System.out.println("Here5 ! " + lastNode.getHash());
 												newChild.updateHash(lastNode);
-												getValue(newChild);
+												getValue(newChild, lastNode);
 												lastNode.manQueue.add(newChild);
 											}
 										}
@@ -729,9 +726,8 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					if (noManChild.depth > maxTreeDepth) {
 						maxTreeDepth = noManChild.depth;
 					}
-					System.out.println("Here4 ! " + lastNode.getHash());
 					noManChild.updateHash(lastNode);
-					getValue(noManChild);
+					getValue(noManChild, lastNode);
 					lastNode.manQueue.add(noManChild);
 				}
 
@@ -768,8 +764,11 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
 				MCTSNode noManChild = lastNode.clone();
+				noManChild.setTreePhase(GameTreeNode.RECRUIT);
 				// Add option to not manoeuvre
 				lastNode.manChildren.add(noManChild);
+				noManChild.switchMaxPlayer();
+				noManChild.getGame().changeCurrentPlayer();
 				lastNode.manTroopBins.add(0);
 
 				// Populate treeset
@@ -786,6 +785,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 										MCTSNode newChild = lastNode.clone();
 										newChild.setManSource(src);
 										newChild.setManDest(dest);
+										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 										.add(lastNode.manTroopBins
 												.get(lastNode.manTroopBins
@@ -800,7 +800,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 				}
 			}
 
-			System.out.println(lastNode.getHash() + " " + lastNode.getConnComponentBuckets());
 			Random r1 = new Random();
 			int count = 0;
 			inMan:
@@ -810,8 +809,10 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					MCTSNode maxChild = null;
 
 					if (lastNode.maxChildren == 1) {
-						System.out.println("Here6 ! " + lastNode.getHash());
 						maxChild = lastNode.clone();
+						maxChild.setTreePhase(GameTreeNode.RECRUIT);
+						maxChild.switchMaxPlayer();
+						maxChild.getGame().changeCurrentPlayer();
 					}
 
 					// Fix search range
@@ -854,18 +855,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 								middle = (first + last) / 2;
 							}
 							temp = lastNode.manChildren.get(middle).clone();
-							System.out.println(middle + " " + lastNode.manTroopBins.size());
-							System.out.println("H "+temp.getGame()
-									.getCurrentPlayer()
-									.getTerritoryByName(
-											temp.getManSource()
-											.getName()) + " " + temp.getGame()
-											.getCurrentPlayer()
-											.getTerritoryByName(
-													temp.getManDest().getName())
-													+ " " + lastNode.getHash()
-													+ " " + lastNode.getGame().getCurrentPlayer().getName());
-							
 							temp.setManTroopCount(nrTroops + "");
 							AIUtil.resolveMoveAction(
 									temp.getGame()
@@ -878,6 +867,8 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 											.getTerritoryByName(
 													temp.getManDest().getName()),
 													nrTroops);
+							temp.switchMaxPlayer();
+							temp.getGame().changeCurrentPlayer();
 					} else {
 						temp = lastNode.manChildren.get(0);
 					}
@@ -899,13 +890,13 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							maxChild.getGame().changeCurrentPlayer();
 
 							calculateMaxChildren(maxChild);
-
+							maxChild.updateHash(lastNode);
+							
 							maxChild.depth = lastNode.depth + 1;
 							if (maxChild.depth > maxTreeDepth) {
 								maxTreeDepth = maxChild.depth;
 							}
-							System.out.println("Here3 ! " + lastNode.getHash());
-							maxChild.updateHash(lastNode);
+
 							lastNode.addChild(maxChild);
 							return maxChild;
 						}
@@ -915,12 +906,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							maxChild = temp;
 						}
 					}
-
-					maxChild.setTreePhase(GameTreeNode.RECRUIT);
-					maxChild.switchMaxPlayer();
-					maxChild.getGame().changeCurrentPlayer();
-					System.out.println("Here ! " + lastNode.getHash());
-					System.out.println(lastNode.getConnComponentBuckets());
 					
 					maxChild.updateHash(lastNode); 
 
@@ -949,7 +934,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							}
 						}
 					}
-					getValue(maxChild);
+					getValue(maxChild, lastNode);
 					//Duplication Avoidance
 
 					// Add unique child to existing children

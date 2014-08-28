@@ -25,7 +25,7 @@ public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 	}
 
 	@Override
-	protected double getValue(MCTSNode node) {
+	protected double getValue(MCTSNode node, MCTSNode parent) {
 
 		long key = node.getHash();
 		Double value = NodeValues.get(key);

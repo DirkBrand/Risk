@@ -583,13 +583,13 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 *            The MCTSnode for which the value is calculated.
 	 * @return Returns the value of the node.
 	 */
-	protected double getValue(MCTSNode node) {
+	protected double getValue(MCTSNode node, MCTSNode parent) {
 
 		if (NodeValues.size() >= 125000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
 			NodeValues = new HashMap<Long, Double>();
 		}
 
-//		node.updateHash(parent);
+		node.updateHash(parent);
 		long key = node.getHash();
 		Double value = NodeValues.get(key);
 		if (value != null) {
@@ -612,7 +612,8 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 *            The node for which the value is calculated.
 	 * @return The weighted value of the node.
 	 */
-	protected double getWeightedEval(MCTSNode childNode) {
+	protected double getWeightedEval(MCTSNode childNode, MCTSNode parent) {
+		childNode.updateHash(parent);
 		int sourceTroops = childNode.getGame().getCurrentPlayer()
 				.getTerritoryByName(childNode.getAttackSource()).getNrTroops();
 		int destTroops = childNode.getGame().getOtherPlayer()
@@ -625,28 +626,28 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			if (destTroops == 2 || destTroops == 1) {
 				MCTSNode newChild = childNode.clone();
 				newChild.setDiceRolls(0, 0, 1, 0, 6);
-				AIUtil.resolveAttackAction(newChild);
+				AIUtil.resolveAttackAction(newChild); //TODO: Set TreePhase in resolveAttackAction. MoA or Attack
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(0, 0, 6, 0, 1);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 
 			} else {
 				MCTSNode newChild = childNode.clone();
 				newChild.setDiceRolls(0, 0, 1, 5, 6);
 				AIUtil.resolveAttackAction(newChild);
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(0, 0, 6, 1, 2);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 			}
 		} else if (sourceTroops == 3) {
 			if (destTroops == 2 || destTroops == 1) {
@@ -654,31 +655,31 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				newChild.setDiceRolls(0, 5, 6, 0, 1);
 				AIUtil.resolveAttackAction(newChild);
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(0, 1, 2, 0, 6);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 			} else {
 				MCTSNode newChild = childNode.clone();
 				newChild.setDiceRolls(0, 1, 2, 5, 6);
 				AIUtil.resolveAttackAction(newChild);
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(0, 1, 6, 2, 5);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 
 				MCTSNode newChild3 = childNode.clone();
 				newChild3.setDiceRolls(0, 5, 6, 1, 2);
 				AIUtil.resolveAttackAction(newChild3);
 
-				value += AIUtil.getProb(newChild3) * getValue(newChild3);
+				value += AIUtil.getProb(newChild3) * getValue(newChild3, childNode);
 			}
 
 		} else {
@@ -687,32 +688,32 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				newChild.setDiceRolls(4, 5, 6, 0, 1);
 				AIUtil.resolveAttackAction(newChild);
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(1, 2, 3, 0, 6);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 
 			} else {
 				MCTSNode newChild = childNode.clone();
 				newChild.setDiceRolls(4, 5, 6, 1, 2);
 				AIUtil.resolveAttackAction(newChild);
 
-				value += AIUtil.getProb(newChild) * getValue(newChild);
+				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
 				MCTSNode newChild2 = childNode.clone();
 				newChild2.setDiceRolls(1, 2, 6, 3, 5);
 				AIUtil.resolveAttackAction(newChild2);
 
-				value += AIUtil.getProb(newChild2) * getValue(newChild2);
+				value += AIUtil.getProb(newChild2) * getValue(newChild2, childNode);
 
 				MCTSNode newChild3 = childNode.clone();
 				newChild3.setDiceRolls(1, 2, 3, 5, 6);
 				AIUtil.resolveAttackAction(newChild3);
 
-				value += AIUtil.getProb(newChild3) * getValue(newChild3);
+				value += AIUtil.getProb(newChild3) * getValue(newChild3, childNode);
 			}
 		}
 

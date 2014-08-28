@@ -81,6 +81,12 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			Territory tempManD = manDest.clone();
 			copy.setManDest(tempManD);
 		}
+		
+		if(this.getTreePhase() != RECRUIT) { //TODO:manSrc and Dest is kept otherwise and bring errors. ??
+			copy.setManDest(null);
+			copy.setManSource(null);
+		}
+			
 		copy.setHash(0L);
 		copy.whereRecruitedId = whereRecruitedId;
 		copy.numberOfAttackBranches = 0;
@@ -149,7 +155,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	 *            The parent node from which the hash is updated.
 	 */
 	public void updateHash(MCTSNode parent) {
-		if(this.hashCode == 0L) {
+		if(this.hashCode == 0L && parent != null) {
 			long childHash = parent.getHash();
 			int playerId = parent.getGame().getCurrentPlayerID();
 			switch(parent.getTreePhase()) {
@@ -177,15 +183,15 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				if(this.getTreePhase() == RANDOMEVENT) {
 					Territory Source = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackSource());
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(this.getAttackDest());
-					int destId = Dest.getId();
 					int sourceId = Source.getId();
+					int destId = Dest.getId();
 					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
 					childHash = childHash ^ AIPlayer.ZobristAttackSource[sourceId-1];			
 				}
 				else if(this.getTreePhase() == MANOEUVRE) {
 					// Nothing to do here ? - no AttackDest|Source
 				}
-				else System.out.println("Little John is looking for his mom TreePhase");
+				else System.out.println("Little John is looking for his mom TreePhase " + this.getTreePhaseText() + " " + parent.getHash());
 				break;
 			}
 			//Child in ATTACK or MOA

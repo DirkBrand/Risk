@@ -170,7 +170,8 @@ public class AIUtil {
 		if (d.getNrTroops() <= 1 && diceRolls[2] > diceRolls[4]) { // defender
 																	// defeated
 			node.setMoveReq(true);
-
+			node.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+			
 			d.setNrTroops(0);
 
 			// transfering territory
@@ -196,8 +197,9 @@ public class AIUtil {
 						d.decrementTroops();
 					}
 				}
+				node.setTreePhase(GameTreeNode.ATTACK);
 			}
-
+			node.setTreePhase(GameTreeNode.ATTACK);
 		}
 	}
 
