@@ -873,7 +873,6 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						maxChild = temp;
 					}
 				}
-//			maxChild.updateHash(lastNode);
 			
 			//Duplication Avoidance
 			Double value = getValue(maxChild, lastNode);

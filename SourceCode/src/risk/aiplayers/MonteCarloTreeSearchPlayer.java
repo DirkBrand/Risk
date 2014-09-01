@@ -41,7 +41,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	protected int foundIt = 0;
 	protected int missedIt = 0;
 
-	protected HashMap<Long, Double> NodeValues = new HashMap<Long, Double>();
+	protected HashMap<Long, Double> NodeValues = new HashMap<Long, Double>(); //TODO
 
 	protected AIParameter params;
 
