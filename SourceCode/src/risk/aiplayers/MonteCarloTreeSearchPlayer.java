@@ -16,6 +16,7 @@ import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.Pair;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
@@ -41,7 +42,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	protected int foundIt = 0;
 	protected int missedIt = 0;
 
-	protected HashMap<Long, Double> NodeValues = new HashMap<Long, Double>(); //TODO
+	protected HashMap<Long, Pair> NodeValues = new HashMap<Long, Pair>(); //TODO
 
 	protected AIParameter params;
 
@@ -585,23 +586,25 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 */
 	protected double getValue(MCTSNode node, MCTSNode parent) {
 
-		if (NodeValues.size() >= 125000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
-			NodeValues = new HashMap<Long, Double>();
+		if (NodeValues.size() >= 200000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
+			NodeValues = new HashMap<Long, Pair>();
 		}
 
 		node.updateHash(parent);
 		long key = node.getHash();
-		Double value = NodeValues.get(key);
-		if (value != null) {
-			foundIt++;
-			return value;
-		} else {
-			missedIt++;
-			value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
-			NodeValues.put(key, value);
-			node.setValue(value);
-			return value;
+		Pair pair = NodeValues.get(key);
+		if(pair != null) {
+			Double value = pair.getValue();
+			if (value != null) {
+				foundIt++;
+				return value;
+			}
 		}
+		missedIt++; //Hash either not known or known but the child is present while we don't know its value. So, not really missed it ?
+		Double value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
+		NodeValues.put(key, new Pair(value, false));
+		node.setValue(value);
+		return value;
 	}
 
 	/**

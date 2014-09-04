@@ -2,6 +2,7 @@ package risk.aiplayers.MCTSPlayers;
 
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.Pair;
 import risk.commonObjects.GameState;
 
 /**
@@ -12,7 +13,7 @@ import risk.commonObjects.GameState;
  */
 public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 	double weights[] = new double[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0 };
-	
+
 	public MCTSFairBadEval_AI(String name, String opp, String map,
 			int id, long time) {
 		super(name, opp, map, id, time);
@@ -27,17 +28,20 @@ public class MCTSFairBadEval_AI extends MCTSFairExpansion_AI {
 	@Override
 	protected double getValue(MCTSNode node, MCTSNode parent) {
 
+		node.updateHash(parent);
 		long key = node.getHash();
-		Double value = NodeValues.get(key);
-		if (value != null) {
-			foundIt++;
-			return value;
-		} else {
-			missedIt++;
-			value = AIUtil.eval(node, weights, maxRecruitable);
-			NodeValues.put(node.getHash(), value);
-			return value;
-		}
+		Pair pair = NodeValues.get(key);
+		if(pair != null) {
+			Double value = pair.getValue();
+			if (value != null) {
+				foundIt++;
+				return value;
+			}
+		} 			
+		missedIt++;
+		Double value = AIUtil.eval(node, weights, maxRecruitable);
+		NodeValues.put(node.getHash(), new Pair(value,false));
+		return value;
 	}
 
 }
