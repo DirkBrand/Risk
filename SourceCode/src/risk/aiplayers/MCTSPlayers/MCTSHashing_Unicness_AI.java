@@ -158,8 +158,6 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 								}
 							}
 							double value = getValue(tempChild, lastNode); 
-							// Was getValue() here before. - DuplicationAvoidance in sampling ?
-							//TODO: In every sample, I compute again value. (not hash though) - is it a long process ?
 							if (value >= maxRating) {
 								maxRating = value;
 								maxChild = tempChild;
@@ -311,8 +309,8 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 								MCTSNode newChild = lastNode.clone();
 								newChild.setAttackSource(t.getName());
 								newChild.setAttackDest(dest.getName());
-								//newChild.setValue(getWeightedEval(newChild)); //This shit was calling getHash() .. Ogodwhy.
 								newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
+								newChild.setValue(getWeightedEval(newChild, lastNode));
 								lastNode.attackChildren.add(newChild);
 							}
 						}
@@ -328,7 +326,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 				noAttackChild.setAttackSource("");
 				noAttackChild.setAttackDest("");
-				// noAttackChild.setValue(getValue(noAttackChild));
+				 noAttackChild.setValue(getValue(noAttackChild, lastNode));
 				// Add option to not attack
 				lastNode.attackChildren.add(noAttackChild);
 			}
@@ -355,7 +353,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 						index = r.nextInt(lastNode.attackChildren.size());
 
 						MCTSNode temp = lastNode.attackChildren.get(index);
-						double value = getValue(temp, lastNode); 
+						double value = temp.getValue();
 
 						if (value >= maxRating) {
 							maxRating = value;
@@ -381,7 +379,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 								maxTreeDepth = maxChild.depth;
 							}
 
-							getValue(maxChild, lastNode);
+							getValue(maxChild, lastNode); //TODO Eye on. Updated Eval to rely on weighted eval.
 							Pair pair = NodeValues.get(maxChild.getHash());
 							pair.setPresence();
 							lastNode.addChild(maxChild);
@@ -418,7 +416,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 					//Duplication Avoidance
 					Pair pair = NodeValues.get(key);
 					if(pair != null) {
-						if(pair.isPresent()) { //TODO: This quickfix really sucks.
+						if(pair.isPresent()) {
 							Iterator<MCTSNode> it = lastNode.getChildren().iterator();
 							if(quickfix<4) {
 								while (it.hasNext()) {
@@ -445,7 +443,7 @@ public class MCTSHashing_Unicness_AI extends MCTSMove_After_Attack_AI {
 							}
 						}
 					} else {
-						getValue(maxChild, lastNode);
+						getValue(maxChild, lastNode); //TODO: Eye on. Updated Eval to rely on weighted eval.
 						pair = NodeValues.get(key);
 					}
 					//Duplication Avoidance
