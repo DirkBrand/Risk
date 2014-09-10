@@ -76,7 +76,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 					tempChild.setTreePhase(GameTreeNode.ATTACK);
 
-					boolean present = false;
 					double value;
 					tempChild.updateHash(lastNode);
 					long key = tempChild.getHash();
@@ -88,8 +87,11 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					}
 					else {
 						value = pair.getValue();
+					}
+
+					if (value >= maxRating) {
+						boolean present = false;
 						if(pair.isPresent()) {
-							//TODO : Run through children for confirmation ... It already looks pretty terrible.
 							Iterator<MCTSNode> ite = lastNode.getChildren().iterator();
 							while (ite.hasNext()) {
 								MCTSNode child = ite.next();
@@ -100,10 +102,8 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 								}
 							}
 						}
-					}
-					
-					if(!present) {
-						if (value >= maxRating) {
+
+						if(!present) {
 							maxRating = value;
 							maxChild = tempChild;
 							maxPair = pair;
@@ -215,6 +215,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					temp.updateHash(lastNode);
 					long key = temp.getHash();
 					Pair pair = NodeValues.get(key);
+
 					if(pair == null) {
 						value = getValue(temp, lastNode);
 						pair = NodeValues.get(key);
@@ -223,22 +224,21 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						value = pair.getValue();
 					}
 
-					boolean present = false;
-					if(pair.isPresent()) {
-						//TODO : Run through children for confirmation ... It already looks pretty terrible.
-						Iterator<MCTSNode> ite = lastNode.getChildren().iterator();
-						while (ite.hasNext()) {
-							MCTSNode child = ite.next();
-							if(key == child.getHash()) {
-								present = true;
-								i--;
-								break;
+					if (value >= maxRating) {
+						boolean present = false;
+						if(pair.isPresent()) {
+							Iterator<MCTSNode> ite = lastNode.getChildren().iterator();
+							while (ite.hasNext()) {
+								MCTSNode child = ite.next();
+								if(key == child.getHash()) {
+									present = true;
+									i--;
+									break;
+								}
 							}
 						}
-					}
 
-					if(!present) {
-						if (value >= maxRating) {
+						if(!present) {
 							maxRating = value;
 							maxChild = temp;
 							maxPair = pair;
@@ -296,8 +296,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					maxTreeDepth = maxChild.depth;
 				}
 
-				Pair pair = NodeValues.get(maxChild.getHash());
-				pair.setPresence();
+				maxPair.setPresence();
 				lastNode.addChild(maxChild);
 				return maxChild;
 			}
@@ -601,7 +600,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						temp = lastNode.manChildren.get(0);
 					}
 
-					boolean present = false;
 					long key = temp.getHash();
 					Pair pair = NodeValues.get(key);
 					double value;
@@ -611,8 +609,12 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						pair = NodeValues.get(key);
 					} else {
 						value = pair.getValue();
+					}
+
+					if (value >= maxRating) {
+						boolean present = false;
+
 						if(pair.isPresent()) {
-							//TODO : Run through children for confirmation ... It already looks pretty terrible.
 							Iterator<MCTSNode> ite = lastNode.getChildren().iterator();
 							while (ite.hasNext()) {
 								MCTSNode child = ite.next();
@@ -623,10 +625,8 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 								}
 							}
 						}
-					}
 
-					if(!present) {
-						if (value >= maxRating) {
+						if(!present) {
 							maxRating = value;
 							maxChild = temp;
 							maxPair = pair;
