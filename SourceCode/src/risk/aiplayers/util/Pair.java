@@ -7,7 +7,7 @@ package risk.aiplayers.util;
  * @author glebris
  *
  */
-public class Pair { //TODO: Do I want this or a parametric class ? <A , B>
+public class Pair {
 	Double value = null;
 	boolean presence = false;
 

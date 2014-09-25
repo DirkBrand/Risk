@@ -181,6 +181,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 				MCTSNode maxChild = null;
 				double maxRating = Double.NEGATIVE_INFINITY;
 				while (maxChild == null) {
+//					System.out.println("Loop Fair ");
 					for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 						AIUtil.shuffleArray(perm);
 
@@ -289,6 +290,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 
 			int count = 0;
 			while (true) {
+//				System.out.println("Loop2 fair ");
 				count++;
 
 				// Fix search range
@@ -503,6 +505,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
 			while (true) {
+//				System.out.println("Loop3 Fair ");
 				int troops = rand.nextInt(totalTroops - 1) + 1;
 
 				// Checks if child already exists
@@ -561,17 +564,14 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 						lastNode.maxChildren / 4);
 			}
 
-			// System.out.println("Man 1");
-			if (lastNode.manChildren == null) {
-				lastNode.manChildren = new ArrayList<MCTSNode>();
+			if(lastNode.manSources == null) {
+				lastNode.manSources = new ArrayList<Territory>();
+				lastNode.manDests = new ArrayList<Territory>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
-				MCTSNode noManChild = lastNode.clone();
-				noManChild.setTreePhase(GameTreeNode.RECRUIT);
-				noManChild.switchMaxPlayer();
-				noManChild.getGame().changeCurrentPlayer();
-				// Add option to not manoeuvre
-				lastNode.manChildren.add(noManChild);
+//				 Add option to not manoeuvre
+				lastNode.manSources.add(null);
+				lastNode.manDests.add(null);
 				lastNode.manTroopBins.add(0);
 
 				// Populate treeset
@@ -585,16 +585,13 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 									if (!src.getName().equals(dest.getName())) {
 
 										// Unique source-dest combo
-										MCTSNode newChild = lastNode.clone();
-										newChild.setManSource(src);
-										newChild.setManDest(dest);
-										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 												.add(lastNode.manTroopBins
 														.get(lastNode.manTroopBins
 																.size() - 1)
 														+ src.getNrTroops() - 1);
-										lastNode.manChildren.add(newChild);
+										lastNode.manSources.add(src);
+										lastNode.manDests.add(dest);
 									}
 								}
 							}
@@ -607,6 +604,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 			Random r = new Random();
 			int count = 0;
 			while (true) {
+//				System.out.println("Loop4 Fair ");
 				count++;
 				//System.out.println(count);
 				double maxRating = Double.NEGATIVE_INFINITY;
@@ -661,7 +659,10 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 							middle = (first + last) / 2;
 
 						}
-						temp = lastNode.manChildren.get(middle).clone();
+						temp = lastNode.clone();
+						temp.setManSource(lastNode.manSources.get(middle));
+						temp.setManDest(lastNode.manDests.get(middle));
+						temp.setTreePhase(GameTreeNode.RECRUIT);
 						temp.setManTroopCount(nrTroops + "");
 						AIUtil.resolveMoveAction(
 								temp.getGame()
@@ -676,7 +677,10 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 						temp.switchMaxPlayer();
 						temp.getGame().changeCurrentPlayer();
 					} else {
-						temp = lastNode.manChildren.get(0);
+						temp = lastNode.clone();
+						temp.setTreePhase(GameTreeNode.RECRUIT);
+						temp.switchMaxPlayer();
+						temp.getGame().changeCurrentPlayer();
 					}
 					
 					double value = getValue(temp, lastNode);
@@ -797,7 +801,7 @@ public class MCTSFairExpansion_AI extends MonteCarloTreeSearchPlayer {
 			// root.getTreePhaseText());
 			MCTSNode action = MCTSSearch(root);
 			double time = (System.nanoTime() - startTime) / 1000000.0;
-			
+			printStats(root, time);
 			/*
 			 * System.out.println("Ended MCTS in " + time + " ms");
 			 * 

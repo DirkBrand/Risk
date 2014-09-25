@@ -32,7 +32,6 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 
 	@Override
 	protected MCTSNode Expand(MCTSNode lastNode) {
-		//System.out.println(lastNode.getTreePhaseText());
 		switch (lastNode.getTreePhase()) {
 		case GameTreeNode.RECRUIT: {
 			// Create permutation array
@@ -50,10 +49,10 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 				perm[d++] = false;
 
 			// Generate all and pick randomly from top 30
-			// System.out.println("Recruit 2");
 			MCTSNode maxChild = null;
 			double maxRating = Double.NEGATIVE_INFINITY;
 			while (maxChild == null) {
+//				System.out.println("Loop Mom ");
 				for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 					AIUtil.shuffleArray(perm);
 
@@ -153,7 +152,7 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 					lastNode.Momentum = false; //To not lock on this and add x times the same attack node.
 					MCTSNode MomentumChild = lastNode.clone();
 					MomentumChild.setTreePhase(GameTreeNode.RANDOMEVENT);
-					MomentumChild.setValue(getValue(MomentumChild, lastNode));
+					MomentumChild.setValue(getWeightedEval(MomentumChild, lastNode));
 
 					MomentumChild.setVisitCount(0);
 					MomentumChild.setWinCount(0);
@@ -186,7 +185,7 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 
 			int count = 0;
 			while (true) {
-				//System.out.println("1 " + lastNode.maxChildren + " " + lastNode.getHash()); //TODO: Stuck here. Not anymore ?
+//				System.out.println("Loop1 Mom ");
 				count++;
 
 				// Fix search range
@@ -237,11 +236,21 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 				}
 
 				if (maxChild == null) {
+					System.out.println("Clone6 " + lastNode.numberOfAttackBranches);
 					maxChild = lastNode.clone();
 					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					maxChild.setAttackSource("");
 					maxChild.setAttackDest("");
 					maxChild.updateHash(lastNode);
+					calculateMaxChildren(maxChild);
+
+					maxChild.depth = lastNode.depth + 1;
+					if (maxChild.depth > maxTreeDepth) {
+						maxTreeDepth = maxChild.depth;
+					}
+					
+					lastNode.addChild(maxChild);
+					return maxChild;
 				}
 
 				// Checks if child already exists
@@ -296,7 +305,6 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 					.getNrTroops();
 			int destTroops = lastNode.getGame().getOtherPlayer()
 					.getTerritoryByName(lastNode.getAttackDest()).getNrTroops();
-
 
 			MCTSNode newChild = lastNode.clone();
 			newChild.setVisitCount(0);
@@ -408,6 +416,7 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
 			while (true) {
+//				System.out.println("Loop2 Mom ");
 				int troops = rand.nextInt(totalTroops - 1) + 1;
 
 				// Checks if child already exists
@@ -467,16 +476,13 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 						lastNode.maxChildren / 4);
 			}
 
-			if (lastNode.manChildren == null) {
-				lastNode.manChildren = new ArrayList<MCTSNode>();
+			if(lastNode.manSources == null) {
+				lastNode.manSources = new ArrayList<Territory>();
+				lastNode.manDests = new ArrayList<Territory>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
-				MCTSNode noManChild = lastNode.clone();
-				noManChild.setTreePhase(GameTreeNode.RECRUIT);
-				noManChild.switchMaxPlayer();
-				noManChild.getGame().changeCurrentPlayer();
-				// Add option to not manoeuvre
-				lastNode.manChildren.add(noManChild);
+				lastNode.manSources.add(null);
+				lastNode.manDests.add(null);
 				lastNode.manTroopBins.add(0);
 
 				// Populate treeset
@@ -490,16 +496,13 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 									if (!src.getName().equals(dest.getName())) {
 
 										// Unique source-dest combo
-										MCTSNode newChild = lastNode.clone();
-										newChild.setManSource(src);
-										newChild.setManDest(dest);
-										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 										.add(lastNode.manTroopBins
 												.get(lastNode.manTroopBins
 														.size() - 1)
 														+ src.getNrTroops() - 1);
-										lastNode.manChildren.add(newChild);
+										lastNode.manSources.add(src);
+										lastNode.manDests.add(dest);
 									}
 								}
 							}
@@ -512,6 +515,7 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 			Random r = new Random();
 			int count = 0;
 			while (true) {
+//				System.out.println("Loop3 Mom ");
 				count++;
 				double maxRating = Double.NEGATIVE_INFINITY;
 				MCTSNode maxChild = null;
@@ -547,7 +551,10 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 							big=lastNode.manTroopBins.get(tempIndex);
 
 							if(little<index && index<=big) {
-								temp = lastNode.manChildren.get(tempIndex).clone();
+								temp = lastNode.clone();
+								temp.setManSource(lastNode.manSources.get(tempIndex));
+								temp.setManDest(lastNode.manDests.get(tempIndex));
+								temp.setTreePhase(GameTreeNode.RECRUIT);
 								found = true;
 							}
 							tempIndex--;
@@ -568,7 +575,10 @@ public class MCTSMomentum_AI extends MCTSMove_After_Attack_AI{
 						temp.switchMaxPlayer();
 						temp.getGame().changeCurrentPlayer();
 					} else {
-						temp = lastNode.manChildren.get(0);
+						temp = lastNode.clone();
+						temp.setTreePhase(GameTreeNode.RECRUIT);
+						temp.switchMaxPlayer();
+						temp.getGame().changeCurrentPlayer();
 					}
 
 					double value = getValue(temp, lastNode);

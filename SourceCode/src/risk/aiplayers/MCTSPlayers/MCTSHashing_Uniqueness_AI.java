@@ -133,12 +133,12 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 			inRecruit:
 				while(true)
 				{
-					System.out.println("1");
+//					System.out.println("1");
 					// Generate all and pick randomly from top 30
 					MCTSNode maxChild = null;
 					double maxRating = Double.NEGATIVE_INFINITY;
 					while (maxChild == null) {
-						System.out.println("2");
+//						System.out.println("2");
 						for (int i = 0; i < lastNode.numberOfRecruitBranches; i++) {
 							AIUtil.shuffleArray(perm);
 
@@ -334,7 +334,7 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 			int count = 0;
 			inAtk:
 				while (true) {
-					System.out.println("3");
+//					System.out.println("3");
 					count++;
 
 					// Fix search range
@@ -609,7 +609,7 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 
 			inMoA:
 				while (true) {
-					System.out.println("4");
+//					System.out.println("4");
 					MCTSNode newChild = lastNode.clone();
 					newChild.setTreePhase(GameTreeNode.ATTACK);
 					int troops = rand.nextInt(totalTroops - 1) + 1;
@@ -796,7 +796,7 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 			int count = 0;
 			inMan:
 				while (true) {
-					System.out.println("5");
+//					System.out.println("5");
 					count++;
 					double maxRating = Double.NEGATIVE_INFINITY;
 					MCTSNode maxChild = null;

@@ -1,6 +1,7 @@
 package risk.aiplayers.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -10,6 +11,7 @@ import risk.commonObjects.Continent;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
+import risk.server.facilitator.FacilitatorProtocolManager;
 
 public class AIUtil {
 	static Random r = new Random();
@@ -65,6 +67,24 @@ public class AIUtil {
 				.size() == 0;
 		boolean bDead = node.getGame().getPlayers().get(1).getTerritories()
 				.size() == 0;
+		
+		if(FacilitatorProtocolManager.mesID > 3000){
+			int aTerr = node.getGame().getPlayers().get(0).getTerritories()
+					.size();
+			int bTerr = node.getGame().getPlayers().get(1).getTerritories()
+					.size();
+			int IdCurrent = node.getGame().getCurrentPlayerID();
+			if(aTerr > (bTerr + 15)) {
+				if(IdCurrent == 1)
+					node.switchMaxPlayer();
+				return true;
+			}
+			else if(bTerr > (aTerr + 15)) {
+				if(IdCurrent == 0)
+					node.switchMaxPlayer();
+				return true;
+			}
+		}
 		if (aDead || bDead)
 			return true;
 		else
@@ -168,17 +188,17 @@ public class AIUtil {
 		node.setMoveReq(false);
 
 		if (d.getNrTroops() <= 1 && diceRolls[2] > diceRolls[4]) { // defender
-																	// defeated
+			// defeated
 			node.setMoveReq(true);
 			node.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
-			
+
 			d.setNrTroops(0);
 
 			// transfering territory
 			node.getGame().getCurrentPlayer().getTerritories()
-					.put(d.getName(), d);
+			.put(d.getName(), d);
 			node.getGame().getOtherPlayer().getTerritories()
-					.remove(d.getName());
+			.remove(d.getName());
 
 			updateRegions(node.getGame());
 		} else {
@@ -293,18 +313,18 @@ public class AIUtil {
 		usage[12] = true;
 
 		double attackFeature = 0, // 0
-		bestEnemyFeature = 0, // 1
-		moreThanOneTroopFeature = 0, // 2
-		hinterlandFeature = 0, // 3
-		distanceToFrontierFeature = 0, // 4
-		continentSafetyFeature = 0, // 5
-		continentThreatFeature = 0, // 6
-		enemyRecruitFeature = 0, // 7
-		enemyOccupiedContinentsFeature = 0, // 8
-		maximumThreatFeature = 0, // 9
-		occupiedTerritoryFeature = 0, // 10
-		ownRecruitFeature = 0, // 11
-		ownOccupiedContinentsFeature = 0; // 12
+				bestEnemyFeature = 0, // 1
+				moreThanOneTroopFeature = 0, // 2
+				hinterlandFeature = 0, // 3
+				distanceToFrontierFeature = 0, // 4
+				continentSafetyFeature = 0, // 5
+				continentThreatFeature = 0, // 6
+				enemyRecruitFeature = 0, // 7
+				enemyOccupiedContinentsFeature = 0, // 8
+				maximumThreatFeature = 0, // 9
+				occupiedTerritoryFeature = 0, // 10
+				ownRecruitFeature = 0, // 11
+				ownOccupiedContinentsFeature = 0; // 12
 
 		// System.out.println("FEATURES");
 		// Features
@@ -348,7 +368,7 @@ public class AIUtil {
 
 		if (usage[8] && weights[8] != 0)
 			enemyOccupiedContinentsFeature = AIFeatures
-					.enemyOccupiedContinentsFeature(node);
+			.enemyOccupiedContinentsFeature(node);
 		// System.out.println(9);
 
 		if (usage[9] && weights[9] != 0)
@@ -359,7 +379,7 @@ public class AIUtil {
 		if (usage[10] && weights[10] != 0)
 			// 0-1
 			occupiedTerritoryFeature = AIFeatures
-					.occupiedTerritoryFeature(node);
+			.occupiedTerritoryFeature(node);
 		// System.out.println(11);
 
 		if (usage[11] && weights[11] != 0)
@@ -368,7 +388,7 @@ public class AIUtil {
 
 		if (usage[12] && weights[12] != 0)
 			ownOccupiedContinentsFeature = AIFeatures
-					.ownOccupiedContinentsFeature(node);
+			.ownOccupiedContinentsFeature(node);
 		// System.out.println(13);
 
 		// NORMALIZATION
@@ -377,8 +397,8 @@ public class AIUtil {
 		enemyOccupiedContinentsFeature/=node.getGame().getAllContinents().length;
 		ownRecruitFeature/=maxRecruitable;
 		ownOccupiedContinentsFeature/=node.getGame().getAllContinents().length;
-		
-		
+
+
 		// Add up features
 		double sum = weights[0] * attackFeature // 1
 				+ weights[1] * bestEnemyFeature // 2
@@ -467,6 +487,57 @@ public class AIUtil {
 			boolean a = ar[index];
 			ar[index] = ar[i];
 			ar[i] = a;
+		}
+	}
+
+	// Determining all current player's territories' depths at once
+	// Territories from CP different from Territories from Neighbours.
+	public static void distanceForAll(GameTreeNode node){
+		LinkedList<String> alreadySearched = new LinkedList<String>();
+		LinkedList<Territory> NotSortedTerr = new LinkedList<Territory>();
+		Iterator<Territory> it =  node.getGame().getCurrentPlayer().getTerritories().values().iterator();
+		int globalDepth = 1;
+		while (it.hasNext()) {
+			Territory t = it.next();
+			t.depth = 0; //Init all at distance 0
+			NotSortedTerr.add(t);
+		}
+		
+		// INIT : finding borders. (may already exist a similiar / optimized thing : isHinterland ?)
+		Iterator<Territory> ito =  NotSortedTerr.listIterator();
+		while (ito.hasNext()) {
+			Territory t = ito.next();
+			if(!isHinterland(node, t)) {
+				t.depth = 1;
+				ito.remove();
+				alreadySearched.add(t.getName());
+			}
+		}
+		
+		//Idea here is that it goes round by round : like in circle, we start from the frontier and it goes deeper and deeper in current player’s territories. At least a territory gets his distance for each call back to while. Maximum is cubic complexity to calculate distance for all territories.
+		//It does not seem much better than distance… Maybe try ?
+
+		while(NotSortedTerr.size() > 0) {
+			globalDepth ++;
+			Iterator<Territory> iter =  NotSortedTerr.listIterator();
+			while (iter.hasNext()) {
+				Territory t = iter.next();
+				boolean found = false;
+				for(Territory n : t.getNeighbours()) {
+					for (String ter : alreadySearched) {
+						if (ter.equalsIgnoreCase(n.getName())) {
+							found = true;
+							t.depth = globalDepth;
+							break;
+						}
+					}
+				}
+
+				if(found == true) {
+					iter.remove();
+					alreadySearched.add(t.getName());
+				}
+			}
 		}
 	}
 

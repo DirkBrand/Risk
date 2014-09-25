@@ -249,6 +249,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 					AIUtil.shuffleArray(perm);
 
+					System.out.println("Clone5 ");
 					MCTSNode tempChild = lastNode.clone();
 					tempChild.setTreePhase(GameTreeNode.ATTACK);
 
@@ -308,6 +309,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 					if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 							&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
+						System.out.println("Clone6 ");
 						MCTSNode noAttackChild = lastNode.clone();
 						noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 						noAttackChild.setAttackSource("");
@@ -329,6 +331,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 										.getOtherPlayer()
 										.getTerritoryByName(n.getName());
 								if (dest != null) {
+									System.out.println("Clone7 ");
 									MCTSNode newChild = lastNode.clone();
 									newChild.setAttackSource(t.getName());
 									newChild.setAttackDest(dest.getName());
@@ -346,6 +349,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				int index = 0;
 
 				if (lastNode.attackChildren.size() == 0) {
+					System.out.println("Clone8 ");
 					MCTSNode noAttackChild = lastNode.clone();
 					noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					noAttackChild.setAttackSource("");
@@ -414,6 +418,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 					if (!lastNode.noAttackAdded) {
 						if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 								&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
+							System.out.println("Clone9 ");
 							maxChild = lastNode.clone();
 							maxChild.setAttackSource("");
 							maxChild.setAttackDest("");
@@ -450,6 +455,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 							// the
 							// source
 							if (tempT != null) {
+								System.out.println("Clone10 ");
 								MCTSNode tempChild = lastNode.clone();
 								tempChild.setAttackSource(source.getName());
 								tempChild.setAttackDest(tempT.getName());
@@ -545,6 +551,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 			int destTroops = lastNode.getGame().getOtherPlayer()
 					.getTerritoryByName(lastNode.getAttackDest()).getNrTroops();
 
+			System.out.println("Clone11 ");
 			MCTSNode newChild = lastNode.clone();
 			newChild.setVisitCount(0);
 			newChild.setWinCount(0);
@@ -666,6 +673,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 				// Add unique child to existing children
 				if (unique) {
+					System.out.println("Clone12 ");
 					MCTSNode newChild = lastNode.clone();
 					newChild.setVisitCount(0);
 					newChild.setWinCount(0);
@@ -716,9 +724,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				if (lastNode.manChildren == null) {
 					lastNode.manChildren = new ArrayList<MCTSNode>();
 
-					// if (AIFeatures.occupiedTerritoryFeature(lastNode) <
-					// params.leadWinRate && AIFeatures.armyStrength(lastNode) <
-					// params.leadWinRate) {
+					System.out.println("Clone1 ");
 					MCTSNode noManChild = lastNode.clone();
 					noManChild.setValue(getValue(noManChild, lastNode));
 					noManChild.setTreePhase(GameTreeNode.RECRUIT);
@@ -726,7 +732,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 					noManChild.getGame().changeCurrentPlayer();
 					// Add option to not manoeuvre
 					lastNode.manChildren.add(noManChild);
-					// }
 
 					// Populate treeset
 					LinkedList<LinkedList<Territory>> connComponentBuckets = lastNode
@@ -812,6 +817,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				// not
 				// maneuvering
 				if (lastNode.maxChildren == 1) {
+					System.out.println("Clone2 ");
 					MCTSNode newChild = lastNode.clone();
 					newChild.setVisitCount(0);
 					newChild.setWinCount(0);
@@ -859,6 +865,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 					// Not maneuvering
 
 					if (!lastNode.noManAdded) {
+						System.out.println("Clone3 ");
 						maxChild = lastNode.clone();
 						maxRating = getValue(maxChild, lastNode);
 					}
@@ -902,6 +909,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 						int troopNumber = Math.round(r.nextInt(source
 								.getNrTroops() - 1)) + 1;
 
+						System.out.println("Clone4 ");
 						MCTSNode temp = lastNode.clone();
 						temp.setManSource(temp.getGame().getCurrentPlayer()
 								.getTerritoryByName(source.getName()));

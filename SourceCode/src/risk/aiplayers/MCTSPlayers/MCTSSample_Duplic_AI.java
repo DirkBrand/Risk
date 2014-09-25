@@ -55,6 +55,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			Pair maxPair = null;
 			double maxRating = Double.NEGATIVE_INFINITY;
 			while (maxChild == null) {
+//				System.out.println("Loop Sample ");
 				for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 					AIUtil.shuffleArray(perm);
 
@@ -192,6 +193,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 			int count = 0;
 			while (true) {
+//				System.out.println("Loop2 Sample ");
 				count++;
 
 				// Fix search range
@@ -225,24 +227,9 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					}
 
 					if (value >= maxRating) {
-						boolean present = false;
-						if(pair.isPresent()) {
-							Iterator<MCTSNode> ite = lastNode.getChildren().iterator();
-							while (ite.hasNext()) {
-								MCTSNode child = ite.next();
-								if(key == child.getHash()) {
-									present = true;
-									i--;
-									break;
-								}
-							}
-						}
-
-						if(!present) {
-							maxRating = value;
-							maxChild = temp;
-							maxPair = pair;
-						}
+						maxRating = value;
+						maxChild = temp;
+						maxPair = pair;
 					}
 
 					// End game : could not pick a unique 50 times in a row. NEVER happens.
@@ -278,7 +265,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				}
 
 				// Add unique child to existing children
-
 				lastNode.attackChildren.remove(maxChild);
 
 				maxChild.setVisitCount(0);
@@ -302,9 +288,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			}
 		}
 
-
 		case GameTreeNode.RANDOMEVENT: {
-
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -423,6 +407,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
 			while (true) {
+//				System.out.println("Loop3 Sample ");
 				int troops = rand.nextInt(totalTroops - 1) + 1;
 
 				// Checks if child already exists
@@ -483,16 +468,14 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						lastNode.maxChildren / 4);
 			}
 
-			if (lastNode.manChildren == null) {
-				lastNode.manChildren = new ArrayList<MCTSNode>();
+			if(lastNode.manSources == null) {
+				lastNode.manSources = new ArrayList<Territory>();
+				lastNode.manDests = new ArrayList<Territory>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
-				MCTSNode noManChild = lastNode.clone();
-				noManChild.setTreePhase(GameTreeNode.RECRUIT);
-				noManChild.switchMaxPlayer();
-				noManChild.getGame().changeCurrentPlayer();
 				// Add option to not manoeuvre
-				lastNode.manChildren.add(noManChild);
+				lastNode.manSources.add(null);
+				lastNode.manDests.add(null);
 				lastNode.manTroopBins.add(0);
 
 				// Populate treeset
@@ -506,16 +489,13 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 									if (!src.getName().equals(dest.getName())) {
 
 										// Unique source-dest combo
-										MCTSNode newChild = lastNode.clone();
-										newChild.setManSource(src);
-										newChild.setManDest(dest);
-										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 										.add(lastNode.manTroopBins
 												.get(lastNode.manTroopBins
 														.size() - 1)
 														+ src.getNrTroops() - 1);
-										lastNode.manChildren.add(newChild);
+										lastNode.manSources.add(src);
+										lastNode.manDests.add(dest);
 									}
 								}
 							}
@@ -528,6 +508,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			Random r = new Random();
 			int count = 0;
 			while (true) {
+//				System.out.println("Loop4 Sample ");
 				count++;
 				double maxRating = Double.NEGATIVE_INFINITY;
 				MCTSNode maxChild = null;
@@ -582,7 +563,10 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 							middle = (first + last) / 2;
 
 						}
-						temp = lastNode.manChildren.get(middle).clone();
+						temp = lastNode.clone();
+						temp.setManSource(lastNode.manSources.get(middle));
+						temp.setManDest(lastNode.manDests.get(middle));
+						temp.setTreePhase(GameTreeNode.RECRUIT);
 						temp.setManTroopCount(nrTroops + "");
 						AIUtil.resolveMoveAction(
 								temp.getGame()
@@ -597,7 +581,10 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						temp.switchMaxPlayer();
 						temp.getGame().changeCurrentPlayer();
 					} else {
-						temp = lastNode.manChildren.get(0);
+						temp = lastNode.clone();
+						temp.setTreePhase(GameTreeNode.RECRUIT);
+						temp.switchMaxPlayer();
+						temp.getGame().changeCurrentPlayer();
 					}
 
 					long key = temp.getHash();

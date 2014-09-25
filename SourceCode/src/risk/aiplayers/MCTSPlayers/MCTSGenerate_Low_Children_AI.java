@@ -777,16 +777,22 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 			if(lastNode.numberOfManoeuvreBranches <1)
 				lastNode.numberOfManoeuvreBranches = 1 ;
 
-			if (lastNode.manChildren == null) {
-				lastNode.manChildren = new ArrayList<MCTSNode>();
+//			if (lastNode.manChildren == null) {
+//				lastNode.manChildren = new ArrayList<MCTSNode>();
+			if(lastNode.manSources == null) {
+				lastNode.manSources = new ArrayList<Territory>();
+				lastNode.manDests = new ArrayList<Territory>();
 				lastNode.manTroopBins = new ArrayList<Integer>();
 
-				MCTSNode noManChild = lastNode.clone();
-				noManChild.setTreePhase(GameTreeNode.RECRUIT);
-				// Add option to not manoeuvre
-				lastNode.manChildren.add(noManChild);
-				noManChild.switchMaxPlayer();
-				noManChild.getGame().changeCurrentPlayer();
+//				MCTSNode noManChild = lastNode.clone();
+//				noManChild.setTreePhase(GameTreeNode.RECRUIT);
+//				// Add option to not manoeuvre
+//				lastNode.manChildren.add(noManChild);
+//				noManChild.switchMaxPlayer();
+//				noManChild.getGame().changeCurrentPlayer();
+				
+				lastNode.manSources.add(null);
+				lastNode.manDests.add(null);
 				lastNode.manTroopBins.add(0);
 
 				// Populate treeset
@@ -800,16 +806,18 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 									if (!src.getName().equals(dest.getName())) {
 
 										// Unique source-dest combo
-										MCTSNode newChild = lastNode.clone();
-										newChild.setManSource(src);
-										newChild.setManDest(dest);
-										newChild.setTreePhase(GameTreeNode.RECRUIT);
+//										MCTSNode newChild = lastNode.clone();
+//										newChild.setManSource(src);
+//										newChild.setManDest(dest);
+//										newChild.setTreePhase(GameTreeNode.RECRUIT);
 										lastNode.manTroopBins
 										.add(lastNode.manTroopBins
 												.get(lastNode.manTroopBins
 														.size() - 1)
 														+ src.getNrTroops() - 1);
-										lastNode.manChildren.add(newChild);
+//										lastNode.manChildren.add(newChild);
+										lastNode.manSources.add(src);
+										lastNode.manDests.add(dest);
 									}
 								}
 							}
@@ -873,7 +881,11 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 								}
 								middle = (first + last) / 2;
 							}
-							temp = lastNode.manChildren.get(middle).clone();
+//							temp = lastNode.manChildren.get(middle).clone();
+							temp = lastNode.clone();
+							temp.setManSource(lastNode.manSources.get(middle));
+							temp.setManDest(lastNode.manDests.get(middle));
+							temp.setTreePhase(GameTreeNode.RECRUIT);
 							temp.setManTroopCount(nrTroops + "");
 							AIUtil.resolveMoveAction(
 									temp.getGame()
@@ -889,7 +901,11 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							temp.switchMaxPlayer();
 							temp.getGame().changeCurrentPlayer();
 						} else {
-							temp = lastNode.manChildren.get(0);
+//							temp = lastNode.manChildren.get(0);
+							temp = lastNode.clone();
+							temp.setTreePhase(GameTreeNode.RECRUIT);
+							temp.switchMaxPlayer();
+							temp.getGame().changeCurrentPlayer();
 						}
 
 

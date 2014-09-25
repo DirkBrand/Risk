@@ -48,8 +48,9 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 					Territory t = it.next();
 					double sum = 0.0;
 					for (Territory n : t.getNeighbours()) {
-						if (playNode.getGame().getOtherPlayer().getTerritoryByName(n.getName()) != null) {
-							sum += n.getNrTroops();
+						Territory temp = playNode.getGame().getOtherPlayer().getTerritoryByName(n.getName());
+						if (temp != null) {
+							sum += temp.getNrTroops();
 						}
 					}
 					if (sum == 0.0)
@@ -65,7 +66,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				playNode.setRecruitedTer(playNode.getGame().getCurrentPlayer()
 						.getTerritoryByID(maxID));
-				
+
 				playNode.getRecruitedTer().setNrTroops(
 						playNode.getRecruitedTer().getNrTroops() + number);
 
@@ -91,7 +92,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 					playNode.setTreePhase(GameTreeNode.MANOEUVRE);
 					break;
 				}
-				
+
 				//Checking if already attacking a specific territory (Baseline will keep on attacking this one)
 				if(lastAttackDest != null) {
 					minId = lastAttackDest.getId();
@@ -99,10 +100,12 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 					if (attackSource.getNrTroops() > 1) {
 						int min = Integer.MAX_VALUE;
 						for (Territory t : attackSource.getNeighbours()) {
-							if (t.getNrTroops() < min
-									&& playNode.getGame().getOtherPlayer().getTerritoryByName(t.getName()) != null) {
-								min = t.getNrTroops();
-								minId = t.getId();
+							Territory temp = playNode.getGame().getOtherPlayer().getTerritoryByName(t.getName());
+							if (temp != null) {
+								if(temp.getNrTroops() < min) {
+									min = temp.getNrTroops();
+									minId = temp.getId();
+								}
 							}
 						}
 
@@ -198,7 +201,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				Iterator<Territory> it = playNode.getGame().getCurrentPlayer()
 						.getTerritories().values().iterator();
-				
+
 				// Most populated territory owned by current.
 				while (it.hasNext()) {
 					Territory t = it.next();
@@ -212,7 +215,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				it = playNode.getGame().getCurrentPlayer().getTerritories()
 						.values().iterator();
-				
+
 				// Least populated territory owned by current connected to the most one.
 				while (it.hasNext()) {
 					Territory t = it.next();

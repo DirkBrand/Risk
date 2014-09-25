@@ -14,9 +14,10 @@ import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_AI;
 import risk.aiplayers.MCTSPlayers.MCTSMove_After_Attack_AI;
 import risk.aiplayers.MCTSPlayers.MCTSFairExpansion_playout_AI;
 import risk.aiplayers.MCTSPlayers.MCTSRandom_AI;
+import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
-import risk.aiplayers.MCTSPlayers.MCTSHashing_Unicness_AI;
+import risk.aiplayers.MCTSPlayers.MCTSHashing_Uniqueness_AI;
 import risk.aiplayers.MCTSPlayers.MCTSMomentum_AI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
@@ -31,7 +32,7 @@ public class AIGameCoordinator {
 	
 	static double[] weights;
 
-	int timeForMCTS_Milliseconds = 3000;
+	int timeForMCTS_Milliseconds = 2500;
 	int playoutsForMCTS = 1500;
 	int EMM_depth = 5;
 
@@ -130,23 +131,27 @@ public class AIGameCoordinator {
 				break;
 			}
 			case "MCTSFull_Baseline_AI": {
-				new MCTSFull_Baseline_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				new MCTSFull_Baseline_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
 			case "MCTSMove_After_Simulate_Baseline_AI": {
-				new MCTSMove_After_Simulate_Baseline_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				new MCTSMove_After_Simulate_Baseline_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
-			case "MCTSHashing_Unicness_AI": {
-				new MCTSHashing_Unicness_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+			case "MCTSHashing_Uniqueness_AI": {
+				new MCTSHashing_Uniqueness_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
+				break;
+			}
+			case "MCTSSample_Duplic_AI": {
+				new MCTSSample_Duplic_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
 			case "MCTSGenerate_Low_Children_AI": {
-				new MCTSGenerate_Low_Children_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				new MCTSGenerate_Low_Children_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
 			case "MCTSMomentum_AI": {
-				new MCTSMomentum_AI(ai1, ai2, theMap, id, playoutsForMCTS);
+				new MCTSMomentum_AI(ai1, ai2, theMap, id, timeForMCTS_Milliseconds);
 				break;
 			}
 			case "EMMGreedy_AI": {

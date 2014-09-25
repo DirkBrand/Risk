@@ -14,7 +14,8 @@ import java.util.StringTokenizer;
 
 import risk.aiplayers.MCTSPlayers.MCTSFull_Baseline_AI;
 import risk.aiplayers.MCTSPlayers.MCTSGenerate_Low_Children_AI;
-import risk.aiplayers.MCTSPlayers.MCTSHashing_Unicness_AI;
+import risk.aiplayers.MCTSPlayers.MCTSHashing_Uniqueness_AI;
+import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
 import risk.paperplayers.S_BaselineAI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
@@ -36,7 +37,7 @@ public class GlickoGames {
 			"MCTSExploreAI", "MCTSBaselineAI", "MCTSNaiveAI", "SimulationAI" };
 	
 	String[] allPlayers1 = new String[] { "BaselineAI", "MCTSAI", "MCTSBaselineAI", "SimulationAI" };
-	String[] allPlayers = new String[] { "BaselineAI", "MCTSAI", "MCTSFullBaselineAI", "MCTSHashingUnicnessAI", "MCTSGenerateLowChiAI"};
+	String[] allPlayers = new String[] { "BaselineAI", "MCTSFullBaselineAI", "MCTSSampleAI", "MCTSGenerateLowChiAI"};
 
 	String[] allPlayers4 = new String []{"BO1AI", "BO2AI", "BO5AI", "BO10AI", "BO20AI", "BO50AI", "BO100AI"};
 	
@@ -402,7 +403,7 @@ public class GlickoGames {
 					break;
 				}
 				case "MCTSHashingUnicnessAI" : {
-					new MCTSHashing_Unicness_AI(ai1, ai2, theMap, id,
+					new MCTSHashing_Uniqueness_AI(ai1, ai2, theMap, id,
 							timeForMCTS_Milliseconds);
 					break;
 				}
@@ -410,6 +411,10 @@ public class GlickoGames {
 					new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
 							timeForMCTS_Milliseconds);
 					break;
+				}
+				case "MCTSSampleAI": {
+					new MCTSSample_Duplic_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
 				}
 
 				case "BO1AI": {

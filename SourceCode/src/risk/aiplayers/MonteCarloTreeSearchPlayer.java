@@ -42,8 +42,8 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	protected int foundIt = 0;
 	protected int missedIt = 0;
 
-	protected HashMap<Long, Pair> NodeValues = new HashMap<Long, Pair>(); //TODO
-
+	protected HashMap<Long, Pair> NodeValues = new HashMap<Long, Pair>();
+	
 	protected AIParameter params;
 
 	public MonteCarloTreeSearchPlayer(String name, String opp, String map,
@@ -586,7 +586,8 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	 */
 	protected double getValue(MCTSNode node, MCTSNode parent) {
 
-		if (NodeValues.size() >= 200000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
+		if (NodeValues.size() >= 100000) { //TODO: was 500 000 changed to 250 000 for my PC then 125 000 for when 2 MCTS play.
+//			NodeValues.clear();
 			NodeValues = new HashMap<Long, Pair>();
 		}
 
@@ -600,11 +601,23 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				return value;
 			}
 		}
-		missedIt++; //Hash either not known or known but the child is present while we don't know its value. So, not really missed it ?
-		Double value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
-		NodeValues.put(key, new Pair(value, false));
-		node.setValue(value);
-		return value;
+
+		if(node.getTreePhase() != GameTreeNode.RANDOMEVENT) {
+			missedIt++; //Hash either not known or known but the child is present while we don't know its value. So, not really missed it ?
+			Double value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
+			NodeValues.put(key, new Pair(value, false));
+			node.setValue(value);
+			return value;
+		} else { //WeightedEval's job. All values are supposed to be known - already generated.
+			Double value = node.getValue();
+			if(value==null) {
+				System.out.println("Value nul for an Attack child node");
+				System.exit(1);
+			}
+			NodeValues.put(key, new Pair(value, false));
+			return value;
+		}
+
 	}
 
 	/**
@@ -629,7 +642,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			if (destTroops == 2 || destTroops == 1) {
 				MCTSNode newChild = childNode.clone();
 				newChild.setDiceRolls(0, 0, 1, 0, 6);
-				AIUtil.resolveAttackAction(newChild); //TODO: Set TreePhase in resolveAttackAction. MoA or Attack
+				AIUtil.resolveAttackAction(newChild);
 
 				value += AIUtil.getProb(newChild) * getValue(newChild, childNode);
 
