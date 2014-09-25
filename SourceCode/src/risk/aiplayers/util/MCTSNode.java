@@ -24,7 +24,6 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	private MCTSNode parent;
 	private int visitCount;
 	private int winCount;
-	public static final int MAX_TROOPS = 49;
 
 	private double randomNodeExpectedWinRate;
 
@@ -126,14 +125,14 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
-			int troopNumber = Math.min(t.getNrTroops(), MAX_TROOPS);
+			int troopNumber = Math.min(t.getNrTroops(), AIPlayer.MAX_TROOPS);
 			long za = AIPlayer.ZobristArray[t.getId()-1][troopNumber][0]; // Id starts at 1.
 			key = key ^ za;
 		}
 		It = this.getGame().getPlayers().get(1).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
-			int troopNumber = Math.min(t.getNrTroops(), MAX_TROOPS);
+			int troopNumber = Math.min(t.getNrTroops(), AIPlayer.MAX_TROOPS);
 			long za = AIPlayer.ZobristArray[t.getId()-1][troopNumber][1];
 			key = key ^ za;
 		}
@@ -176,8 +175,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				while (Itp.hasNext() && Itc.hasNext()) {
 					Territory tp = Itp.next();
 					Territory tc = Itc.next();
-					int troopP = Math.min(tp.getNrTroops(), MAX_TROOPS);
-					int troopC = Math.min(tc.getNrTroops(), MAX_TROOPS);
+					int troopP = Math.min(tp.getNrTroops(), AIPlayer.MAX_TROOPS);
+					int troopC = Math.min(tc.getNrTroops(), AIPlayer.MAX_TROOPS);
 					if(troopP != troopC) {
 						childHash = childHash ^ AIPlayer.ZobristArray[tp.getId()-1][troopP][playerId];
 						childHash = childHash ^ AIPlayer.ZobristArray[tc.getId()-1][troopC][playerId];
@@ -211,8 +210,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				if(this.getTreePhase() == ATTACK) {
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(parent.getAttackDest());
 					int destId = Dest.getId();
-					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), MAX_TROOPS);
-					int troopC = Math.min(this.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(),  MAX_TROOPS);
+					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
+					int troopC = Math.min(this.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(),  AIPlayer.MAX_TROOPS);
 					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopP][this.getGame().getOtherPlayer().getId()];
 					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopC][this.getGame().getOtherPlayer().getId()];
 
@@ -223,8 +222,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				else if(this.getTreePhase() == MOVEAFTERATTACK) {
 					Territory Dest = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackDest());
 					int destId = Dest.getId();
-					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), MAX_TROOPS);
-					int troopC = Math.min(this.getGame().getCurrentPlayer().getTerritoryByID(destId).getNrTroops(),  MAX_TROOPS);
+					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
+					int troopC = Math.min(this.getGame().getCurrentPlayer().getTerritoryByID(destId).getNrTroops(),  AIPlayer.MAX_TROOPS);
 					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopP][this.getGame().getOtherPlayer().getId()];
 					childHash = childHash ^ AIPlayer.ZobristArray[destId-1][troopC][playerId];		
 
@@ -236,8 +235,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				}
 				//Treating Source Territory
 				int sourceId = Source.getId();
-				int troopPsource = Math.min(parent.getGame().getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops(), MAX_TROOPS);
-				int troopCsource = Math.min(this.getGame().getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops(), MAX_TROOPS);
+				int troopPsource = Math.min(parent.getGame().getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops(), AIPlayer.MAX_TROOPS);
+				int troopCsource = Math.min(this.getGame().getCurrentPlayer().getTerritoryByID(sourceId).getNrTroops(), AIPlayer.MAX_TROOPS);
 				childHash = childHash ^ AIPlayer.ZobristArray[sourceId-1][troopPsource][playerId];
 				childHash = childHash ^ AIPlayer.ZobristArray[sourceId-1][troopCsource][playerId];			
 
@@ -252,8 +251,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				while (Itp.hasNext() && Itc.hasNext()) {
 					Territory tp = Itp.next();
 					Territory tc = Itc.next();
-					int troopP = Math.min(tp.getNrTroops(), MAX_TROOPS);
-					int troopC = Math.min(tc.getNrTroops(), MAX_TROOPS);
+					int troopP = Math.min(tp.getNrTroops(), AIPlayer.MAX_TROOPS);
+					int troopC = Math.min(tc.getNrTroops(), AIPlayer.MAX_TROOPS);
 					if(troopP != troopC) {
 						childHash = childHash ^ AIPlayer.ZobristArray[tp.getId()-1][troopP][playerId];
 						childHash = childHash ^ AIPlayer.ZobristArray[tc.getId()-1][troopC][playerId];
@@ -285,10 +284,10 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					Territory manSourceParent = parent.getGame().getCurrentPlayer().getTerritoryByName(this.getManSource().getName());
 					Territory manDestParent = parent.getGame().getCurrentPlayer().getTerritoryByName(this.getManDest().getName());
 
-					int manDestCTroops = Math.min(manDestChild.getNrTroops(), MAX_TROOPS);
-					int manSrcCTroops = Math.min(manSourceChild.getNrTroops(), MAX_TROOPS);
-					int manDestPTroops = Math.min(manDestParent.getNrTroops(), MAX_TROOPS);
-					int manSrcPTroops = Math.min(manSourceParent.getNrTroops(), MAX_TROOPS);
+					int manDestCTroops = Math.min(manDestChild.getNrTroops(), AIPlayer.MAX_TROOPS);
+					int manSrcCTroops = Math.min(manSourceChild.getNrTroops(), AIPlayer.MAX_TROOPS);
+					int manDestPTroops = Math.min(manDestParent.getNrTroops(), AIPlayer.MAX_TROOPS);
+					int manSrcPTroops = Math.min(manSourceParent.getNrTroops(), AIPlayer.MAX_TROOPS);
 
 					childHash = childHash ^ AIPlayer.ZobristArray[manDestChild.getId()-1][manDestCTroops][playerId];
 					childHash = childHash ^ AIPlayer.ZobristArray[manSourceChild.getId()-1][manSrcCTroops][playerId];
