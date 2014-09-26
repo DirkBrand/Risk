@@ -8,13 +8,12 @@ import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
 public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode>{
-	
+
 	private GameState game;
 	private int treePhase;
 	private boolean maxPlayer;
-	
 	private double value;
-	
+
 	// Recruitment Phase
 	private int recruitedNumber;
 
@@ -23,18 +22,20 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	private String attackDest;
 	private int[] diceRolls;
 	private boolean moveReq = false;
-	
-	//Manouvring
+
+	//Manoeuvring
 	private String manSourceID;
 	private String manDestID;
 	private String manTroopCount;
-	
 
-	public static final int RECRUIT = 10;
-	public static final int ATTACK = 11;
-	public static final int MOVEAFTERATTACK = 12;
-	public static final int RANDOMEVENT = 13;
-	public static final int MANOEUVRE = 14;
+
+	public static final int RECRUIT = 0;
+	public static final int ATTACK = 1;
+	public static final int MOVEAFTERATTACK = 2;
+	public static final int RANDOMEVENT = 3;
+	public static final int MANOEUVRE = 4;
+	
+	public static final int reasonableChildrenNumber = 40;
 
 	public GameTreeNode() {
 	}
@@ -46,7 +47,6 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 			GameTreeNode copy = (GameTreeNode) super.clone();
 
 			GameState gameC = game.clone();
-
 			copy.setGame(gameC);
 			copy.setValue(0);
 			copy.setAttackSource(attackSource);
@@ -59,14 +59,47 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		}
 	}
 	
+	public long getHash() {
+		long key = 0;
+		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
+		while (It.hasNext()) {
+			Territory t = It.next();
+			int troopNumber = Math.min(t.getNrTroops(), 49);
+			long za = AIPlayer.ZobristArray[t.getId()-1][troopNumber][0]; // Id starts at 1.
+			key = key ^ za;
+		}
+		It = this.getGame().getPlayers().get(1).getTerritories().values().iterator();
+		while (It.hasNext()) {
+			Territory t = It.next();
+			int troopNumber = Math.min(t.getNrTroops(), 49);
+			long za = AIPlayer.ZobristArray[t.getId()-1][troopNumber][1];
+			key = key ^ za;
+		}
+
+		key = key ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
+		key = key ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+
+		/* If it is a phase coming from attack : we have to know AttackSource and Destination to distinguish
+		 * between multiple attack possibilities. The thing is, if there actually is an AttackSource and Destination
+		 * it can only means that the current phase is RandomEvent - attack in progress.
+		 */
+		//TODO : fix this. NullPointerException raised. Thing is : according to my predictions, I only need to hash totally on a new tree root. - Recruit, right ?
+		// soooo, it should be alright when everything will be on the same page.
+//		if(this.getTreePhase() == RANDOMEVENT) {
+//			System.out.println("Unusual");
+//			key = key ^ AIPlayer.ZobristAttackDestination[this.game.getOtherPlayer().getTerritoryByName(this.getAttackDest()).getId()];
+//			key = key ^ AIPlayer.ZobristAttackSource[this.game.getCurrentPlayer().getTerritoryByName(this.getAttackSource()).getId()];
+//		}
+
+		return key;	
+	}
+
 	@Override
 	public int compareTo(GameTreeNode node) {
 		double val1 = this.value;
 		double val2 = node.value;
 		return Double.compare(val2, val1);
 	}
-	
-	
 
 	// Getters & Setters
 	public GameState getGame() {
@@ -76,11 +109,11 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	public void setGame(GameState game) {
 		this.game = game;
 	}
-	
+
 	public double getValue() {
 		return value;
 	}
-	
+
 	public void setValue(double value) {
 		this.value = value;
 	}
@@ -189,6 +222,4 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	public void setManDestID(String manDestID) {
 		this.manDestID = manDestID;
 	}
-
-
 }

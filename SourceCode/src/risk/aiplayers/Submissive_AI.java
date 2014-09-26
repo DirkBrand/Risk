@@ -9,7 +9,7 @@ import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
-public class SubmissiveAI extends AIPlayer {
+public class Submissive_AI extends AIPlayer {
 
 	String line = "";
 	int ind = 0;
@@ -17,10 +17,10 @@ public class SubmissiveAI extends AIPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 
-		new SubmissiveAI(tempName, null, null, 2);
+		new Submissive_AI(tempName, null, null, 2);
 	}
 
-	public SubmissiveAI(String name, String opp, String map, int id) {
+	public Submissive_AI(String name, String opp, String map, int id) {
 		super(SUBMISSIVE_AI, name, opp, map, id);
 
 		// Communication

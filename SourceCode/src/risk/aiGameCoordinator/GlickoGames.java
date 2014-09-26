@@ -12,13 +12,17 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.StringTokenizer;
 
+import risk.aiplayers.MCTSPlayers.MCTSFull_Baseline_AI;
+import risk.aiplayers.MCTSPlayers.MCTSGenerate_Low_Children_AI;
+import risk.aiplayers.MCTSPlayers.MCTSHashing_Uniqueness_AI;
+import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
 import risk.paperplayers.S_BaselineAI;
 import risk.paperplayers.S_EMM_AI;
 import risk.paperplayers.S_MCTS_AI;
 import risk.paperplayers.S_MCTS_Baseline_AI;
 import risk.paperplayers.S_MCTS_Explore_AI;
 import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_SimulationAI;
+import risk.paperplayers.S_Simulation_AI;
 import Glicko2.Rating;
 import Glicko2.RatingCalculator;
 import Glicko2.RatingPeriodResults;
@@ -32,7 +36,8 @@ public class GlickoGames {
 	String[] allPlayers2 = new String[] { "BaselineAI", "EMMAI", "MCTSAI",
 			"MCTSExploreAI", "MCTSBaselineAI", "MCTSNaiveAI", "SimulationAI" };
 	
-	String[] allPlayers = new String[] { "BaselineAI", "MCTSAI", "MCTSBaselineAI", "SimulationAI" };
+	String[] allPlayers1 = new String[] { "BaselineAI", "MCTSAI", "MCTSBaselineAI", "SimulationAI" };
+	String[] allPlayers = new String[] { "BaselineAI", "MCTSFullBaselineAI", "MCTSSampleAI", "MCTSGenerateLowChiAI"};
 
 	String[] allPlayers4 = new String []{"BO1AI", "BO2AI", "BO5AI", "BO10AI", "BO20AI", "BO50AI", "BO100AI"};
 	
@@ -364,7 +369,7 @@ public class GlickoGames {
 					break;
 				}
 				case "SimulationAI": {
-					new S_SimulationAI(ai1, ai2, theMap, id);
+					new S_Simulation_AI(ai1, ai2, theMap, id);
 					break;
 				}
 				case "EMMAI": {
@@ -386,10 +391,30 @@ public class GlickoGames {
 							timeForMCTS_Milliseconds);
 					break;
 				}
+
+				case "MCTSFullBaselineAI": {
+					new MCTSFull_Baseline_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+				case "MCTSGenerateLowChiAI" : {
+					new MCTSGenerate_Low_Children_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
+				case "MCTSHashingUnicnessAI" : {
+					new MCTSHashing_Uniqueness_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
+					break;
+				}
 				case "MCTSBaselineAI": {
 					new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
 							timeForMCTS_Milliseconds);
 					break;
+				}
+				case "MCTSSampleAI": {
+					new MCTSSample_Duplic_AI(ai1, ai2, theMap, id,
+							timeForMCTS_Milliseconds);
 				}
 
 				case "BO1AI": {

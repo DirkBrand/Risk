@@ -13,15 +13,15 @@ import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Territory;
 
-public class MCTSBaselineAI extends MonteCarloTreeSearchPlayer {
+public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 
 	public static void main(String[] args) {
 		String tempName = args[0];
 		long time = Long.parseLong(args[1]);
-			new MCTSBaselineAI(tempName, null, null, 2, time);
+			new MCTSBaseline_AI(tempName, null, null, 2, time);
 	}
 
-	public MCTSBaselineAI(String name, String opp, String map, int id, long time) {
+	public MCTSBaseline_AI(String name, String opp, String map, int id, long time) {
 		super(name, opp, map, id, time, new AIParameter());
 	}
 
@@ -101,7 +101,7 @@ public class MCTSBaselineAI extends MonteCarloTreeSearchPlayer {
 					.getTerritories().values().iterator();
 			while (it.hasNext()) {
 				Territory t = it.next();
-				// Only consider fortified territories
+				// Only consider fortified frontier territories
 				if (t.getNrTroops() > 1 && !AIUtil.isHinterland(lastNode, t)) {
 					for (Territory n : t.getNeighbours()) {
 
@@ -632,7 +632,7 @@ public class MCTSBaselineAI extends MonteCarloTreeSearchPlayer {
 		LinkedList<String> reply = new LinkedList<String>();
 		reply.add(lastAttackSource.getId() + "");
 		reply.add(lastAttackDestination.getId() + "");
-		reply.add((lastAttackSource.getNrTroops() - 1) + "");
+		reply.add((lastAttackSource.getNrTroops() - 1) + ""); //Baseline Strategy. But did it follow it ?
 
 		return reply;
 	}

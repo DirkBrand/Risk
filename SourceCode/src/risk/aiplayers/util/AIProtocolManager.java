@@ -245,7 +245,7 @@ public class AIProtocolManager {
 
 	}
 
-	private void writeGameState(String message, LinkedList<String> args) {
+	public void writeGameState(String message, LinkedList<String> args) {
 		File log = new File("gameLog" + ai.getName() + ".txt");
 		int count1 = 0;
 		int count2 = 0;

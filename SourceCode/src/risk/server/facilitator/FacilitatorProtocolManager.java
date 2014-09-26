@@ -26,7 +26,7 @@ public class FacilitatorProtocolManager {
 
 	Logger log;
 
-	private int mesID = 1;
+	public static int mesID = 1;
 
 	LinkedList<ConnectedPlayer[]> playerPairs = new LinkedList<ConnectedPlayer[]>();
 	LinkedList<String> mapNames = new LinkedList<String>();

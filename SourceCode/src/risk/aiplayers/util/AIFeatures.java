@@ -106,10 +106,12 @@ public class AIFeatures {
 		Iterator<Territory> it = node.getGame().getCurrentPlayer()
 				.getTerritories().values().iterator();
 		
+		AIUtil.distanceForAll(node);
 		while (it.hasNext()) {
 			Territory t = it.next();
 			totalArmies += t.getNrTroops();
-			int d = AIUtil.distance(node, t);
+//			int d = AIUtil.distance(node, t);
+			int d = t.depth;
 			sum += t.getNrTroops() * d;
 		}
 

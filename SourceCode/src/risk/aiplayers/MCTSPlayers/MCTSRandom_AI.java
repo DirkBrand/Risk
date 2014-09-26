@@ -1,11 +1,6 @@
 package risk.aiplayers.MCTSPlayers;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,21 +11,19 @@ import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
-import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
-public class MCTSRandomAI extends MonteCarloTreeSearchPlayer {
+public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 	boolean myTurn = false;
 
 	public static void main(String[] args) {
 		String tempName = args[0];
 		long time = Long.parseLong(args[1]);
-		new MCTSRandomAI(tempName, null, null, 2, time);
+		new MCTSRandom_AI(tempName, null, null, 2, time);
 	}
 
-	public MCTSRandomAI(String name, String opp, String map, int id, long time) {
+	public MCTSRandom_AI(String name, String opp, String map, int id, long time) {
 		super(name, opp, map, id, time, new AIParameter());
 
 	}
