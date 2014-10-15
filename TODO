@@ -1,0 +1,1 @@
+Replace the jar files by a makefile generating them. (RiskAI.jar, RiskClient.jar, RiskServer.jar); add *.jar to gitignore
