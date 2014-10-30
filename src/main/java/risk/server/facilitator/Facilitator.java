@@ -41,9 +41,10 @@ public class Facilitator {
 		log = new Logger(Logger.REPLAY);
 		pm = new FacilitatorProtocolManager(log, this);
 
-		this.readAIOpponents("./src/risk/aiplayers");
-		this.readAIOpponents("./src/risk/aiplayers/EMMPlayers");
-		this.readAIOpponents("./src/risk/aiplayers/MCTSPlayers");
+        // TODO: Fix this terrible hack - path updated for Gradle deployment 20141030
+		this.readAIOpponents("./src/main/java/risk/aiplayers");
+		this.readAIOpponents("./src/main/java/risk/aiplayers/EMMPlayers");
+		this.readAIOpponents("./src/main/java/risk/aiplayers/MCTSPlayers");
 
 		new Thread(new startServer()).start();
 		

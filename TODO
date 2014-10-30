@@ -4,3 +4,5 @@ Sort out the unsorted folder
 Start use the github issue tracker for the project instead of this TODO file
 Change config so gameLog.txt is created in a more sensible place than project root (and is timestamped?)
 Resolve licencing issues with third-party code used in this project
+Configure so that we only need to distribute a JAR file (or maybe a WAR)
+Grep for TODO and resolve the TODO's in the other files

@@ -4,3 +4,6 @@ Thumbs.db
 build/
 .gradle
 gameLog.txt
+gameLogMCTSGenerateLowChiAI.txt
+gameLogMCTSSampleAI.txt
+.project

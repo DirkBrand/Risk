@@ -1,10 +1,8 @@
 apply plugin: 'java'
-
-// TODO: Remove unneeded repositories
+apply plugin: 'eclipse'
 
 // tag::repositories[]
 repositories {
-    //mavenLocal()
     mavenCentral()
 }
 // end::repositories[]
@@ -24,3 +22,32 @@ test {
 task wrapper(type: Wrapper) {
     gradleVersion = '1.4'
 }
+
+// Tasks for the various components
+// TODO: Add comments to these tasks for gradle tasks
+
+task facilitator(type: JavaExec) {
+   main = "risk.server.facilitator.Facilitator"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task client(type: JavaExec) {
+   main = "risk.humanEngine.EngineLogic"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task glicko(type: JavaExec) {
+   main = "risk.aiGameCoordinator.GlickoGames"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+// One-versus-one testing
+task headsup(type: JavaExec) {
+   main = "risk.aiGameCoordinator.AIGameCoordinator"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
