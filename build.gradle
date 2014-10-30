@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+// TODO: Remove unneeded repositories
+
+// tag::repositories[]
+repositories {
+    //mavenLocal()
+    mavenCentral()
+}
+// end::repositories[]
+
+// tag::dependencies[]
+dependencies {
+    compile "com.googlecode.combinatoricslib:combinatoricslib:2.1"
+    testCompile 'junit:junit:4.10' 
+}
+// end::dependencies[]
