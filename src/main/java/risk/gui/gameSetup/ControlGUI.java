@@ -1,7 +1,7 @@
 package risk.gui.gameSetup;
 
-import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
-import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
+//import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
+//import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
 
 import java.awt.Color;
 import java.awt.Component;
