@@ -1,10 +1,6 @@
-bin/
 Thumbs.db
 *.jar
 build/
+bin/
 .gradle
-gameLog.txt
-gameLogMCTSGenerateLowChiAI.txt
-gameLogMCTSSampleAI.txt
-.project
-.settings
+gameLog*.txt
