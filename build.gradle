@@ -7,9 +7,11 @@ repositories {
 }
 // end::repositories[]
 
+//TODO: Try to be less specific about dependency versions, e.g. testCompile group: 'junit', name: 'junit', version: '4.+'
 // tag::dependencies[]
 dependencies {
     compile "com.googlecode.combinatoricslib:combinatoricslib:2.1"
+    compile "org.hamcrest:hamcrest-core:1.1"
     testCompile 'junit:junit:4.10' 
 }
 // end::dependencies[]
