@@ -1,5 +1,4 @@
 Thumbs.db
-*.jar
 build/
 bin/
 .gradle
@@ -9,3 +8,4 @@ gameLog*.txt
 .classpath
 .project
 .settings/org.eclipse.jdt.core.prefs
+#Do not exclude *.jar, since we need gradle-wrapper.jar to be included
