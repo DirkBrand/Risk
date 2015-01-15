@@ -5,10 +5,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-import org.paukov.combinatorics.*;
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
 
 import risk.aiplayers.util.AIFeatures;
-import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;

@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -18,6 +16,11 @@ import javax.swing.JPanel;
 import risk.commonObjects.Territory;
 
 public class MapBackgroundPanel extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7693033290557968951L;
 
 	public BufferedImage originalImage;
 
@@ -60,7 +63,7 @@ public class MapBackgroundPanel extends JPanel {
 		return originalImage.getWidth(null);
 	}
 
-	private static BufferedImage resizeImage(BufferedImage originalImage,
+	/* private static BufferedImage resizeImage(BufferedImage originalImage,
 			int type, Integer img_width, Integer img_height) {
 		BufferedImage resizedImage = new BufferedImage(img_width, img_height,
 				type);
@@ -69,7 +72,7 @@ public class MapBackgroundPanel extends JPanel {
 		g.dispose();
 
 		return resizedImage;
-	}
+	} */
 
 	public void updateMap(HashMap<String, Territory> hashMap, HashMap<String, Territory> hashMap2, Color c1, Color c2) {
 		Graphics2D g2d = originalImage.createGraphics();

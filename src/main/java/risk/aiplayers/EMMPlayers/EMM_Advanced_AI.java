@@ -348,11 +348,10 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 			trimCount = 0;
 
 			/* System.out.println("RECRUITING"); */
-			long startTime = System.nanoTime();
 			double rating = EMM_AB(maxChild, maxDepth,
 					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-			double time = (System.nanoTime() - startTime) / 1000000.0;
-			/*
+			/* long startTime = System.nanoTime();
+			 * double time = (System.nanoTime() - startTime) / 1000000.0;
 			 * System.out.println("Running time: " + (int)time + "ms");
 			 * System.out.println("Rating:" + rating);
 			 * System.out.println("Number of nodes: " + nodeCount);
@@ -445,12 +444,12 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 			trimCount = 0;
 
 			/* System.out.println("ATTACKING"); */
-
-			long startTime = System.nanoTime();
 			double rating = EMM_AB(child, maxDepth, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY);
-			double time = (System.nanoTime() - startTime) / 1000000.0;
+
 			/*
+			 * long startTime = System.nanoTime();
+			 * double time = (System.nanoTime() - startTime) / 1000000.0;
 			 * System.out.println("Running time: " + (int)time + "ms");
 			 * System.out.println("Rating:" + rating);
 			 * System.out.println("Number of nodes: " + nodeCount);

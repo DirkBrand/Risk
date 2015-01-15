@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -149,7 +148,7 @@ public class ControllerProtocolManager {
 
 	}
 
-	private synchronized void writeGameState(String message) {
+	/* private synchronized void writeGameState(String message) {
 		File log = new File("gameLog.txt");
 		try {
 			FileWriter fileWriter = new FileWriter(log, true);
@@ -182,7 +181,7 @@ public class ControllerProtocolManager {
 		} catch (IOException e) {
 			System.out.println("COULD NOT LOG RESULTS!!");
 		}
-	}
+	} */
 
 	public void closeConnection(int id) {
 		if (clients.get(id) != null)

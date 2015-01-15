@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,8 +16,6 @@ import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.aiplayers.util.Pair;
-import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
 public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {

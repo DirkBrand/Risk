@@ -1,6 +1,5 @@
 package risk.paperplayers;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -172,7 +171,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 			double maxRating = Double.NEGATIVE_INFINITY;
 
 			if (lastNode.getChildren().size() == 0) {
-				int maxID = 0;
+				// int maxID = 0;
 				String maxName = "";
 				double max = Double.MIN_VALUE;
 
@@ -192,7 +191,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 					double ratio = t.getNrTroops() / sum;
 					if (ratio > max) {
 						max = ratio;
-						maxID = t.getId();
+						// maxID = t.getId();
 						maxName = t.getName();
 					}
 				}
@@ -204,9 +203,9 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 				maxChild.setAttackSource(source.getName());
 				maxChild.setTreePhase(GameTreeNode.ATTACK);
 			} else {
-				int count = 0;
+				// int count = 0;
 				while (maxChild == null) {
-					count++;
+					// count++;
 					for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 						AIUtil.shuffleArray(perm);
 
@@ -965,7 +964,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		// printStats(root, time);
 
@@ -1004,11 +1003,11 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-		int nrOfPlayouts = globalNode.getVisitCount();
+		// int nrOfPlayouts = globalNode.getVisitCount();
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		// printStats(globalNode, time);
 
@@ -1146,7 +1145,7 @@ public class S_MCTS_Baseline_AI extends MonteCarloTreeSearchPlayer {
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		// printStats(globalNode, time);
 

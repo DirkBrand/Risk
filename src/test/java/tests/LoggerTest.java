@@ -1,9 +1,13 @@
 package tests;
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import risk.commonObjects.Logger;
-import static org.junit.Assert.*;
 
 /**
  * The class <code>LoggerTest</code> contains tests for the class <code>{@link Logger}</code>.

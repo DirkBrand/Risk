@@ -28,18 +28,24 @@ package risk.gui;
  * } 
  */
 
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+// import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Rectangle;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JWindow;
+import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
 
-import risk.gui.clientGui.ClientGUI;
-
+// TODO: Check licence for this code
 /**
  * Class to show tosters in multiplatform
  * 
@@ -96,7 +102,7 @@ public class Toaster
 	// method always on top start only SINCE JDK 5 !
 	public boolean useAlwaysOnTop = true;
 	
-	private static final long serialVersionUID = 1L;
+	//private static final long serialVersionUID = 1L;
 
 	/**
 	 * Constructor to initialized toaster component...
@@ -170,7 +176,12 @@ public class Toaster
 			externalPanel.setBackground( getBorderColor() );
 			JPanel innerPanel = new JPanel(new BorderLayout( getMargin(), getMargin() ))
       {
-        @Override
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -1270991025642971368L;
+
+		@Override
         public void paint(Graphics g) {
                 if ( getBackgroundImage() != null )
                 {
@@ -260,8 +271,8 @@ public class Toaster
 			try
 			{
 				boolean animateFromBottom = true;
-				GraphicsEnvironment ge = GraphicsEnvironment
-						.getLocalGraphicsEnvironment();
+				// GraphicsEnvironment ge = GraphicsEnvironment
+				//		.getLocalGraphicsEnvironment();
 				Rectangle screenRect = parent.getBounds();
 
 				int screenHeight = (int) screenRect.height;

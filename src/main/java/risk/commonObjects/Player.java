@@ -1,10 +1,7 @@
 package risk.commonObjects;
 
-import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.TreeSet;
 
 public class Player implements Cloneable {
 

@@ -15,11 +15,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 import risk.aiplayers.util.AIProtocolManager;
-import risk.aiplayers.util.GameTreeNode;
-import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Continent;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;

@@ -673,7 +673,7 @@ public class AbstractGameStateTest {
 		fixture.setMapName("");
 		fixture.setImgLocation("");
 		fixture.setCurrentPlayer(1);
-		LinkedList<Player> players2 = new LinkedList();
+		LinkedList<Player> players2 = new LinkedList<Player>();
 
 		fixture.setPlayers(players2);
 

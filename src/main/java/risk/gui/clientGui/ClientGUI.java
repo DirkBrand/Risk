@@ -58,7 +58,6 @@ import risk.gui.Toaster;
 import risk.gui.gameSetup.ControlGUI;
 import risk.humanEngine.EngineLogic;
 
-@SuppressWarnings("serial")
 public class ClientGUI {
 
 	GameState game;
@@ -71,7 +70,7 @@ public class ClientGUI {
 	Color playerColour = Color.red;
 	Color oppColour = Color.blue;
 
-	private GridBagConstraints c_1;
+	// private GridBagConstraints c_1;
 	private GridBagConstraints c_2;
 	private JTable territoryTable;
 
@@ -96,12 +95,12 @@ public class ClientGUI {
 	private JTextArea battleResultArea;
 	private JLabel lblManPanelSource;
 	private JLabel lblManPanelDestination;
-	private JComboBox manSourceComboBox;
-	private JComboBox manDestComboBox;
+	private JComboBox<String> manSourceComboBox;
+	private JComboBox<String> manDestComboBox;
 	private JLabel lblManPanelNumber;
 	private JLabel lblTroopCount;
-	private JComboBox battleSourceComboBox;
-	private JComboBox battleDestComboBox;
+	private JComboBox<String> battleSourceComboBox;
+	private JComboBox<String> battleDestComboBox;
 	private JSlider spinner;
 
 	private JButton btnTroopDone;
@@ -247,7 +246,7 @@ public class ClientGUI {
 		troopPanel.add(lblTroopCount);
 
 		TerritoryTableModel temp = new TerritoryTableModel();
-		Player tempPlay = game.getCurrentPlayer();
+		// Player tempPlay = game.getCurrentPlayer();
 
 		Object[][] data = new Object[0][0];
 
@@ -321,11 +320,11 @@ public class ClientGUI {
 		String[] ters = new String[game.getCurrentPlayer().getTerritories()
 				.size()];
 
-		battleSourceComboBox = new JComboBox(ters);
+		battleSourceComboBox = new JComboBox<String>(ters);
 		battleSourceComboBox.setBounds(140, 14, 151, 20);
 		battlePanel.add(battleSourceComboBox);
 
-		battleDestComboBox = new JComboBox(ters);
+		battleDestComboBox = new JComboBox<String>(ters);
 		battleDestComboBox.setBounds(140, 45, 151, 20);
 		battlePanel.add(battleDestComboBox);
 
@@ -383,11 +382,11 @@ public class ClientGUI {
 		lblManPanelDestination.setBounds(20, 42, 109, 20);
 		manPanel.add(lblManPanelDestination);
 
-		manSourceComboBox = new JComboBox();
+		manSourceComboBox = new JComboBox<String>();
 		manSourceComboBox.setBounds(140, 14, 121, 20);
 		manPanel.add(manSourceComboBox);
 
-		manDestComboBox = new JComboBox();
+		manDestComboBox = new JComboBox<String>();
 		manDestComboBox.setBounds(140, 45, 121, 20);
 		manPanel.add(manDestComboBox);
 
@@ -600,7 +599,6 @@ public class ClientGUI {
 
 	// Update the source and destination comboboxes of the relevant panel in
 	// either the battle or manoeuvre phase
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void updateSourceDestinationComboBoxes() {
 		if (game.getPhase() == GameState.BATTLE) {
 			for (Player p : game.getPlayers()) {
@@ -626,7 +624,7 @@ public class ClientGUI {
 					for (String s : temp)
 						arr[i++] = s;
 
-					DefaultComboBoxModel model1 = new DefaultComboBoxModel(arr);
+					DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<String>(arr);
 
 					battleSourceComboBox.setModel(model1);
 					battleSourceComboBox.addItemListener(new ItemListener() {
@@ -661,7 +659,7 @@ public class ClientGUI {
 								for (String s : temp)
 									arr[i++] = s;
 
-								DefaultComboBoxModel model2 = new DefaultComboBoxModel(
+								DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<String>(
 										arr);
 								battleDestComboBox.setModel(model2);
 							}
@@ -695,7 +693,7 @@ public class ClientGUI {
 					for (String s : temp)
 						arr[i++] = s;
 
-					DefaultComboBoxModel model2 = new DefaultComboBoxModel(arr);
+					DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<String>(arr);
 					battleDestComboBox.setModel(model2);
 				}
 			}
@@ -715,7 +713,7 @@ public class ClientGUI {
 					int i = 0;
 					for (String s : temp)
 						arr1[i++] = s;
-					DefaultComboBoxModel model1 = new DefaultComboBoxModel(arr1);
+					DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<String>(arr1);
 
 					manSourceComboBox.setModel(model1);
 					manSourceComboBox.addItemListener(new ItemListener() {
@@ -748,7 +746,7 @@ public class ClientGUI {
 								for (String s : temp)
 									arr[i++] = s;
 
-								DefaultComboBoxModel model2 = new DefaultComboBoxModel(
+								DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<String>(
 										arr);
 								manDestComboBox.setModel(model2);
 							}
@@ -780,7 +778,7 @@ public class ClientGUI {
 					for (String s : temp)
 						arr[i++] = s;
 
-					DefaultComboBoxModel model2 = new DefaultComboBoxModel(arr);
+					DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<String>(arr);
 					manDestComboBox.setModel(model2);
 				}
 			}
@@ -1176,6 +1174,10 @@ public class ClientGUI {
 
 class TerritoryTableModel extends AbstractTableModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2419991423856763822L;
 	private Object[][] rows = {
 			{ "One", "Two", new JButton("Button One"),
 					new JButton("Button Two") },
@@ -1222,7 +1224,7 @@ class TerritoryTableModel extends AbstractTableModel {
 	}
 
 	@Override
-	public Class getColumnClass(int column) {
+	public Class<? extends Object> getColumnClass(int column) {
 		return getValueAt(0, column).getClass();
 	}
 }

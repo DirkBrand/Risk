@@ -267,7 +267,7 @@ public class GlickoGames {
 		loadRatings();
 	}
 
-	// Returns pair of players that should play next
+	/* Returns pair of players that should play next - commented out since never used:
 	private Rating[] determineMostUncertainPlayers() {
 		double maxSum = Double.NEGATIVE_INFINITY;
 
@@ -300,9 +300,9 @@ public class GlickoGames {
 		}
 
 		return bestPair;
-	}
+	} */
 
-	// Returns pair of players that should play next
+	/* Returns pair of players that should play next - commented out since never used:
 	private Rating[] determineNextPlayers() {
 		double minDiff = Double.POSITIVE_INFINITY;
 		LinkedList<Rating> poolList = new LinkedList<Rating>();
@@ -335,7 +335,7 @@ public class GlickoGames {
 		}
 
 		return bestPair;
-	}
+	} */
 
 	public void manual() {
 		results.addResult(playerRatingList.get(3), playerRatingList.get(6));

@@ -1,14 +1,11 @@
 package risk.server.facilitator;
 
-import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import javax.swing.JFrame;
 
 import risk.commonObjects.ConnectedPlayer;
 import risk.commonObjects.Logger;
@@ -102,7 +99,7 @@ public class Facilitator {
 		File folder = new File("./MapFiles");
 		File[] listOfFiles = folder.listFiles();
 
-		int ind = 0;
+		// int ind = 0;
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			String temp = "";

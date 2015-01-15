@@ -1,9 +1,7 @@
 package risk.paperplayers;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -12,7 +10,6 @@ import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.BinaryTree;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Territory;
@@ -171,9 +168,9 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 			// System.out.println("Recruit 2");
 			MCTSNode maxChild = null;
 			double maxRating = Double.NEGATIVE_INFINITY;
-			int count = 0;
+			// int count = 0;
 			while (maxChild == null) {
-				count++;
+				// count++;
 				for (int i = 0; i < params.MCTSRecruitBranchQualityFactor; i++) {
 					AIUtil.shuffleArray(perm);
 
@@ -762,7 +759,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 		/*
 		 * System.out.println("Ended MCTS in " + time + " ms");
 		 * 
@@ -825,7 +822,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-		int nrOfPlayouts = globalNode.getVisitCount();
+		// int nrOfPlayouts = globalNode.getVisitCount();
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);

@@ -1,7 +1,6 @@
 package risk.aiplayers.util;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -392,7 +391,8 @@ public class AIUtil {
 		// System.out.println(13);
 
 		// NORMALIZATION
-		AIParameter params = new AIParameter();
+		// RSK20150115: Suspect this is not used because we only use AIParameter's static fields and methods:
+		// AIParameter params = new AIParameter();
 		enemyRecruitFeature/=maxRecruitable;
 		enemyOccupiedContinentsFeature/=node.getGame().getAllContinents().length;
 		ownRecruitFeature/=maxRecruitable;
@@ -582,7 +582,8 @@ public class AIUtil {
 	// Territory t
 	public static double threat(GameTreeNode node, Territory t, int playerIndex) {
 		double threat = 0;
-		AIParameter params = new AIParameter();
+		// RSK20150115: Suspect this is not used because we only use AIParameter's static fields and methods:
+		// AIParameter params = new AIParameter();
 		for (Territory n : t.getNeighbours()) {
 			Territory tempT = node.getGame().getPlayers().get(playerIndex)
 					.getTerritoryByName(n.getName());
@@ -590,7 +591,7 @@ public class AIUtil {
 			if (tempT != null && tempT.getNrTroops() > 0 && t.getNrTroops() > 0) {
 				threat = Math.max(
 						threat,
-						params.getProbOfWin(tempT.getNrTroops(),
+						AIParameter.getProbOfWin(tempT.getNrTroops(),
 								t.getNrTroops()));
 			}
 		}

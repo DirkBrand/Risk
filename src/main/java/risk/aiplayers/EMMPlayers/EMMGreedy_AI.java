@@ -1,26 +1,15 @@
 package risk.aiplayers.EMMPlayers;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.SocketException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 
-import risk.aiplayers.AIPlayer;
 import risk.aiplayers.ExpectiminimaxPlayer;
-import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
 import risk.aiplayers.util.GameTreeNode;
-import risk.aiplayers.util.EMMNode;
 import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
 public class EMMGreedy_AI extends ExpectiminimaxPlayer {
@@ -28,10 +17,11 @@ public class EMMGreedy_AI extends ExpectiminimaxPlayer {
 
 	public static void main(String[] args) {
 		String tempName = args[0];
+		/* TODO: Incorporate support for depth specification: 
 		int depth = 0;
 		if (args.length > 1) {
 			depth = Integer.parseInt(args[1]);
-		}
+		} */
 		new EMMGreedy_AI(tempName, null, null, 2, new double[] { 1, 1, 1, 1, 1, 1,
 				1, 1, 1, 1, 1, 1, 1 });
 	}

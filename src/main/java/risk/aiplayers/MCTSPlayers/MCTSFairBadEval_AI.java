@@ -3,7 +3,6 @@ package risk.aiplayers.MCTSPlayers;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.MCTSNode;
 import risk.aiplayers.util.Pair;
-import risk.commonObjects.GameState;
 
 /**
  * MCTS Fair expansion AI that uses equal weights for the players.

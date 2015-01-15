@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import risk.aiplayers.AIPlayer;
-import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
 public class S_BaselineAI extends AIPlayer {

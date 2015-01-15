@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,7 +56,7 @@ public class GameStateTest {
 	public void testGameState_2()
 		throws Exception {
 		String mapLoc = "";
-		LinkedList<Player> players = new LinkedList();
+		LinkedList<Player> players = new LinkedList<Player>();
 		int phase = 1;
 		int current = 1;
 
@@ -85,7 +84,7 @@ public class GameStateTest {
 	public void testGameState_3()
 		throws Exception {
 		String mapLoc = "";
-		LinkedList<Player> players = new LinkedList();
+		LinkedList<Player> players = new LinkedList<Player>();
 		players.add(new Player(0, "0"));
 		players.add(new Player(1, "1"));
 		int phase = 1;
@@ -114,7 +113,7 @@ public class GameStateTest {
 	@Test
 	public void testClone_1()
 		throws Exception {
-		LinkedList<Player> players = new LinkedList();
+		LinkedList<Player> players = new LinkedList<Player>();
 		players.add(new Player(0, "0"));
 		players.add(new Player(1, "1"));
 		GameState fixture = new GameState("", players, 1, new HashMap<String, Territory>(), new HashMap<String, Territory>(), 1);
@@ -145,7 +144,7 @@ public class GameStateTest {
 	@Test
 	public void testClone_2()
 		throws Exception {
-		LinkedList<Player> players = new LinkedList();
+		LinkedList<Player> players = new LinkedList<Player>();
 		players.add(new Player(0, "0"));
 		players.add(new Player(1, "1"));
 		GameState fixture = new GameState("", players, 1, new HashMap<String, Territory>(), new HashMap<String, Territory>(), 1);
@@ -176,7 +175,7 @@ public class GameStateTest {
 	@Test
 	public void testClone_3()
 		throws Exception {
-		LinkedList<Player> players = new LinkedList();
+		LinkedList<Player> players = new LinkedList<Player>();
 		players.add(new Player(0, "0"));
 		players.add(new Player(1, "1"));
 		GameState fixture = new GameState("", players, 1, new HashMap<String, Territory>(), new HashMap<String, Territory>(), 1);

@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,8 +14,6 @@ import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
 import risk.aiplayers.util.GameTreeNode;
-import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
 public abstract class ExpectiminimaxPlayer extends AIPlayer {
@@ -512,7 +509,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 			return value;
 		} else {
 			missedIt++;
-			value = AIUtil.eval(node, params.evalWeights, maxRecruitable);
+			value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
 			NodeValues.put(node.getHash(), value);
 			return value;
 		}

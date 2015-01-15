@@ -1,15 +1,18 @@
 package tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import risk.commonObjects.ConnectedPlayer;
-import static org.junit.Assert.*;
 
 /**
  * The class <code>ConnectedPlayerTest</code> contains tests for the class <code>{@link ConnectedPlayer}</code>.

@@ -1,6 +1,5 @@
 package risk.aiplayers.MCTSPlayers;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

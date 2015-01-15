@@ -303,7 +303,8 @@ public class AIFeatures {
 	// Measurement of the probability that player will conquer at least one territory
 	public static double maximumThreatFeature(GameTreeNode node) {
 		double maxProb = Double.NEGATIVE_INFINITY;
-		AIParameter params = new AIParameter();
+		// RSK20150115: Suspect this is not used because we only use AIParameter's static fields and methods:
+		// AIParameter params = new AIParameter();
 		
 		Iterator<Territory> it = node.getGame()
 				.getCurrentPlayer().getTerritories().values().iterator();
@@ -313,7 +314,7 @@ public class AIFeatures {
 				for (Territory n : t.getNeighbours()) {
 					Territory tempT = node.getGame().getOtherPlayer().getTerritoryByName(n.getName());
 					if (tempT != null) {
-						double prob = params.getProbOfWin(t.getNrTroops(), n.getNrTroops());
+						double prob = AIParameter.getProbOfWin(t.getNrTroops(), n.getNrTroops());
 						if (prob > maxProb) {
 							maxProb = prob;
 						}

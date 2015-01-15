@@ -5,28 +5,37 @@ package risk.gui.gameSetup;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.LinkedList;
 
-import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+// import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import risk.commonObjects.ConnectedPlayer;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
-import risk.gui.clientGui.ClientGUI;
-import risk.gui.facilitator.FacilitatorConnectionFrame;
+// import risk.gui.facilitator.FacilitatorConnectionFrame;
 import risk.humanEngine.EngineLogic;
 
 public class ControlGUI {
@@ -43,7 +52,7 @@ public class ControlGUI {
 
 	public JFrame frame;
 
-	private static JFrame addressFrame;
+	// private static JFrame addressFrame;
 	static ControlGUI window;
 	private JColorChooser playerChooser;
 	private JColorChooser oppChooser;
@@ -51,11 +60,11 @@ public class ControlGUI {
 	private JLabel lblO2;
 	private JLabel lblO;
 
-	private JList oppList;
-	private JList mapsList;
+	private JList<String> oppList;
+	private JList<String> mapsList;
 
-	private static JTextField textField_2;
-	private static JTextField textField_3;
+	// private static JTextField textField_2;
+	// private static JTextField textField_3;
 
 	private JLabel lblUsername;
 
@@ -67,10 +76,11 @@ public class ControlGUI {
 	public ControlGUI(EngineLogic engineLogic, boolean facilitatorFirst) {
 		this.EL = engineLogic;
 
-		if (facilitatorFirst) {
+		// TODO: Either remove this, or implement what's needed
+		/* if (facilitatorFirst) {
 			FacilitatorConnectionFrame fac = new FacilitatorConnectionFrame(
 					"Facilitator Connection", this);
-		}
+		} */
 		initialize();
 
 		// Only temporary
@@ -104,7 +114,7 @@ public class ControlGUI {
 			opp[index++] = s;
 
 		opp[0] = "HumanPlayer";
-		oppList = new JList(opp);
+		oppList = new JList<String>(opp);
 		oppList.setFont(new Font("Trebuchet MS", Font.BOLD, 14));
 		oppList.setVisibleRowCount(-1);
 
@@ -120,11 +130,16 @@ public class ControlGUI {
 				.getChooserPanels();
 
 		for (int i = 0; i < oldPanels.length; i++) {
-			String clsName = oldPanels[i].getClass().getName();
+			// String clsName = oldPanels[i].getClass().getName();
 			playerChooser.removeChooserPanel(oldPanels[i]);
 
 		}
 		playerChooser.addChooserPanel(new AbstractColorChooserPanel() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 6948191472392485095L;
+
 			public void buildChooser() {
 				setLayout(new GridLayout(0, 3));
 				makeAddButton("Red", Color.red);
@@ -158,6 +173,11 @@ public class ControlGUI {
 			}
 
 			Action setColorAction = new AbstractAction() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = -1542182501962071738L;
+
 				public void actionPerformed(ActionEvent evt) {
 					JButton button = (JButton) evt.getSource();
 					getColorSelectionModel().setSelectedColor(
@@ -222,11 +242,16 @@ public class ControlGUI {
 		oppChooser.setPreviewPanel(new JPanel());
 		oldPanels = oppChooser.getChooserPanels();
 		for (int i = 0; i < oldPanels.length; i++) {
-			String clsName = oldPanels[i].getClass().getName();
+			// String clsName = oldPanels[i].getClass().getName();
 			oppChooser.removeChooserPanel(oldPanels[i]);
 
 		}
 		oppChooser.addChooserPanel(new AbstractColorChooserPanel() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 9156218435870506655L;
 
 			public void buildChooser() {
 				setLayout(new GridLayout(0, 3));
@@ -261,6 +286,11 @@ public class ControlGUI {
 			}
 
 			Action setColorAction = new AbstractAction() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1163501419277596789L;
+
 				public void actionPerformed(ActionEvent evt) {
 					JButton button = (JButton) evt.getSource();
 					getColorSelectionModel().setSelectedColor(
@@ -295,7 +325,7 @@ public class ControlGUI {
 		scrollPane.setBounds(205, 225, 163, 105);
 		frame.getContentPane().add(scrollPane);
 
-		mapsList = new JList(maps.toArray());
+		mapsList = new JList<String>(maps.toArray(new String[0]));
 		mapsList.setFont(new Font("Trebuchet MS", Font.PLAIN, 14));
 		scrollPane.setViewportView(mapsList);
 
@@ -329,7 +359,7 @@ public class ControlGUI {
 		opponents = opps;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				DefaultListModel listModel = new DefaultListModel();
+				DefaultListModel<String> listModel = new DefaultListModel<String>();
 				for (String op : opponents) {
 					listModel.addElement(op);
 				}
@@ -342,7 +372,7 @@ public class ControlGUI {
 		this.maps = mapslist;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				DefaultListModel listModel = new DefaultListModel();
+				DefaultListModel<String> listModel = new DefaultListModel<String>();
 
 				for (String mp : maps) {
 					listModel.addElement(mp);

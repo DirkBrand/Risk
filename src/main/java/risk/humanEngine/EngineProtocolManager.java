@@ -249,7 +249,7 @@ public class EngineProtocolManager {
 		send(message);
 	}
 
-	private void sendFailure(int id, String mess) {
+	/* private void sendFailure(int id, String mess) {
 		String message = "[";
 		if (id != 0) {
 			message += id;
@@ -260,7 +260,7 @@ public class EngineProtocolManager {
 		}
 
 		send(message);
-	}
+	} */
 
 	public void sendMessage(String message) {
 		send(message);

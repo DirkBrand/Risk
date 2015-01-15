@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
@@ -876,7 +877,7 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 //		printStats(root, time);
 		/*
 		 *
@@ -904,10 +905,10 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-		int nrOfPlayouts = globalNode.getVisitCount();
+		// int nrOfPlayouts = globalNode.getVisitCount();
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 		// printStats(globalNode, time);
 		/*
 		 * if (tv != null) tv.close(); tv = new TreeView(root);
@@ -974,7 +975,7 @@ public class MCTSFull_Baseline_AI extends MonteCarloTreeSearchPlayer {
 		globalNode.depth = 1;
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 		// printStats(globalNode, time);
 		/*
 		 * if (tv != null) tv.close(); tv = new TreeView(root);

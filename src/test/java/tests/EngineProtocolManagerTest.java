@@ -1,16 +1,20 @@
 package tests;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
 import risk.humanEngine.EngineLogic;
 import risk.humanEngine.EngineProtocolManager;
-import static org.junit.Assert.*;
 
 /**
  * The class <code>EngineProtocolManagerTest</code> contains tests for the class
@@ -96,7 +100,7 @@ public class EngineProtocolManagerTest {
 
 		int id = 1;
 		String message = "place_troops";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 		args.add("1");
 		args.add("2");
 
@@ -130,7 +134,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -161,7 +165,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -193,7 +197,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -225,7 +229,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -257,7 +261,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -289,7 +293,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "troops_placed";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -321,7 +325,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "attack";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -353,7 +357,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "attack";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 		try {
 			fixture.process(id, message, args);
 			} catch (NullPointerException e) {
@@ -384,7 +388,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "attack_result";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -416,7 +420,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "attack_result";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -449,7 +453,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "manoeuvre";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -483,7 +487,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "move_troops";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -516,7 +520,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = false;
 		int id = 1;
 		String message = "move_troops";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -549,7 +553,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = false;
 		int id = 1;
 		String message = "move_troops";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -582,7 +586,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String message = "result";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.process(id, message, args);
@@ -645,7 +649,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	
@@ -678,7 +682,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 0;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	
@@ -710,7 +714,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	
@@ -743,7 +747,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 0;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	
@@ -842,7 +846,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 1;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	
@@ -875,7 +879,7 @@ public class EngineProtocolManagerTest {
 		fixture.justMoved = true;
 		int id = 0;
 		String command = "";
-		LinkedList<String> args = new LinkedList();
+		LinkedList<String> args = new LinkedList<String>();
 
 		try {
 			fixture.sendSuccess(id, command, args);	

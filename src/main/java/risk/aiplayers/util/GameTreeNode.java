@@ -1,6 +1,5 @@
 package risk.aiplayers.util;
 
-import java.util.HashMap;
 import java.util.Iterator;
 
 import risk.aiplayers.AIPlayer;

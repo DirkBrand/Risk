@@ -1,10 +1,10 @@
 package risk.server.controller;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
+//import java.io.BufferedWriter;
+//import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 import risk.commonObjects.ConnectedPlayer;
 import risk.commonObjects.GameState;
@@ -375,7 +374,7 @@ public class ControllerLogic {
 		}
 	}
 
-	private void writeEndOfGame(String winner) {
+	/* private void writeEndOfGame(String winner) {
 		File log = new File("aiResults.txt");
 		try {
 			FileWriter fileWriter = new FileWriter(log, true);
@@ -388,7 +387,7 @@ public class ControllerLogic {
 		} catch (IOException e) {
 			System.out.println("COULD NOT LOG RESULTS!!");
 		}
-	}
+	} */
 
 	private void transferTerritoryControl(int territoryId, Player toTer,
 			Player fromTer) {

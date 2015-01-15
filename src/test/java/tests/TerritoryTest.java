@@ -1,9 +1,14 @@
 package tests;
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import risk.commonObjects.Territory;
-import static org.junit.Assert.*;
 
 /**
  * The class <code>TerritoryTest</code> contains tests for the class <code>{@link Territory}</code>.
@@ -32,7 +37,7 @@ public class TerritoryTest {
 		assertEquals(" - 0", result.toString());
 		assertEquals(0, result.getId());
 		assertEquals("", result.getName());
-		assertEquals(null, result.getNeighbours());
+		assertArrayEquals(null, result.getNeighbours());
 		assertEquals(0, result.getXCoordinate());
 		assertEquals(0, result.getContinentNum());
 		assertEquals(0, result.getYCoordinate());
@@ -65,7 +70,7 @@ public class TerritoryTest {
 		assertEquals(" - 1", result.toString());
 		assertEquals(1, result.getId());
 		assertEquals("", result.getName());
-		assertEquals(null, result.getNeighbours());
+		assertArrayEquals(null, result.getNeighbours());
 		assertEquals(1, result.getXCoordinate());
 		assertEquals(1, result.getContinentNum());
 		assertEquals(1, result.getYCoordinate());
@@ -303,7 +308,7 @@ public class TerritoryTest {
 		Territory[] result = fixture.getNeighbours();
 
 		// add additional test code here
-		assertEquals(null, result);
+		assertArrayEquals(null, result);
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package risk.aiplayers.util;
 
 import java.util.Comparator;
-import java.util.LinkedList;
 
 import risk.commonObjects.Territory;
 
@@ -9,7 +8,8 @@ public class EMMNode extends GameTreeNode implements Cloneable {
 	private Territory recruitedTer;
 	private double value;
 
-	private static AIParameter params = new AIParameter();
+	// RSK20150115: Suspect this is not used because we only use AIParameter's static fields and methods:
+	// private static AIParameter params = new AIParameter();
 
 	public static Comparator<EMMNode> EMMNodeComparator = new Comparator<EMMNode>() {
 		@Override

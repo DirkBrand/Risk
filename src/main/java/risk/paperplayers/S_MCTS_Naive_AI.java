@@ -1,6 +1,5 @@
 package risk.paperplayers;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -169,9 +168,9 @@ public class S_MCTS_Naive_AI extends MonteCarloTreeSearchPlayer {
 			// System.out.println("Recruit 2");
 			MCTSNode maxChild = null;
 			double maxRating = Double.NEGATIVE_INFINITY;
-			int count = 0;
+			// int count = 0;
 			while (maxChild == null) {
-				count++;
+				// count++;
 				// BO1
 				for (int i = 0; i < 1; i++) {
 					AIUtil.shuffleArray(perm);
@@ -765,7 +764,7 @@ public class S_MCTS_Naive_AI extends MonteCarloTreeSearchPlayer {
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		//printStats(root, time);
 
@@ -804,11 +803,11 @@ public class S_MCTS_Naive_AI extends MonteCarloTreeSearchPlayer {
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-		int nrOfPlayouts = globalNode.getVisitCount();
+		// int nrOfPlayouts = globalNode.getVisitCount();
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		//printStats(globalNode, time);
 
@@ -946,7 +945,7 @@ public class S_MCTS_Naive_AI extends MonteCarloTreeSearchPlayer {
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		//printStats(globalNode, time);
 

@@ -1,6 +1,5 @@
 package risk.server.facilitator;
 
-import java.awt.Canvas;
 import java.awt.Font;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -14,6 +13,11 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 public class FacilitatorGui extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7041025301106358279L;
 
 	private JPanel contentPane;
 

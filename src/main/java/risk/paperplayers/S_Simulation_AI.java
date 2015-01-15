@@ -9,9 +9,6 @@ import java.util.Random;
 import risk.aiplayers.AIPlayer;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
-import risk.commonObjects.GameState;
-import risk.commonObjects.Player;
 import risk.commonObjects.Territory;
 
 public class S_Simulation_AI extends AIPlayer {

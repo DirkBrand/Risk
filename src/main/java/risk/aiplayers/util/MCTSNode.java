@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import risk.aiplayers.AIPlayer;
 import risk.commonObjects.Territory;

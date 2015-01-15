@@ -11,7 +11,6 @@ import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.BinaryTree;
 import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
 import risk.commonObjects.Territory;
@@ -844,9 +843,9 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				Random r = new Random();
 
 				// Repeat until done
-				int count = 0;
+				// int count = 0;
 				while (true) {
-					count++;
+					// count++;
 					// System.out.println(count);
 
 					// Fix search range
@@ -1031,7 +1030,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 		// System.out.println("Started MCTS from " +
 		// root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(root);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 		/*
 		 * System.out.println("Ended MCTS in " + time + " ms");
 		 * 
@@ -1091,11 +1090,11 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
 		treeNodeCount = 0;
-		int nrOfPlayouts = globalNode.getVisitCount();
+		// int nrOfPlayouts = globalNode.getVisitCount();
 
 		// System.out.println("Started MCTS from " + root.getTreePhaseText());
 		MCTSNode action = MCTSSearch(globalNode);
-		double time = (System.nanoTime() - startTime) / 1000000.0;
+		// double time = (System.nanoTime() - startTime) / 1000000.0;
 
 		/*
 		 * System.out.println("Ended MCTS in " + time + " ms");
