@@ -16,11 +16,6 @@ dependencies {
 }
 // end::dependencies[]
 
-//TODO: sort out tests so we can remove this
-test {
-    ignoreFailures = true
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '1.4'
 }

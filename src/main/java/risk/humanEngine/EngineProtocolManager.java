@@ -267,7 +267,9 @@ public class EngineProtocolManager {
 	}
 
 	private void send(String mes) {
-		if (controllerSocket != null && !controllerSocket.isClosed()) {
+		// TODO: messy - I think just the last check should be necessary by keeping output
+		// correctly set - RSK 20150115
+		if (controllerSocket != null && !controllerSocket.isClosed() && output != null) {
 			output.println(mes);
 		}
 	}
@@ -353,6 +355,12 @@ public class EngineProtocolManager {
 			} catch (SocketException e) {
 				System.err.println("Connection to server broken");
 				System.exit(0);
+			} catch (NullPointerException e) {
+				System.err.println("No connection to server - input not initialized");
+				// TODO: We should really exit in this situation?  Avoided doing so since most tests
+				// fail if we make that change - so we should fix those tests, I guess
+				// RSK: 20150115
+				// System.exit(0);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

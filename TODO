@@ -1,4 +1,4 @@
-Replace the jar files by a makefile generating them. (RiskAI.jar, RiskClient.jar, RiskServer.jar); add *.jar to gitignore - upgrade to gradle, and provide a wrapper
+Replace the jar files by a makefile generating them. (RiskAI.jar, RiskClient.jar, RiskServer.jar); add *.jar to gitignore - upgrade to gradle, and provide a wrapper - can't add *.jar to .gitignore, since the gradle wrapper has a jar - need to be more specific
 Update the README to reflect changes to use Gradle
 Sort out the unsorted folder
 Start use the github issue tracker for the project instead of this TODO file

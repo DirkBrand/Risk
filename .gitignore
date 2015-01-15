@@ -3,6 +3,7 @@ build/
 bin/
 .gradle
 gameLog*.txt
+glickoRatings.txt
 #Files generated for eclipse can be generated on download via gradle eclipse
 #Also, current classpath generated is specific to current machine
 .classpath
