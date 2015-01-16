@@ -1,0 +1,50 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+// tag::repositories[]
+repositories {
+    mavenCentral()
+}
+// end::repositories[]
+
+//TODO: Try to be less specific about dependency versions, e.g. testCompile group: 'junit', name: 'junit', version: '4.+'
+// tag::dependencies[]
+dependencies {
+    compile "com.googlecode.combinatoricslib:combinatoricslib:2.1"
+    compile "org.hamcrest:hamcrest-core:1.1"
+    testCompile 'junit:junit:4.10' 
+}
+// end::dependencies[]
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.4'
+}
+
+// Tasks for the various components
+// TODO: Add comments to these tasks for gradle tasks
+
+task facilitator(type: JavaExec) {
+   main = "risk.server.facilitator.Facilitator"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task client(type: JavaExec) {
+   main = "risk.humanEngine.EngineLogic"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task glicko(type: JavaExec) {
+   main = "risk.aiGameCoordinator.GlickoGames"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+// One-versus-one testing
+task headsup(type: JavaExec) {
+   main = "risk.aiGameCoordinator.AIGameCoordinator"
+   // TODO: Figure out what the next line is for, or delete it
+   classpath = sourceSets.main.runtimeClasspath
+}
+
