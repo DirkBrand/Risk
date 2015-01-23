@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
+import risk.aiplayers.util.CacheMap;
 import risk.aiplayers.util.EMMNode;
 import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Territory;
@@ -30,10 +31,11 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 
 	protected int foundIt = 0;
 	protected int missedIt = 0;
+	protected static final int NODE_VALUES_CACHE_SIZE = 1000000;
 	
 	public double weights[];
 
-	protected HashMap<Long, Double> NodeValues = new HashMap<Long, Double>();
+	protected CacheMap<Long, Double> NodeValues = new CacheMap<Long, Double>(NODE_VALUES_CACHE_SIZE);
 
 	public ExpectiminimaxPlayer(String name, String opp, String map, int id,
 			int depth, double [] weights) {
@@ -150,8 +152,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		}
 
 		if (depth == 0) {
-			double heuristic = getValue(node);
-			return heuristic; // Return heuristic value of the game
+			return getValue(node); // Return heuristic value of the game
 		}
 
 		double a = 0.0;

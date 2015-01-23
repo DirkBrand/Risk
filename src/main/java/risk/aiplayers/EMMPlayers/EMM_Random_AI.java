@@ -1,7 +1,6 @@
 package risk.aiplayers.EMMPlayers;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -249,10 +248,6 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 
 	@Override
 	public void recruitPhase(Collection<Territory> meTerritories, int number) {
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
 
 		LinkedList<String> reply = new LinkedList<String>();
 
@@ -267,7 +262,6 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 		int d = 0;
 		for (int i = 0; i < n; i++)
 			perm[d++] = true;
-
 		for (int i = 0; i < m - 1; i++)
 			perm[d++] = false;
 
@@ -439,11 +433,6 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 	@Override
 	// Manoeuvre
 	public LinkedList<String> getManSourceDestination() {
-
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
 
 		LinkedList<String> reply = new LinkedList<String>();
 		GameState bestGame = null;

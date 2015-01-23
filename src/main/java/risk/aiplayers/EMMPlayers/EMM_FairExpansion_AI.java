@@ -3,7 +3,6 @@ package risk.aiplayers.EMMPlayers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -289,11 +288,6 @@ public class EMM_FairExpansion_AI extends ExpectiminimaxPlayer {
 	@Override
 	public void recruitPhase(Collection<Territory> myTerritories,
 			int numberOfTroops) {
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
-
 		LinkedList<String> reply = new LinkedList<String>();
 
 		GameState bestGame = game;
@@ -511,11 +505,6 @@ public class EMM_FairExpansion_AI extends ExpectiminimaxPlayer {
 	@Override
 	// Manoeuvre
 	public LinkedList<String> getManSourceDestination() {
-
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
 
 		LinkedList<String> reply = new LinkedList<String>();
 		GameState bestGame = null;

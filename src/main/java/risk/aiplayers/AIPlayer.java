@@ -99,8 +99,7 @@ public abstract class AIPlayer {
 	}
 	
 	/**
-	 * Procedure to place troops in the recruitment phase, with the BASELINE
-	 * strategy. Must be overridden for other players.
+	 * Procedure placing troops in the recruitment phase.
 	 * 
 	 * @param myTerritories
 	 *            Collection of the territories owned by the current player.
