@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -393,7 +392,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		return false;
 	}
 
-	protected double getWeightedEval(EMMNode child) {
+	public double getWeightedEval(EMMNode child) {
 		int sourceTroops = child.getGame().getCurrentPlayer()
 				.getTerritoryByName(child.getAttackSource()).getNrTroops();
 		int destTroops = child.getGame().getOtherPlayer()
@@ -505,7 +504,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 
 	}
 
-	protected double getValue(EMMNode node) {
+	public double getValue(EMMNode node) {
 
 		long key = node.getHash();
 		Double value = NodeValues.get(key);

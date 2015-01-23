@@ -87,12 +87,8 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 		// Stop attacking if the army strength is low (only attack when in the
 		// lead);
 		if (AIFeatures.armyStrength(node) < params.EMMAttackThreshold) {
-			EMMNode noAttackNode = node.clone();
-			noAttackNode.setTreePhase(NodeType.MANOEUVRE);
-			noAttackNode.setAttackSource("");
-			noAttackNode.setAttackDest("");
-			noAttackNode.setMoveReq(false);
-			actions.add(noAttackNode);
+			EMMNode noAttack = node.makeNoAttackChildNode(false, null);
+			actions.add(noAttack);
 			return actions;
 		}
 
@@ -104,23 +100,18 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 			Territory t = it.next();
 			// Only consider fortified territories
 			if (t.getNrTroops() > 1 && !AIUtil.isHinterland(node, t)) {
-				EMMNode temp = node.clone();
-				temp.setTreePhase(NodeType.RANDOMEVENT);
 
-				Territory source = temp.getGame().getCurrentPlayer()
+				Territory source = node.getGame().getCurrentPlayer()
 						.getTerritoryByName(t.getName());
 
 				for (Territory n : source.getNeighbours()) {
-					Territory tempT = temp.getGame().getOtherPlayer()
+					Territory tempT = node.getGame().getOtherPlayer()
 							.getTerritoryByName(n.getName());
 					if (tempT != null
 							&& AIParameter.getProbOfWin(t.getNrTroops(),
 									tempT.getNrTroops()) >= params.EMMAttackThreshold) {
-
-						temp.setAttackDest(tempT.getName());
-						temp.setAttackSource(source.getName());
-
-						actions.add(temp);
+						EMMNode attack = node.makeAttackChildNode(source, tempT, false, null);
+						actions.add(attack);
 					}
 				}
 

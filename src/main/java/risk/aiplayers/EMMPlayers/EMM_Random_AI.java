@@ -102,12 +102,8 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 		LinkedList<EMMNode> attackTerCombos = new LinkedList<EMMNode>();
 
 		// No attack is added as an option by default
-		EMMNode noAttackNode = node.clone();
-		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
-		noAttackNode.setAttackSource("");
-		noAttackNode.setAttackDest("");
-		noAttackNode.setMoveReq(false);
-		attackTerCombos.add(noAttackNode);
+		EMMNode noAttack = node.makeNoAttackChildNode(false, null);
+		attackTerCombos.add(noAttack);
 
 		// Get list of possible territory combos
 		Iterator<Territory> it = node.getGame().getCurrentPlayer()
@@ -119,11 +115,8 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 					Territory dest = node.getGame().getOtherPlayer()
 							.getTerritoryByName(n.getName());
 					if (dest != null) {
-						EMMNode tempNode = node.clone();
-						tempNode.setTreePhase(NodeType.RANDOMEVENT);
-						tempNode.setAttackSource(t.getName());
-						tempNode.setAttackDest(dest.getName());
-						attackTerCombos.add(tempNode);
+						EMMNode attack = node.makeAttackChildNode(t, dest, false, null);
+						attackTerCombos.add(attack);
 					}
 				}
 			}
