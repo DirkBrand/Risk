@@ -293,10 +293,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 				if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 						&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
-					MCTSNode noAttackChild = lastNode.clone();
-					noAttackChild.setTreePhase(NodeType.MANOEUVRE);
-					noAttackChild.setAttackSource("");
-					noAttackChild.setAttackDest("");
+					MCTSNode noAttackChild = (MCTSNode) lastNode.makeNoAttackChildNode();
 					noAttackChild.setValue(getValue(noAttackChild, lastNode));
 					// Add option to not attack
 					lastNode.attackChildren.add(noAttackChild);

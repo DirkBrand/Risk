@@ -18,9 +18,7 @@ public class Baseline_AI extends AIPlayer {
 	int ind = 0;
 
 	public static void main(String[] args) {
-		String tempName = args[0];
-		
-		new Baseline_AI(tempName, null, null, 2);
+		new Baseline_AI(args[0], null, null, 2);
 	}
 
 	public Baseline_AI(String name, String opp, String map, int id) {
@@ -38,6 +36,7 @@ public class Baseline_AI extends AIPlayer {
 					String request = "";
 					LinkedList<String> args = new LinkedList<String>();
 
+					// TODO: Can't we just tokenize this somehow?
 					char temp = readChar();
 					if (temp == '.') {
 						temp = readChar();
@@ -108,6 +107,7 @@ public class Baseline_AI extends AIPlayer {
 
 	}
 
+	// TODO: Move into a utility class?
 	public char readChar() {
 		char temp = ' ';
 		while (Character.isWhitespace(temp)) {			

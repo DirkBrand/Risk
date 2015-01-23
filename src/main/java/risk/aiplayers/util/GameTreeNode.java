@@ -58,6 +58,27 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		}
 	}
 	
+	public GameTreeNode makeAttackChildNode(Territory src, Territory dest) {
+		GameTreeNode tempNode = clone();
+		tempNode.setTreePhase(NodeType.RANDOMEVENT);
+		tempNode.setAttackSource(src.getName());
+		tempNode.setAttackDest(dest.getName());
+		return tempNode;
+	}
+	
+	public GameTreeNode makeNoAttackChildNode() {
+		return makeNoAttackChildNode(moveReq);
+	}
+	
+	public GameTreeNode makeNoAttackChildNode(boolean moveReq) {
+		GameTreeNode noAttackNode = clone();
+		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
+		noAttackNode.setAttackSource("");
+		noAttackNode.setAttackDest("");
+		noAttackNode.setMoveReq(moveReq);
+		return noAttackNode;
+	}
+	
 	public long getHash() {
 		long key = 0;
 		Iterator<Territory> It = getGame().getPlayers().get(0).getTerritories().values().iterator();

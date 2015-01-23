@@ -114,6 +114,11 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 //		}
 	}
 
+	public MCTSNode makeAttackChildNode(Territory src, Territory dest) {
+		MCTSNode tempNode = (MCTSNode) super.makeAttackChildNode(src, dest);
+		return tempNode;
+	}
+		
 	// Manually set the maximum number of children - use with caution!
 	// TODO: Get rid of this entirely if possible - better way is
 	// to put the maxChildren for each node type into it's own NodeHandler class?

@@ -231,18 +231,15 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 									.getOtherPlayer()
 									.getTerritoryByName(n.getName());
 							if (dest != null) {
-								MCTSNode newChild = lastNode.clone();
-								newChild.setAttackSource(t.getName());
-								newChild.setAttackDest(dest.getName());
-								newChild.setTreePhase(NodeType.RANDOMEVENT);
-								newChild.setVisitCount(0);
-								newChild.setWinCount(0);
-								newChild.setParent(lastNode);
-								newChild.setChildren(new ArrayList<MCTSNode>());
-								newChild.depth = lastNode.depth + 1;
-								newChild.updateHash(lastNode);
+								MCTSNode tempNode = lastNode.makeAttackChildNode(t, dest);
+								tempNode.setVisitCount(0);
+								tempNode.setWinCount(0);
+								tempNode.setParent(lastNode);
+								tempNode.setChildren(new ArrayList<MCTSNode>());
+								tempNode.depth = lastNode.depth + 1;
+								tempNode.updateHash(lastNode);
 								//								getValue(newChild, lastNode);
-								lastNode.addChild(newChild);
+								lastNode.addChild(tempNode);
 							}
 						}
 					}
@@ -278,10 +275,7 @@ public class MCTSHashing_Uniqueness_AI extends MCTSMove_After_Attack_AI {
 
 				if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 						&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
-					MCTSNode noAttackChild = lastNode.clone();
-					noAttackChild.setTreePhase(NodeType.MANOEUVRE);
-					noAttackChild.setAttackSource("");
-					noAttackChild.setAttackDest("");
+					MCTSNode noAttackChild = (MCTSNode) lastNode.makeNoAttackChildNode(); 
 					// noAttackChild.setValue(getValue(noAttackChild));
 					// Add option to not attack
 					lastNode.attackChildren.add(noAttackChild);
