@@ -2,6 +2,7 @@ package risk.aiplayers.util;
 
 import java.util.Comparator;
 
+import risk.aiplayers.ExpectiminimaxPlayer;
 import risk.commonObjects.Territory;
 
 public class EMMNode extends GameTreeNode implements Cloneable {
@@ -37,6 +38,22 @@ public class EMMNode extends GameTreeNode implements Cloneable {
 			copy.setRecruitedTer(recruitedTer.clone());
 		copy.setValue(0);
 		return copy;
+	}
+	
+	public EMMNode makeAttackChildNode(Territory src, Territory dest, boolean setval, ExpectiminimaxPlayer p) {
+		EMMNode tempNode = (EMMNode) super.makeAttackChildNode(src, dest);
+		if (setval) {
+			tempNode.setValue(p.getWeightedEval(tempNode));
+		}
+		return tempNode;
+	}
+	
+	public EMMNode makeNoAttackChildNode(boolean setval, ExpectiminimaxPlayer p) {
+		EMMNode noAttackNode = (EMMNode) super.makeNoAttackChildNode(false);
+		if (setval) {
+			noAttackNode.setValue(p.getValue(noAttackNode));
+		}
+		return noAttackNode;
 	}
 	
 	@Override

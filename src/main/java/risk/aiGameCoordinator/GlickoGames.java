@@ -16,13 +16,6 @@ import risk.aiplayers.MCTSPlayers.MCTSFull_Baseline_AI;
 import risk.aiplayers.MCTSPlayers.MCTSGenerate_Low_Children_AI;
 import risk.aiplayers.MCTSPlayers.MCTSHashing_Uniqueness_AI;
 import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
-import risk.paperplayers.S_BaselineAI;
-import risk.paperplayers.S_EMM_AI;
-import risk.paperplayers.S_MCTS_AI;
-import risk.paperplayers.S_MCTS_Baseline_AI;
-import risk.paperplayers.S_MCTS_Explore_AI;
-import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_Simulation_AI;
 import Glicko2.Rating;
 import Glicko2.RatingCalculator;
 import Glicko2.RatingPeriodResults;
@@ -364,34 +357,6 @@ public class GlickoGames {
 			// Start AI
 			try {
 				switch (ai1) {
-				case "BaselineAI": {
-					new S_BaselineAI(ai1, ai2, theMap, id);
-					break;
-				}
-				case "SimulationAI": {
-					new S_Simulation_AI(ai1, ai2, theMap, id);
-					break;
-				}
-				case "EMMAI": {
-					new S_EMM_AI(ai1, ai2, theMap, id, EMM_depth);
-					break;
-				}
-				case "MCTSAI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds);
-					break;
-				}
-				case "MCTSNaiveAI": {
-					new S_MCTS_Naive_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds);
-					break;
-				}
-				case "MCTSExploreAI": {
-					new S_MCTS_Explore_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds);
-					break;
-				}
-
 				case "MCTSFullBaselineAI": {
 					new MCTSFull_Baseline_AI(ai1, ai2, theMap, id,
 							timeForMCTS_Milliseconds);
@@ -407,51 +372,11 @@ public class GlickoGames {
 							timeForMCTS_Milliseconds);
 					break;
 				}
-				case "MCTSBaselineAI": {
-					new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds);
-					break;
-				}
 				case "MCTSSampleAI": {
 					new MCTSSample_Duplic_AI(ai1, ai2, theMap, id,
 							timeForMCTS_Milliseconds);
 				}
 
-				case "BO1AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 1);
-					break;
-				}
-				case "BO2AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 2);
-					break;
-				}
-				case "BO5AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 5);
-					break;
-				}
-				case "BO10AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 10);
-					break;
-				}
-				case "BO20AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 20);
-					break;
-				}
-				case "BO50AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 50);
-					break;
-				}
-				case "BO100AI": {
-					new S_MCTS_AI(ai1, ai2, theMap, id,
-							timeForMCTS_Milliseconds, 100);
-					break;
-				}
 				default: {
 					System.out.println("Unknown AI: " + ai1);
 					break;

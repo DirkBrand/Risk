@@ -2,7 +2,6 @@ package risk.aiplayers.EMMPlayers;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -12,7 +11,7 @@ import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
-import risk.aiplayers.util.GameTreeNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
@@ -52,7 +51,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 
 		for (int i = 1; i <= k; i++) {
 			EMMNode temp = node.clone();
-			temp.setTreePhase(GameTreeNode.ATTACK);
+			temp.setTreePhase(NodeType.ATTACK);
 			AIUtil.resolveMoveAction(temp.getGame().getCurrentPlayer()
 					.getTerritoryByName(source.getName()), temp.getGame()
 					.getCurrentPlayer().getTerritoryByName(dest.getName()), i);
@@ -88,7 +87,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 				AIUtil.shuffleArray(perm);
 
 				EMMNode temp = node.clone();
-				temp.setTreePhase(GameTreeNode.ATTACK);
+				temp.setTreePhase(NodeType.ATTACK);
 
 				Iterator<Territory> it = temp.getGame().getCurrentPlayer()
 						.getTerritories().values().iterator();
@@ -121,13 +120,8 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 		LinkedList<EMMNode> attackTerCombos = new LinkedList<EMMNode>();
 
 		// No attack is added as an option by default
-		EMMNode noAttackNode = node.clone();
-		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
-		noAttackNode.setAttackSource("");
-		noAttackNode.setAttackDest("");
-		noAttackNode.setMoveReq(false);
-		noAttackNode.setValue(getValue(noAttackNode));
-		attackTerCombos.add(noAttackNode);
+		EMMNode noAttack = node.makeNoAttackChildNode(true, this);
+		attackTerCombos.add(noAttack);
 
 		// Get list of possible territory combos
 		Iterator<Territory> it = node.getGame().getCurrentPlayer()
@@ -139,12 +133,8 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 					Territory temp = node.getGame().getOtherPlayer()
 							.getTerritoryByName(n.getName());
 					if (temp != null) {
-						EMMNode tempNode = node.clone();
-						tempNode.setTreePhase(GameTreeNode.RANDOMEVENT);
-						tempNode.setAttackSource(t.getName());
-						tempNode.setAttackDest(temp.getName());
-						tempNode.setValue(getWeightedEval(tempNode));
-						attackTerCombos.add(tempNode);
+						EMMNode attack = node.makeAttackChildNode(t, temp, true, this);
+						attackTerCombos.add(attack);
 					}
 				}
 			}
@@ -201,7 +191,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 		// maneuvering
 		if (count == 0) {
 			EMMNode temp = node.clone();
-			temp.setTreePhase(GameTreeNode.RECRUIT);
+			temp.setTreePhase(NodeType.RECRUIT);
 			temp.switchMaxPlayer();
 			temp.getGame().changeCurrentPlayer();
 
@@ -274,7 +264,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 				noManAdded = true;
 			}
 
-			maxChild.setTreePhase(GameTreeNode.RECRUIT);
+			maxChild.setTreePhase(NodeType.RECRUIT);
 			maxChild.switchMaxPlayer();
 			maxChild.getGame().changeCurrentPlayer();
 
@@ -290,10 +280,6 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 	@Override
 	public void recruitPhase(Collection<Territory> myTerritories,
 			int numberOfTroops) {
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
 
 		LinkedList<String> reply = new LinkedList<String>();
 
@@ -305,10 +291,11 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 		int m = game.getCurrentPlayer().getTerritories().size();
 
 		Boolean[] perm = new Boolean[n + m - 1];
+		// TODO: One of these loops is not necessary - Java
+		// auto-initialises arrays
 		int d = 0;
 		for (int i = 0; i < n; i++)
 			perm[d++] = true;
-
 		for (int i = 0; i < m - 1; i++)
 			perm[d++] = false;
 
@@ -323,7 +310,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 
 				EMMNode node = new EMMNode();
 				node.setGame(game.clone());
-				node.setTreePhase(GameTreeNode.ATTACK);
+				node.setTreePhase(NodeType.ATTACK);
 				node.setMaxPlayer(true);
 
 				Iterator<Territory> it = node.getGame().getCurrentPlayer()
@@ -397,7 +384,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 					if (temp != null) {
 						EMMNode node = new EMMNode();
 						node.setGame(game.clone());
-						node.setTreePhase(GameTreeNode.RANDOMEVENT);
+						node.setTreePhase(NodeType.RANDOMEVENT);
 						node.setMaxPlayer(true);
 
 						node.setAttackSource(t.getName());
@@ -415,7 +402,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 		// Play with no attack as an option
 		EMMNode noAttackNode = new EMMNode();
 		noAttackNode.setGame(game.clone());
-		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
+		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
 		noAttackNode.setMaxPlayer(true);
 		noAttackNode.setAttackDest("");
 		noAttackNode.setAttackSource("");
@@ -516,11 +503,6 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 	// Manoeuvre
 	public LinkedList<String> getManSourceDestination() {
 
-		if (NodeValues.size() > 1000000) {
-			NodeValues = null;
-			NodeValues = new HashMap<Long, Double>();
-		}
-
 		LinkedList<String> reply = new LinkedList<String>();
 		GameState bestGame = null;
 		int current = game.getCurrentPlayerID();
@@ -572,7 +554,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 				// Not maneuvering
 				maxChild = new EMMNode();
 				maxChild.setGame(game.clone());
-				maxChild.setTreePhase(GameTreeNode.RECRUIT);
+				maxChild.setTreePhase(NodeType.RECRUIT);
 				maxChild.setMaxPlayer(false);
 				maxRating = getValue(maxChild);
 			}
@@ -624,7 +606,7 @@ public class EMM_Advanced_AI extends ExpectiminimaxPlayer {
 						.getCurrentPlayer().getTerritoryByName(dest.getName()),
 						troopNumber);
 
-				temp.setTreePhase(GameTreeNode.RECRUIT);
+				temp.setTreePhase(NodeType.RECRUIT);
 				temp.setMaxPlayer(false);
 				temp.getGame().changeCurrentPlayer();
 

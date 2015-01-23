@@ -22,12 +22,12 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	private MCTSNode parent;
 	private int visitCount;
 	private int winCount;
+	private int maxChildren = -1; // Indicates not yet calculated
 
 	private double randomNodeExpectedWinRate;
 
 	public int depth;
 
-	public int maxChildren;
 
 	// Recruiting
 	private Territory recruitedTer;
@@ -82,7 +82,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			copy.setManDest(tempManD);
 		}
 		
-		if(this.getTreePhase() != RECRUIT) { //TODO:manSrc and Dest is kept otherwise and bring errors. ??
+		if(this.getTreePhase() != NodeType.RECRUIT) { //TODO:manSrc and Dest is kept otherwise and bring errors. ??
 			copy.setManDest(null);
 			copy.setManSource(null);
 		}
@@ -113,14 +113,160 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 //			return null; //TODO: Global boolean StopExpanding ?
 //		}
 	}
+
+	public MCTSNode makeAttackChildNode(Territory src, Territory dest) {
+		MCTSNode tempNode = (MCTSNode) super.makeAttackChildNode(src, dest);
+		return tempNode;
+	}
+		
+	// Manually set the maximum number of children - use with caution!
+	// TODO: Get rid of this entirely if possible - better way is
+	// to put the maxChildren for each node type into it's own NodeHandler class?
+	public void setMaxChildren(int i) {
+		maxChildren = i;
+	}
 	
+	private void setMaxChildrenRecruit() {
+		int troops = AIUtil.calculateRecruitedTroops(this);
+		int territories = getGame().getCurrentPlayer().getTerritories().size();
+		int maxChildren = (int) (AIUtil.nCk(troops + territories - 1, troops));
+		// TODO/FIXME: This might be a bug - can there be overflow with positive count resulting?
+		if (maxChildren < 0) maxChildren = Integer.MAX_VALUE;
+	}
+	
+	private void setMaxChildrenAttack() {
+		maxChildren = 1;
+		// TODO: shouldn't this be set to true?
+		noAttackAdded = false;
+		Iterator<Territory> it = getGame().getCurrentPlayer()
+				.getTerritories().values().iterator();
+		while (it.hasNext()) {
+			Territory t = it.next();
+			// Only consider fortified territories
+			if (t.getNrTroops() > 1) {
+				for (Territory n : t.getNeighbours()) {
+					Territory tempT = getGame().getOtherPlayer()
+							.getTerritoryByName(n.getName());
+					// Only consider targets that have less troops than
+					// the source - seems like a TODO, but here
+					// is perhaps not the right place for it
+					if (tempT != null) {
+						maxChildren++;
+					}
+				}
+			}
+		}
+	}
+
+	private void setMaxChildrenMoveAfterAttack() {
+		maxChildren = getGame().getCurrentPlayer()
+				.getTerritoryByName(
+						getParent().getAttackSource())
+				.getNrTroops() - 1;
+		assert maxChildren != 0;
+	}
+
+	private void setMaxChildrenRandomEvent() {
+		int sourceTroops = getGame().getCurrentPlayer()
+				.getTerritoryByName(getAttackSource())
+				.getNrTroops();
+		int destTroops = getGame().getOtherPlayer()
+				.getTerritoryByName(getAttackDest())
+				.getNrTroops();
+
+		if (sourceTroops == 2) {
+			maxChildren = 2;
+		} else if (sourceTroops == 3) {
+			if (destTroops == 2 || destTroops == 1) {
+				maxChildren = 2;
+			} else {
+				maxChildren = 3;
+			}
+		} else {
+			if (destTroops == 2 || destTroops == 1) {
+				maxChildren = 2;
+			} else {
+				maxChildren = 3;
+			}
+		}
+	
+	}
+	
+	private void setMaxChildrenManouevre() {
+		int size = AIUtil.updateRegions(getGame());
+		// Create list of connected components
+		setConnComponentBuckets(new LinkedList<LinkedList<Territory>>());
+		for (int i = 0; i < size; i++) {
+			getConnComponentBuckets().add(
+					new LinkedList<Territory>());
+		}
+
+		// Since not manoeuvring is an option
+		maxChildren = 1;
+
+		Iterator<Territory> it = getGame().getCurrentPlayer()
+				.getTerritories().values().iterator();
+		while (it.hasNext()) {
+			Territory t = it.next();
+			getConnComponentBuckets().get(t.connectedRegion).add(t);
+		}
+
+		for (LinkedList<Territory> bucket : getConnComponentBuckets()) {
+			if (bucket.size() > 1) {
+				for (Territory src : bucket) {
+					if (src.getNrTroops() > 1) {
+						for (Territory dest : bucket) {
+							if (!src.getName().equals(dest.getName())) {
+								// Unique source-dest combo
+								maxChildren += (src.getNrTroops() - 1);
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+	// Calculate actual maximum number of children according to our rules
+	// For artificially limiting the number, one can use setMaxChildren
+	public int maxChildren() {
+		if (maxChildren < 0) {
+			// Set the maxChildren variable appropriately
+			// TODO: Replace this switch by appropriate method overloading on type of Node/NodeHandler
+			// TODO: Alternatively shift into the enum itself?
+			switch (getTreePhase()) {
+			case RECRUIT: {
+				setMaxChildrenRecruit();
+				break;
+			}
+			case ATTACK: {
+				setMaxChildrenAttack();
+				break;
+			}
+			case MOVEAFTERATTACK: {
+				setMaxChildrenMoveAfterAttack();
+				break;
+			}
+			case RANDOMEVENT: {
+				setMaxChildrenRandomEvent();
+				break;
+			}
+			case MANOEUVRE: {
+				setMaxChildrenManouevre();
+				break;
+			}
+			}
+		}
+		return maxChildren;
+	}
+
 	@Override
 	public long getHash() {
 		if(this.hashCode != 0L) {
 			return this.hashCode;
 		}
 		long key = 0;
-		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
+		Iterator<Territory> It = getGame().getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -135,8 +281,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			key = key ^ za;
 		}
 
-		key = key ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
-		key = key ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+		key = key ^ AIPlayer.ZobristPlayerFactor[getGame().getCurrentPlayerID()];
+		key = key ^ AIPlayer.ZobristPhaseFactor.get(getTreePhase());
 
 		/* If it is a phase coming from attack : we have to know AttackSource and Destination to distinguish
 		 * between multiple attack possibilities. The thing is, if there actually is an AttackSource and Destination
@@ -167,7 +313,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			int playerId = parent.getGame().getCurrentPlayerID();
 			switch(parent.getTreePhase()) {
 			//Child in ATTACK
-			case(RECRUIT): {
+			case RECRUIT: {
 				Iterator<Territory> Itp = parent.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				Iterator<Territory> Itc = this.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				while (Itp.hasNext() && Itc.hasNext()) {
@@ -186,8 +332,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in RE or MANOEUVRE
-			case(ATTACK): {
-				if(this.getTreePhase() == RANDOMEVENT) {
+			case ATTACK: {
+				if(this.getTreePhase() == NodeType.RANDOMEVENT) {
 					Territory Source = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackSource());
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(this.getAttackDest());
 					int sourceId = Source.getId();
@@ -195,17 +341,17 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
 					childHash = childHash ^ AIPlayer.ZobristAttackSource[sourceId-1];			
 				}
-				else if(this.getTreePhase() == MANOEUVRE) {
+				else if(this.getTreePhase() == NodeType.MANOEUVRE) {
 					// Nothing to do here ? - no AttackDest|Source
 				}
 				else System.out.println("Little John is looking for his mom TreePhase " + this.getTreePhaseText() + " " + parent.getHash());
 				break;
 			}
 			//Child in ATTACK or MOA
-			case(RANDOMEVENT): {
+			case RANDOMEVENT: {
 				Territory Source = this.getGame().getCurrentPlayer().getTerritoryByName(parent.getAttackSource());
 				// Still other player's territory
-				if(this.getTreePhase() == ATTACK) {
+				if(this.getTreePhase() == NodeType.ATTACK) {
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(parent.getAttackDest());
 					int destId = Dest.getId();
 					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -217,7 +363,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
 				}
 				//OtherPlayer lost this territory
-				else if(this.getTreePhase() == MOVEAFTERATTACK) {
+				else if(getTreePhase() == NodeType.MOVEAFTERATTACK) {
 					Territory Dest = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackDest());
 					int destId = Dest.getId();
 					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -243,7 +389,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in ATTACK
-			case(MOVEAFTERATTACK): {//TODO : Clear this thing. Is there a faster way ?
+			case MOVEAFTERATTACK: {//TODO : Clear this thing. Is there a faster way ?
 				Iterator<Territory> Itp = parent.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				Iterator<Territory> Itc = this.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				while (Itp.hasNext() && Itc.hasNext()) {
@@ -262,7 +408,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in RECRUIT - Other player.
-			case(MANOEUVRE): {
+			case MANOEUVRE: {
 				//No manoeuvre this turn.
 				if(this.getManSource()==null && this.getManDest() == null) {
 					//Changing player in hashcode
@@ -320,8 +466,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			}
 			}
 			// Changing game phase in hashcode
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[parent.getTreePhase()];
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+			childHash = childHash ^ AIPlayer.ZobristPhaseFactor.get(parent.getTreePhase());
+			childHash = childHash ^ AIPlayer.ZobristPhaseFactor.get(getTreePhase());
 			this.setHash(childHash);
 		}
 		else {

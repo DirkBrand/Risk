@@ -15,6 +15,7 @@ import risk.server.facilitator.FacilitatorProtocolManager;
 public class AIUtil {
 	static Random r = new Random();
 
+	// TODO: Document
 	public static int calculateRecruitedTroops(GameTreeNode node) {
 		int n = 0;
 
@@ -189,7 +190,7 @@ public class AIUtil {
 		if (d.getNrTroops() <= 1 && diceRolls[2] > diceRolls[4]) { // defender
 			// defeated
 			node.setMoveReq(true);
-			node.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+			node.setTreePhase(NodeType.MOVEAFTERATTACK);
 
 			d.setNrTroops(0);
 
@@ -216,9 +217,9 @@ public class AIUtil {
 						d.decrementTroops();
 					}
 				}
-				node.setTreePhase(GameTreeNode.ATTACK);
+				node.setTreePhase(NodeType.ATTACK);
 			}
-			node.setTreePhase(GameTreeNode.ATTACK);
+			node.setTreePhase(NodeType.ATTACK);
 		}
 	}
 

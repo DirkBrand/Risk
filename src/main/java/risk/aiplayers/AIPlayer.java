@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import risk.aiplayers.util.AIProtocolManager;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Continent;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Player;
@@ -56,7 +58,7 @@ public abstract class AIPlayer {
 	
 	public static long ZobristArray [/*Territory ID*/][/*Number of troops*/][/*Number of players*/]; // Number of troops goes from 0 to 49.
 	public static long ZobristPlayerFactor[/*Number of players*/];
-	public static long ZobristPhaseFactor[/* RECRUIT - ATTACK - RANDOMEVENT - MOVEAFTERATTACK - MANOEUVRE */];
+	public static EnumMap<NodeType, Long> ZobristPhaseFactor;
 	public static long ZobristAttackSource[/* Territory ID */];
 	public static long ZobristAttackDestination[/* Territory ID */];
 
@@ -97,8 +99,7 @@ public abstract class AIPlayer {
 	}
 	
 	/**
-	 * Procedure to place troops in the recruitment phase, with the BASELINE
-	 * strategy. Must be overridden for other players.
+	 * Procedure placing troops in the recruitment phase.
 	 * 
 	 * @param myTerritories
 	 *            Collection of the territories owned by the current player.
@@ -257,7 +258,7 @@ public abstract class AIPlayer {
 		Random r = new Random();
 		ZobristArray = new long [territories.length][MAX_TROOPS+1][NUMBER_OF_PLAYERS];
 		ZobristPlayerFactor = new long [NUMBER_OF_PLAYERS];
-		ZobristPhaseFactor = new long [NUMBER_OF_PHASES];
+		ZobristPhaseFactor = new EnumMap<NodeType, Long>(NodeType.class);
 		ZobristAttackDestination = new long [territories.length];
 		ZobristAttackSource = new long [territories.length];
 		for (int i = 0; i < territories.length; i++) {
@@ -270,8 +271,8 @@ public abstract class AIPlayer {
 		}
 		ZobristPlayerFactor[0]=r.nextLong();
 		ZobristPlayerFactor[1]=r.nextLong();
-		for(int k = 0; k<NUMBER_OF_PHASES; k++) {
-			ZobristPhaseFactor[k]=r.nextLong();
+		for(NodeType k: NodeType.values()) {
+			ZobristPhaseFactor.put(k, r.nextLong());
 		}
 	}	
 

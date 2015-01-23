@@ -19,12 +19,6 @@ import risk.aiplayers.MCTSPlayers.MCTSRandom_AI;
 import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
-import risk.paperplayers.S_EMM_AI;
-import risk.paperplayers.S_MCTS_AI;
-import risk.paperplayers.S_MCTS_Baseline_AI;
-import risk.paperplayers.S_MCTS_Explore_AI;
-import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_Simulation_AI;
 
 public class AIGameCoordinator {
 	static String AI1_Name;
@@ -156,33 +150,6 @@ public class AIGameCoordinator {
 			}
 			case "EMMGreedy_AI": {
 				new EMMGreedy_AI(ai1, ai2, theMap, id, weights);
-				break;
-			}case "Simulation_AI": {
-				new S_Simulation_AI(ai1, ai2, theMap, id);
-				break;
-			}
-			case "EMM_AI": {
-				new S_EMM_AI(ai1, ai2, theMap, id, EMM_depth);
-				break;
-			}
-			case "MCTS_AI": {
-				new S_MCTS_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSNaive_AI": {
-				new S_MCTS_Naive_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSExplore_AI": {
-				new S_MCTS_Explore_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
-				break;
-			}
-			case "MCTSBaseline_AI": {
-				new S_MCTS_Baseline_AI(ai1, ai2, theMap, id,
-						timeForMCTS_Milliseconds);
 				break;
 			}
 			default: {
