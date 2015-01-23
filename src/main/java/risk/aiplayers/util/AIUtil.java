@@ -15,6 +15,7 @@ import risk.server.facilitator.FacilitatorProtocolManager;
 public class AIUtil {
 	static Random r = new Random();
 
+	// TODO: Document
 	public static int calculateRecruitedTroops(GameTreeNode node) {
 		int n = 0;
 

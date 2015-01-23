@@ -22,12 +22,12 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 	private MCTSNode parent;
 	private int visitCount;
 	private int winCount;
+	private int maxChildren = -1; // Indicates not yet calculated
 
 	private double randomNodeExpectedWinRate;
 
 	public int depth;
 
-	public int maxChildren;
 
 	// Recruiting
 	private Territory recruitedTer;
@@ -113,7 +113,147 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 //			return null; //TODO: Global boolean StopExpanding ?
 //		}
 	}
+
+	// Manually set the maximum number of children - use with caution!
+	// TODO: Get rid of this entirely if possible - better way is
+	// to put the maxChildren for each node type into it's own NodeHandler class?
+	public void setMaxChildren(int i) {
+		maxChildren = i;
+	}
 	
+	private void setMaxChildrenRecruit() {
+		int troops = AIUtil.calculateRecruitedTroops(this);
+		int territories = getGame().getCurrentPlayer().getTerritories().size();
+		int maxChildren = (int) (AIUtil.nCk(troops + territories - 1, troops));
+		// TODO/FIXME: This might be a bug - can there be overflow with positive count resulting?
+		if (maxChildren < 0) maxChildren = Integer.MAX_VALUE;
+	}
+	
+	private void setMaxChildrenAttack() {
+		maxChildren = 1;
+		// TODO: shouldn't this be set to true?
+		noAttackAdded = false;
+		Iterator<Territory> it = getGame().getCurrentPlayer()
+				.getTerritories().values().iterator();
+		while (it.hasNext()) {
+			Territory t = it.next();
+			// Only consider fortified territories
+			if (t.getNrTroops() > 1) {
+				for (Territory n : t.getNeighbours()) {
+					Territory tempT = getGame().getOtherPlayer()
+							.getTerritoryByName(n.getName());
+					// Only consider targets that have less troops than
+					// the source - seems like a TODO, but here
+					// is perhaps not the right place for it
+					if (tempT != null) {
+						maxChildren++;
+					}
+				}
+			}
+		}
+	}
+
+	private void setMaxChildrenMoveAfterAttack() {
+		maxChildren = getGame().getCurrentPlayer()
+				.getTerritoryByName(
+						getParent().getAttackSource())
+				.getNrTroops() - 1;
+		assert maxChildren != 0;
+	}
+
+	private void setMaxChildrenRandomEvent() {
+		int sourceTroops = getGame().getCurrentPlayer()
+				.getTerritoryByName(getAttackSource())
+				.getNrTroops();
+		int destTroops = getGame().getOtherPlayer()
+				.getTerritoryByName(getAttackDest())
+				.getNrTroops();
+
+		if (sourceTroops == 2) {
+			maxChildren = 2;
+		} else if (sourceTroops == 3) {
+			if (destTroops == 2 || destTroops == 1) {
+				maxChildren = 2;
+			} else {
+				maxChildren = 3;
+			}
+		} else {
+			if (destTroops == 2 || destTroops == 1) {
+				maxChildren = 2;
+			} else {
+				maxChildren = 3;
+			}
+		}
+	
+	}
+	
+	private void setMaxChildrenManouevre() {
+		int size = AIUtil.updateRegions(getGame());
+		// Create list of connected components
+		setConnComponentBuckets(new LinkedList<LinkedList<Territory>>());
+		for (int i = 0; i < size; i++) {
+			getConnComponentBuckets().add(
+					new LinkedList<Territory>());
+		}
+
+		// Since not manoeuvring is an option
+		maxChildren = 1;
+
+		Iterator<Territory> it = getGame().getCurrentPlayer()
+				.getTerritories().values().iterator();
+		while (it.hasNext()) {
+			Territory t = it.next();
+			getConnComponentBuckets().get(t.connectedRegion).add(t);
+		}
+
+		for (LinkedList<Territory> bucket : getConnComponentBuckets()) {
+			if (bucket.size() > 1) {
+				for (Territory src : bucket) {
+					if (src.getNrTroops() > 1) {
+						for (Territory dest : bucket) {
+							if (!src.getName().equals(dest.getName())) {
+								// Unique source-dest combo
+								maxChildren += (src.getNrTroops() - 1);
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+	// Calculate actual maximum number of children according to our rules
+	// For artificially limiting the number, one can use setMaxChildren
+	public int maxChildren() {
+		if (maxChildren < 0) {
+			// Set the maxChildren variable appropriately
+			// TODO: Replace this switch by appropriate method overloading on type of Node/NodeHandler
+			switch (getTreePhase()) {
+			case GameTreeNode.RECRUIT: {
+				setMaxChildrenRecruit();
+				break;
+			}
+			case GameTreeNode.ATTACK: {
+				setMaxChildrenAttack();
+				break;
+			}
+			case GameTreeNode.MOVEAFTERATTACK: {
+				setMaxChildrenMoveAfterAttack();
+				break;
+			}
+			case GameTreeNode.RANDOMEVENT: {
+				setMaxChildrenRandomEvent();
+				break;
+			}
+			case GameTreeNode.MANOEUVRE: {
+				setMaxChildrenManouevre();
+				break;
+			}
+			}
+		}
+		return maxChildren;
+	}
+
 	@Override
 	public long getHash() {
 		if(this.hashCode != 0L) {

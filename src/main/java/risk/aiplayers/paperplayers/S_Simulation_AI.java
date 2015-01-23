@@ -1,16 +1,19 @@
-package risk.paperplayers;
+package risk.aiplayers.paperplayers;
 
 import java.net.SocketException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
 import risk.aiplayers.AIPlayer;
+import risk.aiplayers.util.AIParameter;
+import risk.aiplayers.util.AIUtil;
 import risk.commonObjects.Territory;
 
-public class S_BaselineAI extends AIPlayer {
+public class S_Simulation_AI extends AIPlayer {
 
-
+	AIParameter params = new AIParameter();
 	int whereRecruitedId;
 	
 	String line = "";
@@ -19,11 +22,12 @@ public class S_BaselineAI extends AIPlayer {
 	public static void main(String[] args) {
 		String tempName = args[0];
 		
-			new S_BaselineAI(tempName, null, null, 2);
+			new S_Simulation_AI(tempName, null, null, 2);
 	}
 
-	public S_BaselineAI(String name, String opp, String map, int id) {
+	public S_Simulation_AI(String name, String opp, String map, int id) {
 		super(BASELINE_AI, name, opp, map, id);
+		
 		// Communication
 		boolean goingToController = false;
 
@@ -124,40 +128,37 @@ public class S_BaselineAI extends AIPlayer {
 
 		
 		LinkedList<String> reply = new LinkedList<String>();
-
 		whereRecruitedId = -1;
 
-		
-			int maxID = 0;
-			String maxName = "";
-			double max = Double.MIN_VALUE;
-
-			Iterator<Territory> it =  game.getCurrentPlayer().getTerritories().values().iterator();
-			while (it.hasNext()) {
-				Territory t = it.next();
-				double sum = 0.0;
-				for (Territory n : t.getNeighbours()) {
-					if (game.getOtherPlayer().getTerritoryByName(n.getName()) != null) {
-						sum += n.getNrTroops();
-					}
-				}
-				if (sum == 0.0)
-					continue;
-				double ratio = t.getNrTroops() / sum;
-				if (ratio > max) {
-					max = ratio;
-					maxID = t.getId();
-					maxName = t.getName();
+		Random rand = new Random();
+		boolean found = false;
+		int id = -1;
+		while (!found) {
+			int i = rand.nextInt(game.getCurrentPlayer()
+					.getTerritories().size());
+			Territory t = null;
+			Iterator<Territory> it = game
+					.getCurrentPlayer().getTerritories().values()
+					.iterator();
+			for (int j = 0; j <= i; j++) {
+				t = it.next();
+			}
+			for (Territory n : t.getNeighbours()) {
+				if (game.getOtherPlayer().getTerritoryByName(n.getName()) != null) {
+					found = true;
+					id = t.getId();
+					break;
 				}
 			}
-			whereRecruitedId = maxID;
-
-			Territory source = game.getCurrentPlayer().getTerritoryByName(maxName);
+		}
+	
 			
-			// Resolve the recruitment
-			source.setNrTroops(source.getNrTroops() + numberOfTroops);
-			reply.add(source.getId() + "");
-			reply.add(source.getNrTroops() + "");
+		whereRecruitedId = id;
+
+		Territory source = game.getCurrentPlayer().getTerritoryByID(id);
+		source.setNrTroops(source.getNrTroops() + numberOfTroops);
+		reply.add(source.getId() + "");
+		reply.add(source.getNrTroops() + "");
 
 
 		APM.sendSuccess(APM.getMesID(), "place_troops", reply);
@@ -186,26 +187,37 @@ public class S_BaselineAI extends AIPlayer {
 
 		Territory attackSource = game.getCurrentPlayer().getTerritoryByID(
 				whereRecruitedId);
-
-		if (attackSource.getNrTroops() > 1) {
-			int min = Integer.MAX_VALUE;
-			int minId = -1;
-			for (Territory t : attackSource.getNeighbours()) {
-				if (t.getNrTroops() < min
-						&& game.getOtherPlayer().getTerritoryByName(t.getName()) != null) {
-					min = t.getNrTroops();
-					minId = t.getId();
-				}
-			}
-
-			if (minId != -1) {
-				reply.add(whereRecruitedId + "");
-				reply.add(minId + "");
-			}
-		} else {
-			System.err.println("Cannot attack from there!");
+		
+		// Determines whether should attack again
+		if (attackSource.getNrTroops() == 1) {
+			return reply;
 		}
 
+		Territory attackDest = null;
+
+		for (Territory n : attackSource.getNeighbours()) {
+			Territory tempT = game.getOtherPlayer()
+					.getTerritoryByID(n.getId());
+
+			// Attack neighbour that gives highest win possibility
+			if (tempT != null
+					&& AIParameter.getProbOfWin(
+							attackSource.getNrTroops(),
+							tempT.getNrTroops()) > params.MCTSAttackThreshold) {
+				attackDest = tempT;
+				break;
+			}
+		}
+
+		if (attackDest == null) {
+			return reply;
+		}
+
+		
+
+		reply.add(attackSource.getId() + "");
+		reply.add(attackDest.getId() + "");
+		
 		return reply;
 	}
 
@@ -234,9 +246,15 @@ public class S_BaselineAI extends AIPlayer {
 	@Override
 	public LinkedList<String> getMoveAfterAttack() {
 		LinkedList<String> reply = new LinkedList<String>();
+		
+		int totalTroops = lastAttackSource.getNrTroops();
+		int troops = rand.nextInt(totalTroops - 1) + 1;
+
+		
+		
 		reply.add(lastAttackSource.getId() + "");
 		reply.add(lastAttackDestination.getId() + "");
-		reply.add((lastAttackSource.getNrTroops() - 1) + "");
+		reply.add(troops + "");
 
 		return reply;
 	}
@@ -244,6 +262,7 @@ public class S_BaselineAI extends AIPlayer {
 	// Manoeuvre
 	@Override
 	public LinkedList<String> getManSourceDestination() {
+		AIUtil.updateRegions(game);
 		String minID = "";
 		int min = Integer.MAX_VALUE;
 		String maxID = "";

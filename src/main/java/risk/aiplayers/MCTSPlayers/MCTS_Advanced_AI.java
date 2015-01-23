@@ -34,122 +34,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 	}
 
 
-	@Override
-	protected void calculateMaxChildren(MCTSNode lastNode) {
-		int count = 0;
-		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
-			int troops = AIUtil.calculateRecruitedTroops(lastNode);
-
-			int n = troops;
-			int m = lastNode.getGame().getCurrentPlayer().getTerritories()
-					.size();
-			count = (int) (AIUtil.nCk(n + m - 1, n));
-
-			if (count < 0)
-				count = Integer.MAX_VALUE;
-
-			break;
-		}
-		case GameTreeNode.ATTACK: {
-			count = 1;
-			lastNode.noAttackAdded = false;
-			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
-					.getTerritories().values().iterator();
-			while (it.hasNext()) {
-				Territory t = it.next();
-				// Only consider fortified territories
-				if (t.getNrTroops() > 1) {
-					for (Territory n : t.getNeighbours()) {
-						Territory tempT = lastNode.getGame().getOtherPlayer()
-								.getTerritoryByName(n.getName());
-						// Only consider targets that have less troops than the
-						// source
-						if (tempT != null) {
-							count++;
-						}
-					}
-				}
-			}
-
-			break;
-		}
-		case GameTreeNode.MOVEAFTERATTACK: {
-			count = lastNode.getGame().getCurrentPlayer()
-					.getTerritoryByName(lastNode.getParent().getAttackSource())
-					.getNrTroops() - 1;
-			if (count == 0) {
-				System.out.println("WTF");
-			}
-			break;
-		}
-		case GameTreeNode.RANDOMEVENT: {
-			int sourceTroops = lastNode.getGame().getCurrentPlayer()
-					.getTerritoryByName(lastNode.getAttackSource())
-					.getNrTroops();
-			int destTroops = lastNode.getGame().getOtherPlayer()
-					.getTerritoryByName(lastNode.getAttackDest()).getNrTroops();
-
-			if (sourceTroops == 2) {
-				count = 2;
-			} else if (sourceTroops == 3) {
-				if (destTroops == 2 || destTroops == 1) {
-					count = 2;
-				} else {
-					count = 3;
-				}
-
-			} else {
-				if (destTroops == 2 || destTroops == 1) {
-					count = 2;
-				} else {
-					count = 3;
-				}
-			}
-			break;
-		}
-		case GameTreeNode.MANOEUVRE: {
-			int size = AIUtil.updateRegions(lastNode.getGame());
-			// Create list of connected components
-			lastNode.setConnComponentBuckets(new LinkedList<LinkedList<Territory>>());
-			for (int i = 0; i < size; i++) {
-				lastNode.getConnComponentBuckets().add(
-						new LinkedList<Territory>());
-			}
-
-			// Since not maneuvering is an option
-			count = 1;
-
-			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
-					.getTerritories().values().iterator();
-			while (it.hasNext()) {
-				Territory t = it.next();
-				lastNode.getConnComponentBuckets().get(t.connectedRegion)
-				.add(t);
-			}
-
-			for (LinkedList<Territory> bucket : lastNode
-					.getConnComponentBuckets()) {
-				if (bucket.size() > 1) {
-					for (Territory src : bucket) {
-						if (src.getNrTroops() > 1) {
-							for (Territory dest : bucket) {
-								if (!src.getName().equals(dest.getName())) {
-									// Unique source-dest combo
-									count += (src.getNrTroops() - 1);
-								}
-							}
-						}
-					}
-				}
-			}
-			break;
-		}
-		}
-
-		lastNode.maxChildren = count;
-	}
-
 	// EXPANSION (One child at a time)
 	@Override
 	protected MCTSNode Expand(MCTSNode lastNode) {
@@ -282,10 +166,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 			maxChild.setWinCount(0);
 			maxChild.setParent(lastNode);
 			maxChild.setChildren(new ArrayList<MCTSNode>());
-
 			maxChild.setMoveReq(false);
-
-			calculateMaxChildren(maxChild);
 
 			maxChild.depth = lastNode.depth + 1;
 			if (maxChild.depth > maxTreeDepth) {
@@ -302,7 +183,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				lastNode.numberOfAttackBranches = params.MCTSAttackBranchQualityFactor;
 			}
 			// Generate all and pick randomly from top 30
-			if (5 * lastNode.numberOfAttackBranches > lastNode.maxChildren) {
+			if (5 * lastNode.numberOfAttackBranches > lastNode.maxChildren()) {
 				if (lastNode.attackChildren == null) {
 					lastNode.attackChildren = new ArrayList<MCTSNode>();
 
@@ -384,8 +265,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				}
 
 				child.setMoveReq(false);
-
-				calculateMaxChildren(child);
 
 				child.depth = lastNode.depth + 1;
 				if (child.depth > maxTreeDepth) {
@@ -484,7 +363,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 										lastNode.noAttackAdded = true;
 										maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 									}
-									calculateMaxChildren(maxChild);
 
 									maxChild.depth = lastNode.depth + 1;
 									if (maxChild.depth > maxTreeDepth) {
@@ -527,7 +405,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 							lastNode.noAttackAdded = true;
 							maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 						}
-						calculateMaxChildren(maxChild);
 
 						maxChild.depth = lastNode.depth + 1;
 						if (maxChild.depth > maxTreeDepth) {
@@ -641,7 +518,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 			} else {
 				newChild.setTreePhase(GameTreeNode.ATTACK);
 			}
-			calculateMaxChildren(newChild);
 
 			newChild.updateHash(lastNode);
 			newChild.depth = lastNode.depth + 1;
@@ -692,10 +568,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 											newChild.getAttackDest()), troops);
 
 					newChild.setMoveAfterAttackCount(troops);
-
 					newChild.setMoveReq(false);
-
-					calculateMaxChildren(newChild);
 					newChild.updateHash(lastNode);
 					newChild.depth = lastNode.depth + 1;
 					if (newChild.depth > maxTreeDepth) {
@@ -715,10 +588,10 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 			if (lastNode.numberOfManoeuvreBranches == 0) {
 				lastNode.numberOfManoeuvreBranches = Math.min(
 						params.MCTSManBranchQualityFactor,
-						lastNode.maxChildren / 2);
+						lastNode.maxChildren() / 2);
 			}
 			// Generate all and pick randomly from top 30
-			if (5 * lastNode.numberOfManoeuvreBranches > lastNode.maxChildren) {
+			if (5 * lastNode.numberOfManoeuvreBranches > lastNode.maxChildren()) {
 				// System.out.println("Man 1");
 				if (lastNode.manChildren == null) {
 					lastNode.manChildren = new ArrayList<MCTSNode>();
@@ -795,9 +668,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				child.setWinCount(0);
 				child.setParent(lastNode);
 				child.setChildren(new ArrayList<MCTSNode>());
-
 				child.setMoveReq(false);
-				calculateMaxChildren(child);
 
 				child.depth = lastNode.depth + 1;
 				if (child.depth > maxTreeDepth) {
@@ -815,7 +686,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				// No territories with more than 1 troop. Thus only option is
 				// not
 				// maneuvering
-				if (lastNode.maxChildren == 1) {
+				if (lastNode.maxChildren() == 1) {
 					System.out.println("Clone2 ");
 					MCTSNode newChild = lastNode.clone();
 					newChild.setVisitCount(0);
@@ -827,8 +698,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 					newChild.switchMaxPlayer();
 					newChild.getGame().changeCurrentPlayer();
-
-					calculateMaxChildren(newChild);
 					newChild.updateHash(lastNode);
 					
 					newChild.depth = lastNode.depth + 1;
@@ -849,7 +718,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 					// System.out.println(count);
 
 					// Fix search range
-					if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
+					if ((lastNode.maxChildren() - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
 						lastNode.numberOfManoeuvreBranches--;
 					}
 
@@ -979,8 +848,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 						maxChild.setMoveReq(false);
 
-						calculateMaxChildren(maxChild);
-
 						if (maxChild.getManDest() == null) {
 							lastNode.noManAdded = true;
 						}
@@ -1021,7 +888,7 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 
 		int n = number;
 		int m = game.getCurrentPlayer().getTerritories().size();
-		root.maxChildren = (int) (AIUtil.nCk(n + m - 1, n));
+		root.setMaxChildren((int) (AIUtil.nCk(n + m - 1, n)));
 
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
@@ -1230,7 +1097,6 @@ public class MCTS_Advanced_AI extends MonteCarloTreeSearchPlayer {
 				globalNode.setWinCount(0);
 				globalNode.depth = 1;
 				globalNode.setChildren(new ArrayList<MCTSNode>());
-				calculateMaxChildren(globalNode);
 			}
 		}
 

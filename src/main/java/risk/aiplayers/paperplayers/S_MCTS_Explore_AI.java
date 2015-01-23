@@ -1,4 +1,4 @@
-package risk.paperplayers;
+package risk.aiplayers.paperplayers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +30,6 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 		super(name, opp, map, id, time, new AIParameter(Double.NEGATIVE_INFINITY, 20));
 	}
 
-	@Override
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
@@ -142,7 +141,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 		}
 		}
 
-		lastNode.maxChildren = count;
+		lastNode.setMaxChildren(count);
 	}
 
 	// EXPANSION (One child at a time)
@@ -221,7 +220,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 			if (lastNode.numberOfAttackBranches == 0) {
 				lastNode.numberOfAttackBranches = Math.min(
 						params.MCTSAttackBranchQualityFactor,
-						lastNode.maxChildren / 2);
+						lastNode.maxChildren() / 2);
 			}
 
 			// Generate all and pick randomly from top 30
@@ -547,7 +546,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 			if (lastNode.numberOfManoeuvreBranches == 0) {
 				lastNode.numberOfManoeuvreBranches = Math.min(
 						params.MCTSManBranchQualityFactor,
-						lastNode.maxChildren / 4);
+						lastNode.maxChildren() / 4);
 			}
 
 			// System.out.println("Man 1");
@@ -598,7 +597,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 				double maxRating = Double.NEGATIVE_INFINITY;
 				MCTSNode maxChild = null;
 
-				if (lastNode.maxChildren == 1) {
+				if (lastNode.maxChildren() == 1) {
 					maxChild = lastNode.clone();
 					maxChild.setTreePhase(GameTreeNode.RECRUIT);
 					maxChild.switchMaxPlayer();
@@ -607,7 +606,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 				}
 
 				// Fix search range
-				if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
+				if ((lastNode.maxChildren() - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
 					lastNode.numberOfManoeuvreBranches--;
 				}
 
@@ -616,7 +615,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 				}
 
 				for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
-					int index = r.nextInt(lastNode.maxChildren);
+					int index = r.nextInt(lastNode.maxChildren());
 
 					int first, last, middle = -1, nrTroops = -1;
 					MCTSNode temp = null;
@@ -750,7 +749,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 
 		int n = numberOfTroops;
 		int m = game.getCurrentPlayer().getTerritories().size();
-		root.maxChildren = (int) (AIUtil.nCk(n + m - 1, n));
+		root.setMaxChildren((int) (AIUtil.nCk(n + m - 1, n)));
 
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
@@ -816,7 +815,7 @@ public class S_MCTS_Explore_AI extends MonteCarloTreeSearchPlayer {
 		 * root.depth = 1; root.setChildren(new ArrayList<MCTSNode>());
 		 * calculateMaxChildren(root);
 		 * 
-		 * if (root.maxChildren == 1) { return reply; }
+		 * if (root.maxChildren() == 1) { return reply; }
 		 */
 
 		treeDepth = 0;

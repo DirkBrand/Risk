@@ -59,7 +59,6 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 
 	}
 
-	@Override
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
@@ -166,7 +165,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 		}
 		}
 
-		lastNode.maxChildren = count;
+		lastNode.setMaxChildren(count);
 	}
 
 	// EXPANSION (One child at a time)
@@ -550,9 +549,9 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 		root.setChildren(new ArrayList<MCTSNode>());
 
 		calculateMaxChildren(root);
-		if (root.maxChildren == 0) {
+		if (root.maxChildren() == 0) {
 			return reply;
-		} else if (root.maxChildren == 1) {
+		} else if (root.maxChildren() == 1) {
 			boolean atLeastOne = false;
 			Iterator<Territory> it = root.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();

@@ -120,8 +120,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 			maxChild.setMoveReq(false);
 
-			calculateMaxChildren(maxChild);
-
 			maxChild.depth = lastNode.depth + 1;
 			if (maxChild.depth > maxTreeDepth) {
 				maxTreeDepth = maxChild.depth;
@@ -136,7 +134,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			if (lastNode.numberOfAttackBranches == 0) {
 				lastNode.numberOfAttackBranches = Math.min(
 						params.MCTSAttackBranchQualityFactor,
-						lastNode.maxChildren / 2);
+						lastNode.maxChildren() / 2);
 			}
 
 			// Generate all and pick randomly from top 30
@@ -243,7 +241,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 							lastNode.noAttackAdded = true;
 							maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 						}
-						calculateMaxChildren(maxChild);
 
 						maxChild.depth = lastNode.depth + 1;
 						if (maxChild.depth > maxTreeDepth) {
@@ -275,7 +272,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				if (maxChild.getAttackDest().length() == 0) {
 					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 				}
-				calculateMaxChildren(maxChild);
 
 				maxChild.depth = lastNode.depth + 1;
 				if (maxChild.depth > maxTreeDepth) {
@@ -386,7 +382,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			} else {
 				newChild.setTreePhase(GameTreeNode.ATTACK);
 			}
-			calculateMaxChildren(newChild);
 
 			getValue(newChild, lastNode);
 			newChild.depth = lastNode.depth + 1;
@@ -443,7 +438,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 					newChild.setMoveReq(false);
 
-					calculateMaxChildren(newChild);
 					getValue(newChild, lastNode);
 					newChild.depth = lastNode.depth + 1;
 					if (newChild.depth > maxTreeDepth) {
@@ -465,7 +459,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			if (lastNode.numberOfManoeuvreBranches == 0) {
 				lastNode.numberOfManoeuvreBranches = Math.min(
 						params.MCTSManBranchQualityFactor,
-						lastNode.maxChildren / 4);
+						lastNode.maxChildren() / 4);
 			}
 
 			if(lastNode.manSources == null) {
@@ -514,7 +508,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				MCTSNode maxChild = null;
 				Pair maxPair = null;
 
-				if (lastNode.maxChildren == 1) {
+				if (lastNode.maxChildren() == 1) {
 					maxChild = lastNode.clone();
 					maxChild.setTreePhase(GameTreeNode.RECRUIT);
 					maxChild.switchMaxPlayer();
@@ -523,7 +517,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				}
 
 				// Fix search range
-				if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
+				if ((lastNode.maxChildren() - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
 					lastNode.numberOfManoeuvreBranches--;
 				}
 
@@ -532,7 +526,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				}
 
 				for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
-					int index = r.nextInt(lastNode.maxChildren);
+					int index = r.nextInt(lastNode.maxChildren());
 
 					int first, last, middle = -1, nrTroops = -1;
 					MCTSNode temp = null;
@@ -634,7 +628,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						maxChild.getGame().changeCurrentPlayer();
 
 						maxChild.setMoveReq(false);
-						calculateMaxChildren(maxChild);
 
 						getValue(maxChild, lastNode);
 						maxChild.depth = lastNode.depth + 1;
@@ -657,8 +650,6 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				maxChild.setChildren(new ArrayList<MCTSNode>());
 
 				maxChild.setMoveReq(false);
-
-				calculateMaxChildren(maxChild);
 
 				maxChild.depth = lastNode.depth + 1;
 				if (maxChild.depth > maxTreeDepth) {

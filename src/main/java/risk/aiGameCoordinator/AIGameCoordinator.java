@@ -19,12 +19,12 @@ import risk.aiplayers.MCTSPlayers.MCTSRandom_AI;
 import risk.aiplayers.MCTSPlayers.MCTSSample_Duplic_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_AI;
 import risk.aiplayers.MCTSPlayers.MCTS_Advanced_playout_AI;
-import risk.paperplayers.S_EMM_AI;
-import risk.paperplayers.S_MCTS_AI;
-import risk.paperplayers.S_MCTS_Baseline_AI;
-import risk.paperplayers.S_MCTS_Explore_AI;
-import risk.paperplayers.S_MCTS_Naive_AI;
-import risk.paperplayers.S_Simulation_AI;
+import risk.aiplayers.paperplayers.S_EMM_AI;
+import risk.aiplayers.paperplayers.S_MCTS_AI;
+import risk.aiplayers.paperplayers.S_MCTS_Baseline_AI;
+import risk.aiplayers.paperplayers.S_MCTS_Explore_AI;
+import risk.aiplayers.paperplayers.S_MCTS_Naive_AI;
+import risk.aiplayers.paperplayers.S_Simulation_AI;
 
 public class AIGameCoordinator {
 	static String AI1_Name;

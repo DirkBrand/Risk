@@ -1,4 +1,4 @@
-package risk.paperplayers;
+package risk.aiplayers.paperplayers;
 
 import java.util.ArrayList;
 import java.util.Collection;

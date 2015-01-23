@@ -2,11 +2,11 @@ package risk.aiGameCoordinator;
 
 import risk.aiplayers.AIPlayer;
 import risk.aiplayers.EMMPlayers.EMMGreedy_AI;
-import risk.paperplayers.S_BaselineAI;
-import risk.paperplayers.S_EMM_AI;
-import risk.paperplayers.S_MCTS_AI;
-import risk.paperplayers.S_MCTS_Explore_AI;
-import risk.paperplayers.S_MCTS_Naive_AI;
+import risk.aiplayers.paperplayers.S_BaselineAI;
+import risk.aiplayers.paperplayers.S_EMM_AI;
+import risk.aiplayers.paperplayers.S_MCTS_AI;
+import risk.aiplayers.paperplayers.S_MCTS_Explore_AI;
+import risk.aiplayers.paperplayers.S_MCTS_Naive_AI;
 
 public class GameCoordinatorForClop {
 	static String AI1_Name;

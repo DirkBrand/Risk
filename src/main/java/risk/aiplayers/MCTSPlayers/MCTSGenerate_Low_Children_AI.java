@@ -42,14 +42,12 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 		switch (lastNode.getTreePhase()) {
 		//********************************RECRUIT************************************//
 		case GameTreeNode.RECRUIT: {
-			calculateMaxChildren(lastNode);
-
-			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			if(lastNode.maxChildren() < GameTreeNode.reasonableChildrenNumber)
 			{/*AddEveryPossibleChild to recruitChildren */
 				// Create permutation array
 				if(lastNode.recruitQueue == null) {
 					//GameTreeNode implements comparator that compare Node Values. If I read well.
-					lastNode.recruitQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren);
+					lastNode.recruitQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren());
 
 					int n = AIUtil.calculateRecruitedTroops(lastNode);
 					int m = lastNode.getGame().getCurrentPlayer().getTerritories()
@@ -90,8 +88,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 						tempChild.setTreePhase(GameTreeNode.ATTACK);
 						tempChild.setMoveReq(false);
 
-						calculateMaxChildren(tempChild);
-
 						tempChild.depth = lastNode.depth + 1;
 						if (tempChild.depth > maxTreeDepth) {
 							maxTreeDepth = tempChild.depth;
@@ -121,7 +117,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 			lastNode.numberOfRecruitBranches = Math.min(
 					params.MCTSRecruitBranchQualityFactor,
-					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 2);
+					(lastNode.maxChildren() - lastNode.getNumberOfChildren())/ 2);
 
 
 			//Avoiding 0. maxChildren = 1. 1/2=0 (int)
@@ -183,7 +179,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					maxChild.setChildren(new ArrayList<MCTSNode>());
 					maxChild.setTreePhase(GameTreeNode.ATTACK);
 					maxChild.setMoveReq(false);
-					calculateMaxChildren(maxChild);
 					maxChild.depth = lastNode.depth + 1;
 					if (maxChild.depth > maxTreeDepth) {
 						maxTreeDepth = maxChild.depth;
@@ -208,7 +203,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							while (it.hasNext()) {
 								MCTSNode child = it.next();
 								if(key == child.getHash() ) {
-									if(child.getChildren().size() < child.maxChildren)
+									if(child.getChildren().size() < child.maxChildren())
 										return Expand(child);
 									else
 										return child;
@@ -228,11 +223,11 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 		}
 		//********************************ATTACK************************************//
 		case GameTreeNode.ATTACK: {
-			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			if(lastNode.maxChildren() < GameTreeNode.reasonableChildrenNumber)
 			{/*AddEveryPossibleChild, return noAttack (since we are sure that this one is included.)*/
 				//After a little look-up, seems that this is working well. Not called twice on the same.
 				if(lastNode.attackQueue == null) {
-					lastNode.attackQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren);
+					lastNode.attackQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren());
 					Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 							.getTerritories().values().iterator();
 					while (it.hasNext()) {
@@ -247,7 +242,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 									newChild.setAttackSource(t.getName());
 									newChild.setAttackDest(dest.getName());
 									newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
-									calculateMaxChildren(newChild);
 									newChild.depth = lastNode.depth + 1;
 									newChild.setValue(getWeightedEval(newChild, lastNode));
 									lastNode.attackQueue.add(newChild);
@@ -260,7 +254,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
 					noAttackChild.setAttackSource("");
 					noAttackChild.setAttackDest("");
-					calculateMaxChildren(noAttackChild);
 					noAttackChild.depth = lastNode.depth + 1;
 					noAttackChild.setValue(getValue(noAttackChild, lastNode));
 					lastNode.attackQueue.add(noAttackChild);
@@ -270,7 +263,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 				//Checking that the queue is not empty - it should not be.
 				if(maxChild == null) {
 					System.out.println("Calling Expand when it cannot be anymore");
-					System.out.println(lastNode.getHash() + " maxC " + lastNode.maxChildren + " C " + lastNode.getChildren().size());
+					System.out.println(lastNode.getHash() + " maxC " + lastNode.maxChildren() + " C " + lastNode.getChildren().size());
 					System.out.println(lastNode.attackQueue.size());
 				}
 
@@ -288,7 +281,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 			lastNode.numberOfAttackBranches = Math.min(
 					params.MCTSAttackBranchQualityFactor,
-					(lastNode.maxChildren - lastNode.getNumberOfChildren()) / 2);
+					(lastNode.maxChildren() - lastNode.getNumberOfChildren()) / 2);
 
 
 			// Generate all and pick randomly from top 30
@@ -385,8 +378,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 								maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
 							}
 
-							calculateMaxChildren(maxChild);
-
 							maxChild.depth = lastNode.depth + 1;
 							if (maxChild.depth > maxTreeDepth) {
 								maxTreeDepth = maxChild.depth;
@@ -443,7 +434,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 								while (it.hasNext()) {
 									MCTSNode child = it.next();
 									if(key == child.getHash() ) {
-										if(child.getChildren().size() < child.maxChildren)
+										if(child.getChildren().size() < child.maxChildren())
 											return Expand(child);
 										else
 											return child;
@@ -461,7 +452,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 					if(!lastNode.attackChildren.remove(maxChild))
 						System.out.println("Node not properly removed from attackChildren");
-					calculateMaxChildren(maxChild);
 					pair.setPresence();
 					lastNode.addChild(maxChild);	
 					return maxChild;
@@ -566,7 +556,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 			} else {
 				newChild.setTreePhase(GameTreeNode.ATTACK);
 			}
-			calculateMaxChildren(newChild);
 
 			newChild.depth = lastNode.depth + 1;
 			if (newChild.depth > maxTreeDepth) {
@@ -585,7 +574,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 			if(totalTroops < GameTreeNode.reasonableChildrenNumber){
 				if(lastNode.MoAQueue == null) { 
-					lastNode.MoAQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren);
+					lastNode.MoAQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren());
 					MCTSNode newChild = null;
 					for(int troops=1; troops<totalTroops; troops++) {
 						newChild = lastNode.clone();
@@ -603,7 +592,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 						getValue(newChild, lastNode);
 						newChild.setMoveAfterAttackCount(troops);
 						newChild.setMoveReq(false);
-						calculateMaxChildren(newChild);
 
 						newChild.depth = lastNode.depth + 1;
 						if (newChild.depth > maxTreeDepth) {
@@ -675,8 +663,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 					newChild.setMoveReq(false);
 
-					calculateMaxChildren(newChild);
-
 					newChild.depth = lastNode.depth + 1;
 					if (newChild.depth > maxTreeDepth) {
 						maxTreeDepth = newChild.depth;
@@ -690,10 +676,10 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 		}
 		//******************************MANOEUVRE***********************************//
 		case GameTreeNode.MANOEUVRE: {
-			if(lastNode.maxChildren < GameTreeNode.reasonableChildrenNumber)
+			if(lastNode.maxChildren() < GameTreeNode.reasonableChildrenNumber)
 			{/*AddEveryPossibleChild, return noManoeuvreOne (since we are sure that this one is included.)*/
 				if(lastNode.manQueue == null) {
-					lastNode.manQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren);
+					lastNode.manQueue = new PriorityQueue<MCTSNode>(lastNode.maxChildren());
 					for (LinkedList<Territory> bucket : lastNode
 							.getConnComponentBuckets()) {
 						if (bucket.size() > 1) {
@@ -721,7 +707,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 												newChild.setMoveReq(false);
 												newChild.switchMaxPlayer();
 												newChild.getGame().changeCurrentPlayer();
-												calculateMaxChildren(newChild);
 												newChild.depth = lastNode.depth + 1;
 												getValue(newChild, lastNode);
 												lastNode.manQueue.add(newChild);
@@ -739,7 +724,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					noManChild.setMoveReq(false);
 					noManChild.switchMaxPlayer();
 					noManChild.getGame().changeCurrentPlayer();
-					calculateMaxChildren(noManChild);
 					noManChild.depth = lastNode.depth + 1;
 					if (noManChild.depth > maxTreeDepth) {
 						maxTreeDepth = noManChild.depth;
@@ -753,7 +737,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 				//Checking that the queue is not empty - it should not be.
 				if(maxChild == null) {
 					System.out.println("Calling Expand when it cannot be anymore " + lastNode.getHash() 
-							+ " nbrOfChildren: " + lastNode.getChildren().size() + " maxChildren "+ lastNode.maxChildren);
+							+ " nbrOfChildren: " + lastNode.getChildren().size() + " maxChildren "+ lastNode.maxChildren());
 					System.out.println("manQueue size : " + lastNode.manQueue.size());
 					System.out.println("Buckets: " + lastNode.getConnComponentBuckets());
 					System.out.println("Player number of territories : " + lastNode.getGame().getCurrentPlayer().getTerritories().size());
@@ -771,7 +755,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 
 			lastNode.numberOfManoeuvreBranches = Math.min(
 					params.MCTSManBranchQualityFactor,
-					(lastNode.maxChildren - lastNode.getNumberOfChildren())/ 4);
+					(lastNode.maxChildren() - lastNode.getNumberOfChildren())/ 4);
 
 			if(lastNode.numberOfManoeuvreBranches <1)
 				lastNode.numberOfManoeuvreBranches = 1 ;
@@ -834,7 +818,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					double maxRating = Double.NEGATIVE_INFINITY;
 					MCTSNode maxChild = null;
 
-					if (lastNode.maxChildren == 1) {
+					if (lastNode.maxChildren() == 1) {
 						maxChild = lastNode.clone();
 						maxChild.setTreePhase(GameTreeNode.RECRUIT);
 						maxChild.switchMaxPlayer();
@@ -842,7 +826,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					}
 
 					// Fix search range
-					if ((lastNode.maxChildren - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
+					if ((lastNode.maxChildren() - lastNode.getChildren().size()) < lastNode.numberOfManoeuvreBranches + 1) {
 						lastNode.numberOfManoeuvreBranches--;
 					}
 
@@ -853,7 +837,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 					//Modified here - I don't keep track of added node though.
 					//Which is why is duplication and later on detected.
 					for (int i = 0; i < lastNode.numberOfManoeuvreBranches; i++) {
-						int index = r1.nextInt(lastNode.maxChildren);
+						int index = r1.nextInt(lastNode.maxChildren());
 						int first, last, middle = -1, nrTroops = -1;
 						MCTSNode temp = null;
 						if (index > 0) {
@@ -923,7 +907,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 							maxChild.switchMaxPlayer();
 							maxChild.getGame().changeCurrentPlayer();
 
-							calculateMaxChildren(maxChild);
 							getValue(maxChild, lastNode);
 							
 							maxChild.depth = lastNode.depth + 1;
@@ -963,7 +946,7 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 								while(it.hasNext()) {
 									MCTSNode child = it.next();
 									if(key == child.getHash() ) {
-										if(child.getChildren().size() < child.maxChildren)
+										if(child.getChildren().size() < child.maxChildren())
 											return Expand(child);
 										else
 											return child;
@@ -984,7 +967,6 @@ public class MCTSGenerate_Low_Children_AI extends MCTSMove_After_Attack_AI{
 						maxChild.setParent(lastNode);
 						maxChild.setChildren(new ArrayList<MCTSNode>());	
 						maxChild.setMoveReq(false);
-						calculateMaxChildren(maxChild);
 						maxChild.depth = lastNode.depth + 1;
 						if (maxChild.depth > maxTreeDepth) {
 							maxTreeDepth = maxChild.depth;

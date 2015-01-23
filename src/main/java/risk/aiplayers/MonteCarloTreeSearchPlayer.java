@@ -186,7 +186,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			// System.out.println(urgency);
 			if (currentNode.getChildren().size() == 0) {
 				if (currentNode.getTreePhase() == GameTreeNode.RANDOMEVENT) {
-					for (int i = 0; i < currentNode.maxChildren; i++) {
+					for (int i = 0; i < currentNode.maxChildren(); i++) {
 						treeNodeCount++;
 						// System.out.println("In Random expand");
 						Expand(currentNode);
@@ -201,7 +201,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				}
 			}
 			// If not fully expanded and (wr + ucb) < fpu -> Expand
-			else if (currentNode.getChildren().size() < currentNode.maxChildren
+			else if (currentNode.getChildren().size() < currentNode.maxChildren()
 					&& urgency < params.fpu) {
 				treeNodeCount++;
 				// System.out.println("In Expand 2 " + currentNode.getHash() + " maxC C " + currentNode.maxChildren + " " + currentNode.getChildren().size());
@@ -521,8 +521,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 	}
 
 	// MCTS methods that must be implemented
-	protected abstract void calculateMaxChildren(MCTSNode lastNode);
-
+	// TODO: Document purpose of and behaviour of these methods
 	protected abstract MCTSNode Expand(MCTSNode lastNode);
 
 	/**

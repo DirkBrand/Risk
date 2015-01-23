@@ -28,7 +28,6 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 	}
 
-	@Override
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
@@ -138,7 +137,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		}
 		}
 
-		lastNode.maxChildren = count;
+		lastNode.setMaxChildren(count);
 	}
 
 	// EXPANSION (One child at a time)
@@ -254,7 +253,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 			int i = 0;
 			// System.out.println(lastNode.attackChildren.size() + " <-> " +
-			// lastNode.maxChildren);
+			// lastNode.maxChildren());
 			Iterator<MCTSNode> iterator = lastNode.attackChildren.iterator();
 			MCTSNode child = iterator.next();
 			while (iterator.hasNext() && i <= index) {
@@ -458,7 +457,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			// No territories with more than 1 troop. Thus only option is
 			// not
 			// maneuvering
-			if (lastNode.maxChildren == 1) {
+			if (lastNode.maxChildren() == 1) {
 				MCTSNode newChild = lastNode.clone();
 				newChild.setVisitCount(0);
 				newChild.setWinCount(0);
@@ -583,7 +582,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		root.setChildren(new ArrayList<MCTSNode>());
 		int n = number;
 		int m = game.getCurrentPlayer().getTerritories().size();
-		root.maxChildren = (int) (AIUtil.nCk(n + m - 1, n));
+		root.setMaxChildren((int) (AIUtil.nCk(n + m - 1, n)));
 
 		treeDepth = 0;
 		maxTreeDepth = Integer.MIN_VALUE;
@@ -622,7 +621,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		root.setChildren(new ArrayList<MCTSNode>());
 		calculateMaxChildren(root);
 
-		if (root.maxChildren == 1) {
+		if (root.maxChildren() == 1) {
 			return reply;
 		}
 
