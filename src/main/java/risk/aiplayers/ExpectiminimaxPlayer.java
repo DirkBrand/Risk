@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
-import risk.aiplayers.util.GameTreeNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Territory;
 
 public abstract class ExpectiminimaxPlayer extends AIPlayer {
@@ -155,7 +155,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		}
 
 		double a = 0.0;
-		if (node.getTreePhase() == GameTreeNode.RANDOMEVENT) {
+		if (node.getTreePhase() == NodeType.RANDOMEVENT) {
 			a = 0.0;
 			for (EMMNode child : getRandomAttackActions(node)) {
 				nodeCount++;
@@ -200,13 +200,13 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 		LinkedList<EMMNode> actions = null;
 		// writeGameState(node);
 		switch (node.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			// Choose where to recruit troops
 			// System.out.println("Recruit");
 			actions = getRecruitActions(node, depth);
 			break;
 		}
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 			// Move after attack is resolved by moving all troops across.
 			if (node.moveRequired()) {
 				// System.out.println("MoveAfter");
@@ -222,12 +222,16 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 			}
 			break;
 		}
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 			// Choose a manoeuvre source and destination
 			// System.out.println("Manoeuvre");
 			actions = getMoveActions(node);
 			break;
 		}
+		//TODO: Should there be an "assert false" for these options? 
+		case RANDOMEVENT:
+		case MOVEAFTERATTACK:
+			break;
 		}
 
 		return actions;
@@ -260,14 +264,14 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(0, 0, 6, 0, 1);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// Defender Wins
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(0, 0, 1, 0, 6);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 			} else {
@@ -275,14 +279,14 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(0, 0, 6, 1, 2);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// Defender Wins
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(0, 0, 1, 5, 6);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 			}
@@ -292,14 +296,14 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(0, 5, 6, 0, 1);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// Defender Wins
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(0, 1, 2, 0, 6);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 			} else {
@@ -307,21 +311,21 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(0, 5, 6, 1, 2);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// One Each
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(0, 1, 6, 2, 5);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 				// Defender Wins both
 				EMMNode tempC = node.clone();
 				tempC.setDiceRolls(0, 1, 2, 5, 6);
 				AIUtil.resolveAttackAction(tempC);
-				tempC.setTreePhase(GameTreeNode.ATTACK);
+				tempC.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempC);
 			}
 
@@ -331,14 +335,14 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(4, 5, 6, 0, 1);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// Defender Wins
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(1, 2, 3, 0, 6);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 			} else {
@@ -346,21 +350,21 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 				EMMNode tempA = node.clone();
 				tempA.setDiceRolls(4, 5, 6, 1, 2);
 				AIUtil.resolveAttackAction(tempA);
-				tempA.setTreePhase(GameTreeNode.ATTACK);
+				tempA.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempA);
 
 				// One Each
 				EMMNode tempB = node.clone();
 				tempB.setDiceRolls(1, 2, 6, 3, 5);
 				AIUtil.resolveAttackAction(tempB);
-				tempB.setTreePhase(GameTreeNode.ATTACK);
+				tempB.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempB);
 
 				// Defender Wins both
 				EMMNode tempC = node.clone();
 				tempC.setDiceRolls(1, 2, 3, 5, 6);
 				AIUtil.resolveAttackAction(tempC);
-				tempC.setTreePhase(GameTreeNode.ATTACK);
+				tempC.setTreePhase(NodeType.ATTACK);
 				stochasticActions.add(tempC);
 			}
 		}
@@ -525,7 +529,7 @@ public abstract class ExpectiminimaxPlayer extends AIPlayer {
 			bufferedWriter.write("\n\n<<Node " + node.getTreePhaseText()
 					+ " Expanded>>\n");
 
-			if (node.getTreePhase() == GameTreeNode.ATTACK) {
+			if (node.getTreePhase() == NodeType.ATTACK) {
 				bufferedWriter.write("\nAttacking from: "
 						+ node.getAttackSource() + " to "
 						+ node.getAttackDest() + " with "

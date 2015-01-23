@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Territory;
 
 /**
@@ -36,7 +36,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 		MCTSNode playNode = lastNode.clone();
 		while (!AIUtil.isTerminalNode(playNode)) {
 			switch (playNode.getTreePhase()) {
-			case GameTreeNode.RECRUIT: {
+			case RECRUIT: {
 
 				int number = AIUtil.calculateRecruitedTroops(playNode);
 
@@ -72,14 +72,14 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				playNode.setAttackSource(playNode.getRecruitedTer().getName());
 
-				playNode.setTreePhase(GameTreeNode.ATTACK);
+				playNode.setTreePhase(NodeType.ATTACK);
 				playNode.setMoveReq(false);
 
 				break;
 			}
 			// To fasten it up : memorizing lastAttackDest to directly attack it again.
 			// Then when it is no longer possible to attack (Manoeuvre - MoveAfterAttack), it goes back to null. 
-			case GameTreeNode.ATTACK: {
+			case ATTACK: {
 
 				Territory attackSource = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource());
@@ -89,7 +89,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 				// Determines whether should attack again
 				if (attackSource.getNrTroops() == 1) {
 					lastAttackDest = null;
-					playNode.setTreePhase(GameTreeNode.MANOEUVRE);
+					playNode.setTreePhase(NodeType.MANOEUVRE);
 					break;
 				}
 
@@ -112,7 +112,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 						//No interesting territory to attack.
 						if (minId == -1) {
 							lastAttackDest = null;
-							playNode.setTreePhase(GameTreeNode.MANOEUVRE);
+							playNode.setTreePhase(NodeType.MANOEUVRE);
 							break;
 						}
 
@@ -124,11 +124,11 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 				playNode.setAttackSource(attackSource.getName());
 				playNode.setAttackDest(playNode.getGame().getOtherPlayer()
 						.getTerritoryByID(minId).getName());
-				playNode.setTreePhase(GameTreeNode.RANDOMEVENT);
+				playNode.setTreePhase(NodeType.RANDOMEVENT);
 
 				break;
 			}
-			case GameTreeNode.RANDOMEVENT: {
+			case RANDOMEVENT: {
 				int sourceTroops = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource())
 						.getNrTroops();
@@ -167,14 +167,14 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 				AIUtil.resolveAttackAction(playNode);
 				if (playNode.moveRequired()) {
 					lastAttackDest=null; // Territory just conquered, no longer targeted.
-					playNode.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+					playNode.setTreePhase(NodeType.MOVEAFTERATTACK);
 				} else {
-					playNode.setTreePhase(GameTreeNode.ATTACK);
+					playNode.setTreePhase(NodeType.ATTACK);
 				}
 
 				break;
 			}
-			case GameTreeNode.MOVEAFTERATTACK: {
+			case MOVEAFTERATTACK: {
 				int totalTroops = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource())
 						.getNrTroops();
@@ -188,11 +188,11 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				playNode.setMoveReq(false);
 
-				playNode.setTreePhase(GameTreeNode.ATTACK);
+				playNode.setTreePhase(NodeType.ATTACK);
 
 				break;
 			}
-			case GameTreeNode.MANOEUVRE: {
+			case MANOEUVRE: {
 				AIUtil.updateRegions(playNode.getGame());
 				int minID = -1;
 				int min = Integer.MAX_VALUE;
@@ -228,7 +228,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 
 				//Should not happen - source at least will be considered as dest.
 				if (minID == -1) {
-					playNode.setTreePhase(GameTreeNode.RECRUIT);
+					playNode.setTreePhase(NodeType.RECRUIT);
 					playNode.switchMaxPlayer();
 					playNode.getGame().changeCurrentPlayer();
 					break;
@@ -242,7 +242,7 @@ public class MCTSMove_After_Simulate_Baseline_AI extends MCTSMove_After_Attack_A
 					dest.setNrTroops(total - (int) (total / 2.0));
 				}
 
-				playNode.setTreePhase(GameTreeNode.RECRUIT);
+				playNode.setTreePhase(NodeType.RECRUIT);
 				playNode.switchMaxPlayer();
 				playNode.getGame().changeCurrentPlayer();
 

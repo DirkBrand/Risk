@@ -13,8 +13,8 @@ import java.util.Random;
 
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.NodeType;
 import risk.aiplayers.util.Pair;
 import risk.commonObjects.Territory;
 
@@ -185,7 +185,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			double urgency = AIUtil.getUrgencyScore(currentNode, params);
 			// System.out.println(urgency);
 			if (currentNode.getChildren().size() == 0) {
-				if (currentNode.getTreePhase() == GameTreeNode.RANDOMEVENT) {
+				if (currentNode.getTreePhase() == NodeType.RANDOMEVENT) {
 					for (int i = 0; i < currentNode.maxChildren(); i++) {
 						treeNodeCount++;
 						// System.out.println("In Random expand");
@@ -225,7 +225,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 		MCTSNode selected = null;
 		double max = Double.NEGATIVE_INFINITY;
 
-		if (currentNode.getTreePhase() == GameTreeNode.RANDOMEVENT) {
+		if (currentNode.getTreePhase() == NodeType.RANDOMEVENT) {
 			Random r = new Random();
 			if (currentNode.getChildren().size() == 1) {
 				return currentNode.getChildren().get(0);
@@ -287,7 +287,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 		while (!AIUtil.isTerminalNode(playNode)) {
 			// System.out.println(playNode.getTreePhaseText());
 			switch (playNode.getTreePhase()) {
-			case GameTreeNode.RECRUIT: {
+			case RECRUIT: {
 				// Baseline AI recruit scheme
 
 				int number = AIUtil.calculateRecruitedTroops(playNode);
@@ -318,19 +318,19 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 
 				playNode.setAttackSource(playNode.getRecruitedTer().getName());
 
-				playNode.setTreePhase(GameTreeNode.ATTACK);
+				playNode.setTreePhase(NodeType.ATTACK);
 				playNode.setMoveReq(false);
 
 				break;
 			}
-			case GameTreeNode.ATTACK: {
+			case ATTACK: {
 
 				Territory attackSource = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource());
 
 				// Determines whether should attack again
 				if (attackSource.getNrTroops() == 1) {
-					playNode.setTreePhase(GameTreeNode.MANOEUVRE);
+					playNode.setTreePhase(NodeType.MANOEUVRE);
 					break;
 				}
 
@@ -351,18 +351,18 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				}
 
 				if (attackDest == null) {
-					playNode.setTreePhase(GameTreeNode.MANOEUVRE);
+					playNode.setTreePhase(NodeType.MANOEUVRE);
 					break;
 				}
 
 				playNode.setAttackSource(attackSource.getName());
 				playNode.setAttackDest(attackDest.getName());
 
-				playNode.setTreePhase(GameTreeNode.RANDOMEVENT);
+				playNode.setTreePhase(NodeType.RANDOMEVENT);
 
 				break;
 			}
-			case GameTreeNode.RANDOMEVENT: {
+			case RANDOMEVENT: {
 				int sourceTroops = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource())
 						.getNrTroops();
@@ -400,14 +400,14 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 
 				AIUtil.resolveAttackAction(playNode);
 				if (playNode.moveRequired()) {
-					playNode.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+					playNode.setTreePhase(NodeType.MOVEAFTERATTACK);
 				} else {
-					playNode.setTreePhase(GameTreeNode.ATTACK);
+					playNode.setTreePhase(NodeType.ATTACK);
 				}
 
 				break;
 			}
-			case GameTreeNode.MOVEAFTERATTACK: {
+			case MOVEAFTERATTACK: {
 				int totalTroops = playNode.getGame().getCurrentPlayer()
 						.getTerritoryByName(playNode.getAttackSource())
 						.getNrTroops();
@@ -421,11 +421,11 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 
 				playNode.setMoveReq(false);
 
-				playNode.setTreePhase(GameTreeNode.ATTACK);
+				playNode.setTreePhase(NodeType.ATTACK);
 
 				break;
 			}
-			case GameTreeNode.MANOEUVRE: {
+			case MANOEUVRE: {
 				AIUtil.updateRegions(playNode.getGame());
 				int minID = -1;
 				int min = Integer.MAX_VALUE;
@@ -456,7 +456,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 				}
 
 				if (minID == -1) {
-					playNode.setTreePhase(GameTreeNode.RECRUIT);
+					playNode.setTreePhase(NodeType.RECRUIT);
 					playNode.switchMaxPlayer();
 					playNode.getGame().changeCurrentPlayer();
 					break;
@@ -470,7 +470,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 					dest.setNrTroops(total - (int) (total / 2.0));
 				}
 
-				playNode.setTreePhase(GameTreeNode.RECRUIT);
+				playNode.setTreePhase(NodeType.RECRUIT);
 				playNode.switchMaxPlayer();
 				playNode.getGame().changeCurrentPlayer();
 
@@ -598,7 +598,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			}
 		}
 
-		if(node.getTreePhase() != GameTreeNode.RANDOMEVENT) {
+		if(node.getTreePhase() != NodeType.RANDOMEVENT) {
 			missedIt++; //Hash either not known or known but the child is present while we don't know its value. So, not really missed it ?
 			Double value = AIUtil.eval(node, AIParameter.evalWeights, maxRecruitable);
 			NodeValues.put(key, new Pair(value, false));
@@ -750,7 +750,7 @@ public abstract class MonteCarloTreeSearchPlayer extends AIPlayer {
 			bufferedWriter.write("\n\n<<Node " + node.getTreePhaseText()
 					+ " Expanded>>\n");
 
-			if (node.getTreePhase() == GameTreeNode.ATTACK) {
+			if (node.getTreePhase() == NodeType.ATTACK) {
 				bufferedWriter.write("\nAttacking from: "
 						+ node.getAttackSource() + " to "
 						+ node.getAttackDest() + " with "

@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Territory;
 
 public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
@@ -62,7 +62,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			double totalTroops = 0;
 
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
@@ -94,7 +94,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			break;
 		}
 
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();
 			while (it.hasNext()) {
@@ -119,7 +119,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 				count = 1;
 			break;
 		}
-		case GameTreeNode.RANDOMEVENT: {
+		case RANDOMEVENT: {
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -144,7 +144,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();
 			while (it.hasNext()) {
@@ -163,6 +163,9 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
+		// TODO: Insert assert false below?
+		case MOVEAFTERATTACK:
+			break;
 		}
 
 		lastNode.setMaxChildren(count);
@@ -173,7 +176,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 	protected MCTSNode Expand(MCTSNode lastNode) {
 
 		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			int troops = AIUtil.calculateRecruitedTroops(lastNode);
 
 			double average = lastNode.ave;
@@ -208,7 +211,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 							newChild.setRecruitedTer(newChild.getGame()
 									.getCurrentPlayer()
 									.getTerritoryByName(t.getName()));
-							newChild.setTreePhase(GameTreeNode.ATTACK);
+							newChild.setTreePhase(NodeType.ATTACK);
 
 							AIUtil.resolveRecruit(newChild,
 									newChild.getRecruitedTer());
@@ -232,7 +235,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 				average += 1;
 			}
 		}
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 			// Move after attack is resolved by moving all troops across.
 			if (lastNode.moveRequired()) {
 				AIUtil.resolveMoveAction(lastNode.getGame().getCurrentPlayer()
@@ -286,7 +289,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 								newChild.setParent(lastNode);
 								newChild.setChildren(new ArrayList<MCTSNode>());
 
-								newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
+								newChild.setTreePhase(NodeType.RANDOMEVENT);
 
 								newChild.setAttackSource(t.getName());
 								newChild.setAttackDest(n.getName());
@@ -316,7 +319,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 
 				newChild.setAttackSource("");
 				newChild.setAttackDest("");
-				newChild.setTreePhase(GameTreeNode.MANOEUVRE);
+				newChild.setTreePhase(NodeType.MANOEUVRE);
 
 				calculateMaxChildren(newChild);
 
@@ -330,7 +333,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
-		case GameTreeNode.RANDOMEVENT: {
+		case RANDOMEVENT: {
 
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
@@ -344,7 +347,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			newChild.setParent(lastNode);
 			newChild.setChildren(new ArrayList<MCTSNode>());
 
-			newChild.setTreePhase(GameTreeNode.ATTACK);
+			newChild.setTreePhase(NodeType.ATTACK);
 
 			// Attacker
 			if (sourceTroops == 2) {
@@ -432,7 +435,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 
 			return newChild;
 		} // Splits on possible manoeuvres to the minimum troop territory
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 			boolean atLeastOne = false;
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();
@@ -476,7 +479,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 						newChild.setParent(lastNode);
 						newChild.setChildren(new ArrayList<MCTSNode>());
 
-						newChild.setTreePhase(GameTreeNode.RECRUIT);
+						newChild.setTreePhase(NodeType.RECRUIT);
 
 						newChild.setManSource(newChild.getGame()
 								.getCurrentPlayer()
@@ -511,7 +514,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 				newChild.setParent(lastNode);
 				newChild.setChildren(new ArrayList<MCTSNode>());
 
-				newChild.setTreePhase(GameTreeNode.RECRUIT);
+				newChild.setTreePhase(NodeType.RECRUIT);
 
 				newChild.switchMaxPlayer();
 				newChild.getGame().changeCurrentPlayer();
@@ -528,6 +531,9 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
+		// TODO: Put assert false in the case below?
+		case MOVEAFTERATTACK:
+			break;
 		}
 
 		return null;
@@ -540,7 +546,7 @@ public class MCTSBaseline_AI extends MonteCarloTreeSearchPlayer {
 		LinkedList<String> reply = new LinkedList<String>();
 
 		MCTSNode root = new MCTSNode();
-		root.setTreePhase(GameTreeNode.ATTACK);
+		root.setTreePhase(NodeType.ATTACK);
 		root.setGame(game.clone());
 		root.setMaxPlayer(true);
 		root.setVisitCount(0);

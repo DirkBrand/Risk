@@ -9,7 +9,7 @@ import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
-import risk.aiplayers.util.GameTreeNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
@@ -67,7 +67,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 			if (t.getNrTroops() <= average && !AIUtil.isHinterland(node, t)) {
 				EMMNode temp = node.clone();
 				temp.setMoveReq(false);
-				temp.setTreePhase(EMMNode.ATTACK);
+				temp.setTreePhase(NodeType.ATTACK);
 
 				Territory recT = temp.getGame().getCurrentPlayer()
 						.getTerritoryByName(t.getName());
@@ -88,7 +88,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 		// lead);
 		if (AIFeatures.armyStrength(node) < params.EMMAttackThreshold) {
 			EMMNode noAttackNode = node.clone();
-			noAttackNode.setTreePhase(EMMNode.MANOEUVRE);
+			noAttackNode.setTreePhase(NodeType.MANOEUVRE);
 			noAttackNode.setAttackSource("");
 			noAttackNode.setAttackDest("");
 			noAttackNode.setMoveReq(false);
@@ -105,7 +105,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 			// Only consider fortified territories
 			if (t.getNrTroops() > 1 && !AIUtil.isHinterland(node, t)) {
 				EMMNode temp = node.clone();
-				temp.setTreePhase(EMMNode.RANDOMEVENT);
+				temp.setTreePhase(NodeType.RANDOMEVENT);
 
 				Territory source = temp.getGame().getCurrentPlayer()
 						.getTerritoryByName(t.getName());
@@ -160,7 +160,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 
 				AIUtil.resolveMoveAction(source, dest, 1);
 
-				temp.setTreePhase(EMMNode.RECRUIT);
+				temp.setTreePhase(NodeType.RECRUIT);
 				temp.switchMaxPlayer();
 				temp.getGame().changeCurrentPlayer();
 
@@ -191,7 +191,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 
 		for (int i = 1; i <= k; i++) {
 			EMMNode temp = node.clone();
-			temp.setTreePhase(GameTreeNode.ATTACK);
+			temp.setTreePhase(NodeType.ATTACK);
 			AIUtil.resolveMoveAction(temp.getGame().getCurrentPlayer()
 					.getTerritoryByName(source.getName()), temp.getGame()
 					.getCurrentPlayer().getTerritoryByName(dest.getName()), i);
@@ -224,7 +224,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 			if (!hinterland) {
 				EMMNode node = new EMMNode();
 				node.setGame(game.clone());
-				node.setTreePhase(EMMNode.ATTACK);
+				node.setTreePhase(NodeType.ATTACK);
 				node.setMaxPlayer(true);
 
 				node.setRecruitedTer(node.getGame().getCurrentPlayer()
@@ -275,7 +275,7 @@ public class EMMBaseline_AI extends ExpectiminimaxPlayer {
 
 			EMMNode node = new EMMNode();
 			node.setGame(game.clone());
-			node.setTreePhase(EMMNode.RANDOMEVENT);
+			node.setTreePhase(NodeType.RANDOMEVENT);
 			node.setMaxPlayer(true);
 
 			Territory source = node.getGame().getCurrentPlayer()

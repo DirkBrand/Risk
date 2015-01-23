@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import risk.aiplayers.ExpectiminimaxPlayer;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
-import risk.aiplayers.util.GameTreeNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
@@ -64,7 +64,7 @@ public class EMMGreedy_AI extends ExpectiminimaxPlayer {
 
 				EMMNode node = new EMMNode();
 				node.setGame(game.clone());
-				node.setTreePhase(GameTreeNode.ATTACK);
+				node.setTreePhase(NodeType.ATTACK);
 				node.setMaxPlayer(true);
 
 				Iterator<Territory> it = node.getGame().getCurrentPlayer()
@@ -112,7 +112,7 @@ public class EMMGreedy_AI extends ExpectiminimaxPlayer {
 		// Play with no attack as an option
 		EMMNode noAttackNode = new EMMNode();
 		noAttackNode.setGame(game.clone());
-		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
+		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
 		noAttackNode.setValue(AIUtil.eval(noAttackNode, weights, maxRecruitable));
 		noAttackNode.setAttackSource("");
 		noAttackNode.setAttackDest("");
@@ -129,7 +129,7 @@ public class EMMGreedy_AI extends ExpectiminimaxPlayer {
 					if (temp != null) {
 						EMMNode node = new EMMNode();
 						node.setGame(game.clone());
-						node.setTreePhase(GameTreeNode.RANDOMEVENT);
+						node.setTreePhase(NodeType.RANDOMEVENT);
 
 						node.setAttackSource(t.getName());
 						node.setAttackDest(temp.getName());

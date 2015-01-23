@@ -7,8 +7,8 @@ import java.util.Random;
 
 import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.NodeType;
 import risk.aiplayers.util.Pair;
 import risk.commonObjects.Territory;
 
@@ -35,7 +35,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 	@Override
 	protected MCTSNode Expand(MCTSNode lastNode) {
 		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			// Create permutation array
 			int n = AIUtil.calculateRecruitedTroops(lastNode);
 
@@ -75,7 +75,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						}
 					}
 
-					tempChild.setTreePhase(GameTreeNode.ATTACK);
+					tempChild.setTreePhase(NodeType.ATTACK);
 
 					double value;
 					tempChild.updateHash(lastNode);
@@ -130,7 +130,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			return maxChild;
 		}
 
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 			if (lastNode.numberOfAttackBranches == 0) {
 				lastNode.numberOfAttackBranches = Math.min(
 						params.MCTSAttackBranchQualityFactor,
@@ -145,7 +145,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				if (AIFeatures.occupiedTerritoryFeature(lastNode) < params.leadWinRate
 						&& AIFeatures.armyStrength(lastNode) < params.leadWinRate) {
 					MCTSNode noAttackChild = lastNode.clone();
-					noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
+					noAttackChild.setTreePhase(NodeType.MANOEUVRE);
 					noAttackChild.setAttackSource("");
 					noAttackChild.setAttackDest("");
 					noAttackChild.setValue(getValue(noAttackChild, lastNode));
@@ -167,7 +167,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 								MCTSNode newChild = lastNode.clone();
 								newChild.setAttackSource(t.getName());
 								newChild.setAttackDest(dest.getName());
-								newChild.setTreePhase(GameTreeNode.RANDOMEVENT);
+								newChild.setTreePhase(NodeType.RANDOMEVENT);
 								newChild.setValue(getWeightedEval(newChild, lastNode));
 								lastNode.attackChildren.add(newChild);
 							}
@@ -181,7 +181,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 			if (lastNode.attackChildren.size() == 0) {
 				MCTSNode noAttackChild = lastNode.clone();
-				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
+				noAttackChild.setTreePhase(NodeType.MANOEUVRE);
 				noAttackChild.setAttackSource("");
 				noAttackChild.setAttackDest("");
 				noAttackChild.setValue(getValue(noAttackChild, lastNode));
@@ -239,7 +239,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 						if (maxChild.getAttackDest().length() == 0) {
 							lastNode.noAttackAdded = true;
-							maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+							maxChild.setTreePhase(NodeType.MANOEUVRE);
 						}
 
 						maxChild.depth = lastNode.depth + 1;
@@ -255,7 +255,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 				if (maxChild == null) {
 					maxChild = lastNode.clone();
-					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+					maxChild.setTreePhase(NodeType.MANOEUVRE);
 					maxChild.setAttackSource("");
 					maxChild.setAttackDest("");
 					maxChild.updateHash(lastNode);
@@ -270,7 +270,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 				maxChild.setChildren(new ArrayList<MCTSNode>());
 
 				if (maxChild.getAttackDest().length() == 0) {
-					maxChild.setTreePhase(GameTreeNode.MANOEUVRE);
+					maxChild.setTreePhase(NodeType.MANOEUVRE);
 				}
 
 				maxChild.depth = lastNode.depth + 1;
@@ -284,7 +284,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			}
 		}
 
-		case GameTreeNode.RANDOMEVENT: {
+		case RANDOMEVENT: {
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -378,9 +378,9 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 			AIUtil.resolveAttackAction(newChild);
 			if (newChild.moveRequired()) {
-				newChild.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+				newChild.setTreePhase(NodeType.MOVEAFTERATTACK);
 			} else {
-				newChild.setTreePhase(GameTreeNode.ATTACK);
+				newChild.setTreePhase(NodeType.ATTACK);
 			}
 
 			getValue(newChild, lastNode);
@@ -396,7 +396,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 			return newChild;
 		}
 
-		case GameTreeNode.MOVEAFTERATTACK: {
+		case MOVEAFTERATTACK: {
 			//Sample of size one here.
 			int totalTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
@@ -422,7 +422,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 					newChild.setParent(lastNode);
 					newChild.setChildren(new ArrayList<MCTSNode>());
 
-					newChild.setTreePhase(GameTreeNode.ATTACK);
+					newChild.setTreePhase(NodeType.ATTACK);
 
 					AIUtil.resolveMoveAction(
 							newChild.getGame()
@@ -454,7 +454,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 		}
 
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 
 			if (lastNode.numberOfManoeuvreBranches == 0) {
 				lastNode.numberOfManoeuvreBranches = Math.min(
@@ -510,7 +510,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 
 				if (lastNode.maxChildren() == 1) {
 					maxChild = lastNode.clone();
-					maxChild.setTreePhase(GameTreeNode.RECRUIT);
+					maxChild.setTreePhase(NodeType.RECRUIT);
 					maxChild.switchMaxPlayer();
 					maxChild.getGame().changeCurrentPlayer();
 					maxChild.updateHash(lastNode);
@@ -560,7 +560,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						temp = lastNode.clone();
 						temp.setManSource(lastNode.manSources.get(middle));
 						temp.setManDest(lastNode.manDests.get(middle));
-						temp.setTreePhase(GameTreeNode.RECRUIT);
+						temp.setTreePhase(NodeType.RECRUIT);
 						temp.setManTroopCount(nrTroops + "");
 						AIUtil.resolveMoveAction(
 								temp.getGame()
@@ -576,7 +576,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						temp.getGame().changeCurrentPlayer();
 					} else {
 						temp = lastNode.clone();
-						temp.setTreePhase(GameTreeNode.RECRUIT);
+						temp.setTreePhase(NodeType.RECRUIT);
 						temp.switchMaxPlayer();
 						temp.getGame().changeCurrentPlayer();
 					}
@@ -623,7 +623,7 @@ public class MCTSSample_Duplic_AI extends MCTSMove_After_Attack_AI{
 						maxChild.setParent(lastNode);
 						maxChild.setChildren(new ArrayList<MCTSNode>());
 
-						maxChild.setTreePhase(GameTreeNode.RECRUIT);
+						maxChild.setTreePhase(NodeType.RECRUIT);
 						maxChild.switchMaxPlayer();
 						maxChild.getGame().changeCurrentPlayer();
 

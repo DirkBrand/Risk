@@ -11,7 +11,7 @@ import risk.aiplayers.util.AIFeatures;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
 import risk.aiplayers.util.EMMNode;
-import risk.aiplayers.util.GameTreeNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.GameState;
 import risk.commonObjects.Territory;
 
@@ -47,7 +47,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 		int troops = rand.nextInt(source.getNrTroops() - 1) + 1;
 
 		EMMNode temp = node.clone();
-		temp.setTreePhase(GameTreeNode.ATTACK);
+		temp.setTreePhase(NodeType.ATTACK);
 		AIUtil.resolveMoveAction(temp.getGame().getCurrentPlayer()
 				.getTerritoryByName(source.getName()), temp.getGame()
 				.getCurrentPlayer().getTerritoryByName(dest.getName()), troops);
@@ -76,7 +76,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 			AIUtil.shuffleArray(perm);
 
 			EMMNode temp = node.clone();
-			temp.setTreePhase(GameTreeNode.ATTACK);
+			temp.setTreePhase(NodeType.ATTACK);
 
 			Iterator<Territory> it = temp.getGame().getCurrentPlayer()
 					.getTerritories().values().iterator();
@@ -104,7 +104,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 
 		// No attack is added as an option by default
 		EMMNode noAttackNode = node.clone();
-		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
+		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
 		noAttackNode.setAttackSource("");
 		noAttackNode.setAttackDest("");
 		noAttackNode.setMoveReq(false);
@@ -121,7 +121,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 							.getTerritoryByName(n.getName());
 					if (dest != null) {
 						EMMNode tempNode = node.clone();
-						tempNode.setTreePhase(GameTreeNode.RANDOMEVENT);
+						tempNode.setTreePhase(NodeType.RANDOMEVENT);
 						tempNode.setAttackSource(t.getName());
 						tempNode.setAttackDest(dest.getName());
 						attackTerCombos.add(tempNode);
@@ -178,7 +178,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 		// maneuvering
 		if (count == 0) {
 			EMMNode temp = node.clone();
-			temp.setTreePhase(GameTreeNode.RECRUIT);
+			temp.setTreePhase(NodeType.RECRUIT);
 			temp.switchMaxPlayer();
 			temp.getGame().changeCurrentPlayer();
 
@@ -234,7 +234,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 					.getCurrentPlayer().getTerritoryByName(dest.getName()),
 					troopNumber);
 
-			temp.setTreePhase(GameTreeNode.RECRUIT);
+			temp.setTreePhase(NodeType.RECRUIT);
 			temp.switchMaxPlayer();
 			temp.getGame().changeCurrentPlayer();
 
@@ -276,7 +276,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 
 			EMMNode node = new EMMNode();
 			node.setGame(game.clone());
-			node.setTreePhase(GameTreeNode.ATTACK);
+			node.setTreePhase(NodeType.ATTACK);
 			node.setMaxPlayer(true);
 
 			Iterator<Territory> it = node.getGame().getCurrentPlayer()
@@ -345,7 +345,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 					if (temp != null) {
 						EMMNode node = new EMMNode();
 						node.setGame(game.clone());
-						node.setTreePhase(GameTreeNode.RANDOMEVENT);
+						node.setTreePhase(NodeType.RANDOMEVENT);
 						node.setMaxPlayer(true);
 
 						node.setAttackSource(t.getName());
@@ -360,7 +360,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 		// Play with no attack as an option
 		EMMNode noAttackNode = new EMMNode();
 		noAttackNode.setGame(game.clone());
-		noAttackNode.setTreePhase(GameTreeNode.MANOEUVRE);
+		noAttackNode.setTreePhase(NodeType.MANOEUVRE);
 		noAttackNode.setMaxPlayer(true);
 		noAttackNode.setAttackDest("");
 		noAttackNode.setAttackSource("");
@@ -494,7 +494,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 				// Not maneuvering
 				EMMNode temp = new EMMNode();
 				temp.setGame(game.clone());
-				temp.setTreePhase(GameTreeNode.RECRUIT);
+				temp.setTreePhase(NodeType.RECRUIT);
 				temp.setMaxPlayer(false);
 				maximum = EMM_AB(temp, maxDepth, Double.NEGATIVE_INFINITY,
 						Double.POSITIVE_INFINITY);
@@ -546,7 +546,7 @@ public class EMM_Random_AI extends ExpectiminimaxPlayer {
 					.getCurrentPlayer().getTerritoryByName(dest.getName()),
 					troopNumber);
 
-			temp.setTreePhase(GameTreeNode.RECRUIT);
+			temp.setTreePhase(NodeType.RECRUIT);
 			temp.setMaxPlayer(false);
 			temp.getGame().changeCurrentPlayer();
 

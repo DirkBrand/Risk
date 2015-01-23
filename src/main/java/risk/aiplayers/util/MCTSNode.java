@@ -82,7 +82,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			copy.setManDest(tempManD);
 		}
 		
-		if(this.getTreePhase() != RECRUIT) { //TODO:manSrc and Dest is kept otherwise and bring errors. ??
+		if(this.getTreePhase() != NodeType.RECRUIT) { //TODO:manSrc and Dest is kept otherwise and bring errors. ??
 			copy.setManDest(null);
 			copy.setManSource(null);
 		}
@@ -228,24 +228,25 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 		if (maxChildren < 0) {
 			// Set the maxChildren variable appropriately
 			// TODO: Replace this switch by appropriate method overloading on type of Node/NodeHandler
+			// TODO: Alternatively shift into the enum itself?
 			switch (getTreePhase()) {
-			case GameTreeNode.RECRUIT: {
+			case RECRUIT: {
 				setMaxChildrenRecruit();
 				break;
 			}
-			case GameTreeNode.ATTACK: {
+			case ATTACK: {
 				setMaxChildrenAttack();
 				break;
 			}
-			case GameTreeNode.MOVEAFTERATTACK: {
+			case MOVEAFTERATTACK: {
 				setMaxChildrenMoveAfterAttack();
 				break;
 			}
-			case GameTreeNode.RANDOMEVENT: {
+			case RANDOMEVENT: {
 				setMaxChildrenRandomEvent();
 				break;
 			}
-			case GameTreeNode.MANOEUVRE: {
+			case MANOEUVRE: {
 				setMaxChildrenManouevre();
 				break;
 			}
@@ -260,7 +261,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			return this.hashCode;
 		}
 		long key = 0;
-		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
+		Iterator<Territory> It = getGame().getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -275,8 +276,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			key = key ^ za;
 		}
 
-		key = key ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
-		key = key ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+		key = key ^ AIPlayer.ZobristPlayerFactor[getGame().getCurrentPlayerID()];
+		key = key ^ AIPlayer.ZobristPhaseFactor.get(getTreePhase());
 
 		/* If it is a phase coming from attack : we have to know AttackSource and Destination to distinguish
 		 * between multiple attack possibilities. The thing is, if there actually is an AttackSource and Destination
@@ -307,7 +308,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			int playerId = parent.getGame().getCurrentPlayerID();
 			switch(parent.getTreePhase()) {
 			//Child in ATTACK
-			case(RECRUIT): {
+			case RECRUIT: {
 				Iterator<Territory> Itp = parent.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				Iterator<Territory> Itc = this.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				while (Itp.hasNext() && Itc.hasNext()) {
@@ -326,8 +327,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in RE or MANOEUVRE
-			case(ATTACK): {
-				if(this.getTreePhase() == RANDOMEVENT) {
+			case ATTACK: {
+				if(this.getTreePhase() == NodeType.RANDOMEVENT) {
 					Territory Source = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackSource());
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(this.getAttackDest());
 					int sourceId = Source.getId();
@@ -335,17 +336,17 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
 					childHash = childHash ^ AIPlayer.ZobristAttackSource[sourceId-1];			
 				}
-				else if(this.getTreePhase() == MANOEUVRE) {
+				else if(this.getTreePhase() == NodeType.MANOEUVRE) {
 					// Nothing to do here ? - no AttackDest|Source
 				}
 				else System.out.println("Little John is looking for his mom TreePhase " + this.getTreePhaseText() + " " + parent.getHash());
 				break;
 			}
 			//Child in ATTACK or MOA
-			case(RANDOMEVENT): {
+			case RANDOMEVENT: {
 				Territory Source = this.getGame().getCurrentPlayer().getTerritoryByName(parent.getAttackSource());
 				// Still other player's territory
-				if(this.getTreePhase() == ATTACK) {
+				if(this.getTreePhase() == NodeType.ATTACK) {
 					Territory Dest = this.getGame().getOtherPlayer().getTerritoryByName(parent.getAttackDest());
 					int destId = Dest.getId();
 					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -357,7 +358,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 					childHash = childHash ^ AIPlayer.ZobristAttackDestination[destId-1];
 				}
 				//OtherPlayer lost this territory
-				else if(this.getTreePhase() == MOVEAFTERATTACK) {
+				else if(getTreePhase() == NodeType.MOVEAFTERATTACK) {
 					Territory Dest = this.getGame().getCurrentPlayer().getTerritoryByName(this.getAttackDest());
 					int destId = Dest.getId();
 					int troopP = Math.min(parent.getGame().getOtherPlayer().getTerritoryByID(destId).getNrTroops(), AIPlayer.MAX_TROOPS);
@@ -383,7 +384,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in ATTACK
-			case(MOVEAFTERATTACK): {//TODO : Clear this thing. Is there a faster way ?
+			case MOVEAFTERATTACK: {//TODO : Clear this thing. Is there a faster way ?
 				Iterator<Territory> Itp = parent.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				Iterator<Territory> Itc = this.getGame().getCurrentPlayer().getTerritories().values().iterator();
 				while (Itp.hasNext() && Itc.hasNext()) {
@@ -402,7 +403,7 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 				break;
 			}
 			//Child in RECRUIT - Other player.
-			case(MANOEUVRE): {
+			case MANOEUVRE: {
 				//No manoeuvre this turn.
 				if(this.getManSource()==null && this.getManDest() == null) {
 					//Changing player in hashcode
@@ -460,8 +461,8 @@ public class MCTSNode extends GameTreeNode implements Cloneable {
 			}
 			}
 			// Changing game phase in hashcode
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[parent.getTreePhase()];
-			childHash = childHash ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+			childHash = childHash ^ AIPlayer.ZobristPhaseFactor.get(parent.getTreePhase());
+			childHash = childHash ^ AIPlayer.ZobristPhaseFactor.get(getTreePhase());
 			this.setHash(childHash);
 		}
 		else {

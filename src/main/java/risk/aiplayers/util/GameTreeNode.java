@@ -9,7 +9,7 @@ import risk.commonObjects.Territory;
 public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode>{
 
 	private GameState game;
-	private int treePhase;
+	private NodeType treePhase;
 	private boolean maxPlayer;
 	private double value;
 
@@ -60,7 +60,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 	
 	public long getHash() {
 		long key = 0;
-		Iterator<Territory> It = this.getGame().getPlayers().get(0).getTerritories().values().iterator();
+		Iterator<Territory> It = getGame().getPlayers().get(0).getTerritories().values().iterator();
 		while (It.hasNext()) {
 			Territory t = It.next();
 			int troopNumber = Math.min(t.getNrTroops(), 49);
@@ -75,8 +75,8 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 			key = key ^ za;
 		}
 
-		key = key ^ AIPlayer.ZobristPlayerFactor[this.getGame().getCurrentPlayerID()];
-		key = key ^ AIPlayer.ZobristPhaseFactor[this.getTreePhase()];
+		key = key ^ AIPlayer.ZobristPlayerFactor[getGame().getCurrentPlayerID()];
+		key = key ^ AIPlayer.ZobristPhaseFactor.get(getTreePhase());
 
 		/* If it is a phase coming from attack : we have to know AttackSource and Destination to distinguish
 		 * between multiple attack possibilities. The thing is, if there actually is an AttackSource and Destination
@@ -117,7 +117,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		this.value = value;
 	}
 
-	public int getTreePhase() {
+	public NodeType getTreePhase() {
 		return treePhase;
 	}
 
@@ -142,7 +142,7 @@ public abstract class GameTreeNode implements Cloneable, Comparable<GameTreeNode
 		return null;
 	}
 
-	public void setTreePhase(int treePhase) {
+	public void setTreePhase(NodeType treePhase) {
 		this.treePhase = treePhase;
 	}
 

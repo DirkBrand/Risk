@@ -9,8 +9,8 @@ import java.util.Random;
 import risk.aiplayers.MonteCarloTreeSearchPlayer;
 import risk.aiplayers.util.AIParameter;
 import risk.aiplayers.util.AIUtil;
-import risk.aiplayers.util.GameTreeNode;
 import risk.aiplayers.util.MCTSNode;
+import risk.aiplayers.util.NodeType;
 import risk.commonObjects.Territory;
 
 public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
@@ -31,7 +31,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 	protected void calculateMaxChildren(MCTSNode lastNode) {
 		int count = 0;
 		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			int troops = AIUtil.calculateRecruitedTroops(lastNode);
 
 			int n = troops;
@@ -41,7 +41,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 			break;
 		}
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 			count = 1;
 			lastNode.noAttackAdded = false;
 			Iterator<Territory> it = lastNode.getGame().getCurrentPlayer()
@@ -64,7 +64,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 			break;
 		}
-		case GameTreeNode.MOVEAFTERATTACK: {
+		case MOVEAFTERATTACK: {
 			count = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getParent().getAttackSource())
 					.getNrTroops() - 1;
@@ -73,7 +73,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
-		case GameTreeNode.RANDOMEVENT: {
+		case RANDOMEVENT: {
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -98,7 +98,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			}
 			break;
 		}
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 			int size = AIUtil.updateRegions(lastNode.getGame());
 			// Create list of connected components
 			lastNode.setConnComponentBuckets(new LinkedList<LinkedList<Territory>>());
@@ -145,7 +145,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 	protected MCTSNode Expand(MCTSNode lastNode) {
 		// System.out.println(lastNode.getTreePhaseText());
 		switch (lastNode.getTreePhase()) {
-		case GameTreeNode.RECRUIT: {
+		case RECRUIT: {
 			// System.out.println("Recruit 1");
 
 			// Create permutation array
@@ -190,7 +190,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			maxChild.setParent(lastNode);
 			maxChild.setChildren(new ArrayList<MCTSNode>());
 
-			maxChild.setTreePhase(GameTreeNode.ATTACK);
+			maxChild.setTreePhase(NodeType.ATTACK);
 
 			maxChild.setMoveReq(false);
 
@@ -205,14 +205,14 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			return maxChild;
 		}
 
-		case GameTreeNode.ATTACK: {
+		case ATTACK: {
 
 			Random r = new Random();
 
 			if (lastNode.attackChildren == null) {
 				lastNode.attackChildren = new ArrayList<MCTSNode>();
 				MCTSNode noAttackChild = lastNode.clone();
-				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
+				noAttackChild.setTreePhase(NodeType.MANOEUVRE);
 				noAttackChild.setAttackSource("");
 				noAttackChild.setAttackDest("");
 				// Add option to not attack
@@ -245,7 +245,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 				MCTSNode noAttackChild = lastNode.clone();
 				noAttackChild.setAttackSource("");
 				noAttackChild.setAttackDest("");
-				noAttackChild.setTreePhase(GameTreeNode.MANOEUVRE);
+				noAttackChild.setTreePhase(NodeType.MANOEUVRE);
 				// Add option to not attack
 				lastNode.attackChildren.add(noAttackChild);
 			}
@@ -269,9 +269,9 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			child.setChildren(new ArrayList<MCTSNode>());
 
 			if (child.getAttackDest().length() == 0) {
-				child.setTreePhase(GameTreeNode.MANOEUVRE);
+				child.setTreePhase(NodeType.MANOEUVRE);
 			} else {
-				child.setTreePhase(GameTreeNode.RANDOMEVENT);
+				child.setTreePhase(NodeType.RANDOMEVENT);
 			}
 
 			child.setMoveReq(false);
@@ -287,7 +287,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			return child;
 		}
 
-		case GameTreeNode.RANDOMEVENT: {
+		case RANDOMEVENT: {
 
 			int sourceTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
@@ -381,9 +381,9 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 			AIUtil.resolveAttackAction(newChild);
 			if (newChild.moveRequired()) {
-				newChild.setTreePhase(GameTreeNode.MOVEAFTERATTACK);
+				newChild.setTreePhase(NodeType.MOVEAFTERATTACK);
 			} else {
-				newChild.setTreePhase(GameTreeNode.ATTACK);
+				newChild.setTreePhase(NodeType.ATTACK);
 			}
 			calculateMaxChildren(newChild);
 
@@ -397,7 +397,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			return newChild;
 		}
 
-		case GameTreeNode.MOVEAFTERATTACK: {
+		case MOVEAFTERATTACK: {
 			int totalTroops = lastNode.getGame().getCurrentPlayer()
 					.getTerritoryByName(lastNode.getAttackSource())
 					.getNrTroops();
@@ -421,7 +421,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 					newChild.setParent(lastNode);
 					newChild.setChildren(new ArrayList<MCTSNode>());
 
-					newChild.setTreePhase(GameTreeNode.ATTACK);
+					newChild.setTreePhase(NodeType.ATTACK);
 
 					AIUtil.resolveMoveAction(
 							newChild.getGame()
@@ -452,7 +452,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 
 		}
 
-		case GameTreeNode.MANOEUVRE: {
+		case MANOEUVRE: {
 
 			// No territories with more than 1 troop. Thus only option is
 			// not
@@ -464,7 +464,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 				newChild.setParent(lastNode);
 				newChild.setChildren(new ArrayList<MCTSNode>());
 
-				newChild.setTreePhase(GameTreeNode.RECRUIT);
+				newChild.setTreePhase(NodeType.RECRUIT);
 
 				newChild.switchMaxPlayer();
 				newChild.getGame().changeCurrentPlayer();
@@ -540,7 +540,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 			child.setParent(lastNode);
 			child.setChildren(new ArrayList<MCTSNode>());
 
-			child.setTreePhase(GameTreeNode.RECRUIT);
+			child.setTreePhase(NodeType.RECRUIT);
 
 			child.setMoveReq(false);
 			child.switchMaxPlayer();
@@ -573,7 +573,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		myTurn = true;
 
 		MCTSNode root = new MCTSNode();
-		root.setTreePhase(GameTreeNode.RECRUIT);
+		root.setTreePhase(NodeType.RECRUIT);
 		root.setGame(game.clone());
 		root.setMaxPlayer(true);
 		root.setVisitCount(0);
@@ -612,7 +612,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		LinkedList<String> reply = new LinkedList<String>();
 
 		MCTSNode root = new MCTSNode();
-		root.setTreePhase(GameTreeNode.ATTACK);
+		root.setTreePhase(NodeType.ATTACK);
 		root.setGame(game.clone());
 		root.setMaxPlayer(true);
 		root.setVisitCount(0);
@@ -671,7 +671,7 @@ public class MCTSRandom_AI extends MonteCarloTreeSearchPlayer {
 		LinkedList<String> reply = new LinkedList<String>();
 
 		MCTSNode root = new MCTSNode();
-		root.setTreePhase(GameTreeNode.MANOEUVRE);
+		root.setTreePhase(NodeType.MANOEUVRE);
 		root.setGame(game.clone());
 		root.setMaxPlayer(true);
 		root.setVisitCount(0);
