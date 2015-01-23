@@ -2,11 +2,6 @@ package risk.aiGameCoordinator;
 
 import risk.aiplayers.AIPlayer;
 import risk.aiplayers.EMMPlayers.EMMGreedy_AI;
-import risk.aiplayers.paperplayers.S_BaselineAI;
-import risk.aiplayers.paperplayers.S_EMM_AI;
-import risk.aiplayers.paperplayers.S_MCTS_AI;
-import risk.aiplayers.paperplayers.S_MCTS_Explore_AI;
-import risk.aiplayers.paperplayers.S_MCTS_Naive_AI;
 
 public class GameCoordinatorForClop {
 	static String AI1_Name;
@@ -93,28 +88,8 @@ public class GameCoordinatorForClop {
 		public void run() {
 			// Start AI
 			switch (ai1) {
-			case "BaselineAI": {
-				theAI = new S_BaselineAI(ai1, ai2, theMap, id);
-				break;
-			}
 			case "GreedyAI": {
 				theAI = new EMMGreedy_AI(ai1, ai2, theMap, id, weights);
-				break;
-			}
-			case "EMMAI": {
-				theAI = new S_EMM_AI(ai1, ai2, theMap, id, 4);
-				break;
-			}
-			case "MCTSAI": {
-				theAI = new S_MCTS_AI(ai1, ai2, theMap, id, 5000);
-				break;
-			}
-			case "MCTSNaiveAI": {
-				theAI = new S_MCTS_Naive_AI(ai1, ai2, theMap, id, 5000);
-				break;
-			}
-			case "GreedyFixedAI": {
-				theAI = new S_MCTS_Explore_AI(ai1, ai2, theMap, id, 5000);
 				break;
 			}
 			default: {
